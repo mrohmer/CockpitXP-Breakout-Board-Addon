@@ -39,30 +39,13 @@ jobs:
           path: packages/addon/dist
       - name: Copy files to dist
         run: | 
-          mkdir -p dist/addon
-          cp -a packages/addon/dist/. dist/addon
+          mkdir -p dist/mr-breakout-board-addon
+          cp -a packages/addon/dist/. dist/mr-breakout-board-addon
+          cp readme.md dist/mr-breakout-board-addon
       - name: Zip Assets
         run: |
-          cp readme.md dist
           cd dist
-          zip "../dist" -r ./**
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          zip "../mr-breakout-board-addon" -r ./**
+      - uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist.zip
-          asset_name: addon-${{ github.ref }}.zip
-          asset_content_type: application/zip
+          artifacts: "mr-breakout-board-addon.zip"
