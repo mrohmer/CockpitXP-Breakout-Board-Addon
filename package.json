@@ -1,0 +1,9 @@
+{
+  "name": "arduino-communication-addon",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node scripts/build",
+    "values": "node scripts/calc-possible-values"
+  },
+  "private": true
+}

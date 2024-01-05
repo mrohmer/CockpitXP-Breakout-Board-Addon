@@ -1,0 +1,69 @@
+#!/usr/bin/env node
+
+const exec = (bits, chunkBits, parityAtBeginning) => {
+    const getMaxNumber = (bitsLength) => Math.pow(2, bitsLength) - 1;
+    const generateNumberArray = (bitsLength) => {
+        const maxNbr = getMaxNumber(bitsLength);
+
+        const array = Array.from(Array(maxNbr + 1));
+        return array.map((_, index) => index);
+    }
+    const nbrToBinaryDigetsStr = (nbr, length) => nbr.toString(2).padStart(length, '0');
+    const calcParityBit = (binaryStr) => {
+        const arr = binaryStr.split('');
+
+        return arr.filter(bit => bit === '1').length % 2;
+    }
+    const chunkArray = (arr, chunkSize) =>
+        arr.reduce((prev, curr, index) => {
+            const ch = Math.floor(index / Math.max(chunkSize ?? 0, 1));
+            prev[ch] = [...(prev[ch] ?? []), curr];
+            return prev;
+        }, []);
+    const chunkBitStr = (str, chunkSize) =>
+        chunkArray(str.split('').reverse(), chunkSize).reverse().map(i => i.reverse())
+
+    const bitPacketsAreEliminated = (packets) => packets.some(i => !i.includes('1'));
+
+    const results = generateNumberArray(bits)
+        .map(nbr => {
+            const binary = nbrToBinaryDigetsStr(nbr, bits);
+            const parityBit = calcParityBit(binary);
+            const bitPackets = chunkBitStr(binary, chunkBits);
+            const bitPacketsWithParityBit = chunkBitStr(parityAtBeginning ? `${parityBit}${binary}` : `${binary}${parityBit}`, chunkBits);
+
+            const eliminated = bitPacketsAreEliminated(bitPacketsWithParityBit)
+
+            return {nbr, binary, bitPackets, parityBit, eliminated, bitPacketsWithParityBit};
+        });
+
+    const stats = results.reduce(
+        (prev, {eliminated}) => ({
+            eliminated: prev.eliminated + +eliminated,
+            valid: prev.valid + +!eliminated,
+        }),
+        {eliminated: 0, valid: 0},
+    )
+
+    const maxNumber = getMaxNumber(bits);
+    const getChunkAmount = Math.ceil(nbrToBinaryDigetsStr(maxNumber, bits).split('').length / chunkBits);
+
+    const binaryColumnLength = bits + (getChunkAmount - 1) * 3 + 3;
+    const decimalColumnLength = Math.max(maxNumber.toString().split('').length, 'dec'.length)
+    console.log(`| ${'binary'.padEnd(binaryColumnLength, ' ')} | ${'dec'.padEnd(decimalColumnLength, ' ')} | valid | mapping |`);
+    console.log(`|-${'---'.padStart(binaryColumnLength, '-')}-|-${'-'.padEnd(decimalColumnLength, '-')}-|-${'-'.padEnd('valid'.length, '-')}-|-${'-'.padEnd('mapping'.length, '-')}-|`);
+    results.forEach(({nbr, bitPacketsWithParityBit, parityBit, eliminated}) => {
+        const chunkedBinary = bitPacketsWithParityBit.map(i => i.join('')).join(' - ');
+        const preparedBinary = parityAtBeginning ? chunkedBinary.replace(/^./, `(${parityBit})`) : chunkedBinary.replace(/.$/, `(${parityBit})`)
+
+        console.log(`| ${preparedBinary} | ${nbr.toString().padStart(decimalColumnLength, '.')} | ${(eliminated ? '❌' : '✅').padEnd('valid'.length, ' ')} | ${''.padEnd('mapping'.length, ' ')} |`)
+    });
+
+    console.log('');
+    console.log(`Stats for ${bits}bits in chunks of ${chunkBits} with 1 ${parityAtBeginning ? 'leading' : 'appended'} parity bit`);
+    console.log('total:', results.length);
+    console.log('valid:', stats.valid);
+    console.log('eliminated:', stats.eliminated);
+};
+
+exec(8, 3, true);
