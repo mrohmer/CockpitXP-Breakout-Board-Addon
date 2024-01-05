@@ -10,7 +10,7 @@ jobs:
     name: Build Addon
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -32,14 +32,15 @@ jobs:
     needs:
       - build-addon
     steps:
-      - uses: actions/checkout@v2
-      - uses: arduino/setup-task@v1
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: addon
           path: packages/addon/dist
       - name: Copy files to dist
-        run: cp -a packages/addon/dist/. dist/addon
+        run: | 
+          mkdir -p dist/addon
+          cp -a packages/addon/dist/. dist/addon
       - name: Zip Assets
         run: |
           cp readme.md dist
