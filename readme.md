@@ -6,7 +6,7 @@
 
 To be able to send more than 15 different signals, we want to split a bigger number into smaller chunks of bits.
 But as we can't rely on a certain execution time in a cockpit xp addon we need to have one bit as clock, with a
-raising & falling flank as the signal.
+raising flank.
 
 As I would like to keep the general execution time as low as possible, I would like to decrease the initialisation
 signal as short as possible.

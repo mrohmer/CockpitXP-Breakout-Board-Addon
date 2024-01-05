@@ -2,9 +2,14 @@
 { Event: StartRealTime }
 { Parameter: Keine }
 
+{%%PROCEDURE.InitTable%%}
+{%%PROCEDURE.EnqueueEvent%%}
 
 begin
   cpSetIntegerVar('Exit', 0);
+
+  InitTable();
+  EnqueueResetAllEvent();
 
   while (True) do
   begin
@@ -13,6 +18,8 @@ begin
       exit;
     end;
 
-    cpSleep(500);
+    ProcessNextInQueue();
+
+    cpSleep(100);
   end;
 end.
