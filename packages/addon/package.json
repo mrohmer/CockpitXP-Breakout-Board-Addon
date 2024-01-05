@@ -1,0 +1,7 @@
+{
+  "name": "@rohmer/cockpit-xp-breakout-board-addon",
+  "scripts": {
+    "build": "node scripts/build"
+  },
+  "private": true
+}

@@ -15,7 +15,7 @@ So every sent piece of data is prefixed with a single event of all zero values.
 
 Besides that it would be nice to have one bit as parity bit to ensure correct data to be transferred.
 
-## Events
+### Events
 
 1. Reset all
 
@@ -87,7 +87,7 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 1. Virtual Safety Car on
 1. Virtual Safety Car off
 
-## Mapping
+### Mapping
 
 Even though we would need 6bit to encode the numbers for every event we need to take into account that we can't use
 every possible value due to the conflicts with the sync event (eg every value below 8 as it starts with a block of 000).
@@ -96,8 +96,6 @@ As we want to add another bit for parity the next step would be 9bit long events
 
 This results in total 256 possible values. 85 are eliminated as it would include a sequence of 000 but leaves 171 valid
 values.
-
-### Mapping
 
 | binary            | dec | valid | mapping                                |
 |-------------------|-----|-------|----------------------------------------|

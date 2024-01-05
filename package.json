@@ -1,9 +1,25 @@
 {
-  "name": "arduino-communication-addon",
-  "version": "1.0.0",
+  "name": "@rohmer/cockpit-xp-breakout-board-root",
   "scripts": {
-    "build": "node scripts/build",
-    "values": "node scripts/calc-possible-values"
+    "build": "turbo run build",
+    "values": "node scripts/calc-possible-values",
+    "prepare": "husky install"
+  },
+  "volta": {
+    "node": "18.16.0",
+    "pnpm": "8.9.0"
+  },
+  "engines": {
+    "node": "^18 || ^19 || ^20",
+    "npm": "please-use-pnpm",
+    "pnpm": "^8",
+    "yarn": "please-use-pnpm"
+  },
+  "devDependencies": {
+    "turbo": "1.11.3",
+    "@commitlint/cli": "18.4.4",
+    "@commitlint/config-conventional": "18.4.4",
+    "husky": "8.0.3"
   },
   "private": true
 }
