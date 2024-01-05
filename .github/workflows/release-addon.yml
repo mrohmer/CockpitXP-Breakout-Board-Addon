@@ -22,7 +22,7 @@ jobs:
         run: pnpm install
       - name: Build
         run: pnpm build
-      - uses: actions/upload-artifact@master
+      - uses: actions/upload-artifact@v4
         with:
           name: addon
           path: packages/addon/dist
@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: arduino/setup-task@v1
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: addon
           path: packages/addon/dist
