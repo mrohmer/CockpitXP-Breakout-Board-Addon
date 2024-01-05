@@ -79,7 +79,8 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 1. Starting light 4
 1. Starting light 5
 1. Starting light off
-1. Starting light false start
+
+1. False start
 
 1. New track record
 1. Mew session record
@@ -141,7 +142,7 @@ values.
 | (0)00 - 100 - 111 | .39 | ❌     |                                        |
 | (0)00 - 101 - 000 | .40 | ❌     |                                        |
 | (1)00 - 101 - 001 | .41 | ✅     | Starting light 5                       |
-| (1)00 - 101 - 010 | .42 | ✅     | Starting light false start             |
+| (1)00 - 101 - 010 | .42 | ✅     | False start                            |
 | (0)00 - 101 - 011 | .43 | ❌     |                                        |
 | (1)00 - 101 - 100 | .44 | ✅     |                                        |
 | (0)00 - 101 - 101 | .45 | ❌     |                                        |
