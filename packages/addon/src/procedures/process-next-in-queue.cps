@@ -64,9 +64,9 @@ end;
 
 procedure SendPackage(package: String);
 begin
-  cpSetOutput('Pin1', LeftStr(package, 1) = '1');
-  cpSetOutput('Pin2', RightStr(LeftStr(package, 2), 1) = '1');
-  cpSetOutput('Pin3', RightStr(package, 1) = '1');
+  cpSetOutput('Data1', LeftStr(package, 1) = '1');
+  cpSetOutput('Data2', RightStr(LeftStr(package, 2), 1) = '1');
+  cpSetOutput('Data3', RightStr(package, 1) = '1');
   cpSetOutput('Clock', true);
 end;
 

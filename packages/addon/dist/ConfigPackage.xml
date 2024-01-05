@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<ConfigPackage>
+    <IOConfig>
+        <DigOutput name="Clock" devicenumber="1" number="9"></DigOutput>
+        <DigOutput name="Data1" devicenumber="1" number="10"></DigOutput>
+        <DigOutput name="Data2" devicenumber="1" number="11"></DigOutput>
+        <DigOutput name="Data3" devicenumber="1" number="12"></DigOutput>
+    </IOConfig>
+</ConfigPackage>
