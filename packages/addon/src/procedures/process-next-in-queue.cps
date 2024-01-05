@@ -88,23 +88,23 @@ begin
   try
     SendPackage(event.package1);
 
-    cpSleep(100);
+    cpSleep(25);
     cpSetOutput('Clock', false);
-    cpSleep(100);
+    cpSleep(25);
 
     SendPackage(event.package2);
 
-    cpSleep(100);
+    cpSleep(25);
     cpSetOutput('Clock', false);
-    cpSleep(100);
+    cpSleep(25);
 
     SendPackage(event.package3);
 
-    cpSleep(100);
+    cpSleep(25);
   finally
       // definitely reset the clock so it can be used for the next event
     cpSetOutput('Clock', false);
-    cpSleep(100);
+    cpSleep(25);
   end;
 end;
 

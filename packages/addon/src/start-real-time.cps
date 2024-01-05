@@ -20,6 +20,6 @@ begin
 
     ProcessNextInQueue();
 
-    cpSleep(100);
+    cpSleep(50);
   end;
 end.
