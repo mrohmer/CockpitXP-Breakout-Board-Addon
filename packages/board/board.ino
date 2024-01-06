@@ -41,6 +41,8 @@ const byte ledPin = 2;
 struct Input input;
 struct State state;
 
+unsigned int cycle = 0;
+
 // --- Declarations ---
 void ICACHE_RAM_ATTR readInput();
 
@@ -50,9 +52,12 @@ void setup() {
   
   pinMode(ledPin, OUTPUT);
 
-  pinMode(dataPin1, INPUT);
-  pinMode(dataPin2, INPUT);
-  pinMode(dataPin3, INPUT);
+  pinMode(dataPin1, INPUT_PULLUP);
+  digitalWrite(dataPin1, LOW);
+  pinMode(dataPin2, INPUT_PULLUP);
+  digitalWrite(dataPin2, LOW);
+  pinMode(dataPin3, INPUT_PULLUP);
+  digitalWrite(dataPin3, LOW);
   pinMode(clockPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(clockPin), readInput, RISING);
 
@@ -60,27 +65,57 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("Waiting for inputs...");
+  cycle == 0 && Serial.println("Waiting for inputs...");
   delay(1000);
   digitalWrite(ledPin, !digitalRead(ledPin));
+
+  cycle = (cycle + 1) % 10;
 }
 
 // --- UTILS ---
-bool hasEvenParity(unsigned int n) 
-{
-    bool parity = 0;
-    while (n)
-    {
-        parity = !parity;
-        n     = n & (n - 1);
-    }     
-    return parity;
+char* toBinaryString(int n, int numberOfBits) {
+  char *string = (char*)malloc(numberOfBits + 1);
+  if (!string) {
+    return NULL;
+  }
+  for (int i = numberOfBits - 1; i >= 0; i--) {
+    string[i] = (n & 1) + '0';
+    n >>= 1;
+  }
+  string[numberOfBits] = '\0';
+  return string;
+}
+bool hasEvenParity(unsigned int n) {
+  char *str = toBinaryString(n, 32); 
+  int count = 0;
+  int length = sizeof(str) / sizeof(str[0]);
+  for (int i = 0; i < length; i++) {
+    char compLetter = str[i];
+    if (strcmp(&compLetter, "1")) {
+        count++;
+    }
+  }
+  return count % 2 == 0;
 }
 unsigned int clearBit(unsigned int number, unsigned int n) {
     return number & ~((unsigned int)1 << n);
 }
 
 // --- State Update ---
+void printState() {
+  Serial.println("State:");
+  Serial.printf("Pitlane 1: %d | Pitlane 2: %d\n", state.pitlane1, state.pitlane2);
+  Serial.printf("Slot1: %s | %s\n", state.slot1.isRefueling ? "isRefueling" : "-", state.slot1.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot2: %s | %s\n", state.slot2.isRefueling ? "isRefueling" : "-", state.slot2.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot3: %s | %s\n", state.slot3.isRefueling ? "isRefueling" : "-", state.slot3.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot4: %s | %s\n", state.slot4.isRefueling ? "isRefueling" : "-", state.slot4.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot5: %s | %s\n", state.slot5.isRefueling ? "isRefueling" : "-", state.slot5.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot6: %s | %s\n", state.slot6.isRefueling ? "isRefueling" : "-", state.slot6.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Start light: %d | %s\n", state.startLight.falseStart, state.startLight.falseStart ? "false start" : "-");
+  Serial.printf("Virtual Safety Car: %s\n", state.virtualSafetyCar ? "on" : "off");
+  Serial.printf("Track Record: %s\n", state.newTrackRecord ? "on" : "off");
+  Serial.printf("Session Record: %s\n", state.newSessionRecord ? "on" : "off");
+}
 void resetState() {
   state = {
     .slot1={.isRefueling=0, .needsRefueling=0}, 
@@ -292,35 +327,37 @@ int calcRowValue(int val1, int val2, int val3) {
   return (val1 << 2) + (val2 << 1) + val3;
 }
 void ICACHE_RAM_ATTR readInput() {
-  int value = calcRowValue(digitalRead(dataPin1), digitalRead(dataPin2), digitalRead(dataPin3));
+  Serial.printf("Interrupt %d%d%d\n", !digitalRead(dataPin1), !digitalRead(dataPin2), !digitalRead(dataPin3));
+  int value = calcRowValue(!digitalRead(dataPin1), !digitalRead(dataPin2), !digitalRead(dataPin3));
 
   if (value == 0) {
-    Serial.printf("Received reset signal");
+    Serial.printf("Received reset signal\n");
     return resetInputData();
   }
 
   if (input.chunks >= 3) {
     //what?
-    Serial.printf("Error chunks int too big (%d). Missing reset?", input.chunks);
+    Serial.printf("Error chunks int too big (%d). Missing reset?\n", input.chunks);
     return resetInputData();
   }
 
-  input.data += value << (2 - input.chunks);
+  input.data += value << ((2 - input.chunks) * 3);
+  Serial.printf("received chunk %d, value (%d %x %s), data (%d %x %s)\n", input.chunks, value, value, toBinaryString(value, 3), input.data, input.data, toBinaryString(input.data, 9));
   input.chunks++;
 
   if (input.chunks != 3) {
-    Serial.printf("received chunk %d (%x => %x)", input.chunks, value, input.data);
     // still incomplete. wait for complete data...
     return;
   }
 
-  if (!hasEvenParity(input.data) || input.data >= 256) {
-    Serial.printf("Received data is invalid (%x, %d)", input.data, input.data);
+  if (!hasEvenParity(input.data) || input.data >= 512) {
+    Serial.printf("Received data is invalid (%x %d %s)\n", input.data, input.data, toBinaryString(input.data, 9));
     // oooh something was wrong. better luck next time...
     return resetInputData();
   }
 
-  unsigned int dataWithoutParityBit = clearBit(input.data, 9);
-  Serial.printf("Received data %d", dataWithoutParityBit);
+  unsigned int dataWithoutParityBit = clearBit(input.data, 8);
+  Serial.printf("Received data %d %s\n", dataWithoutParityBit, toBinaryString(dataWithoutParityBit, 8));
   updateState(dataWithoutParityBit);
+  printState();
 }
