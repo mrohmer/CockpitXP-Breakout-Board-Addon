@@ -1,9 +1,18 @@
 #define PIN_CLOCK 5
 #define PIN_DATA_1 12
-#define PIN_DATA_2 13
-#define PIN_DATA_3 14
+#define PIN_DATA_2 3
+#define PIN_DATA_3 4
 #define PIN_LED 2
 #define USE_PULLUP true
+#define PIN_START_LIGHT_CS 15
+#define PIN_START_LIGHT_HORIZONTAL 5
+#define PIN_START_LIGHT_VERTICAL 1
+
+#include <Arduino.h>
+#include <Adafruit_I2CDevice.h>
+#include <Adafruit_GFX.h>
+#include <Max72xxPanel.h>
+
 
 // --- Structs ---
 struct Input {  // Structure declaration
@@ -40,6 +49,7 @@ struct State {
 // --- Variables ---
 struct Input input;
 struct State state;
+Max72xxPanel matrix = Max72xxPanel(PIN_START_LIGHT_CS, PIN_START_LIGHT_HORIZONTAL, PIN_START_LIGHT_VERTICAL);
 
 unsigned int cycle = 0;
 
@@ -56,6 +66,7 @@ void setup() {
 
   setupStatusLed();
   setupInputPins();
+  setupStartLight();
 
   Serial.println("Setup Done.");
   flashStatusLed(10);
@@ -66,7 +77,7 @@ void loop() {
   delay(1000);
   toggleStatusLed();
 
-  cycle = (cycle + 1) % 10;
+  cycle = (cycle + 1) % 5;
 }
 
 // --- UTILS ---
@@ -96,6 +107,59 @@ bool hasEvenParity(unsigned int n) {
 }
 unsigned int clearBit(unsigned int number, unsigned int n) {
   return number & ~((unsigned int)1 << n);
+}
+
+
+// --- Status Led ---
+void setupStatusLed() {
+    pinMode(PIN_LED, OUTPUT);
+
+    digitalWrite(PIN_LED, HIGH);
+}
+void toggleStatusLed() {
+    digitalWrite(PIN_LED, !digitalRead(PIN_LED));
+}
+void flashStatusLed(int n) {
+    while (n-- > 0) {
+        digitalWrite(PIN_LED, !digitalRead(PIN_LED));
+        delay(100);
+        digitalWrite(PIN_LED, !digitalRead(PIN_LED));
+        delay(100);
+    }
+}
+
+// --- Start Light ---
+void setupStartLight() {
+    matrix.setIntensity(0); // Use a value between 0 and 15 for brightness
+    for (int i = 0; i < PIN_START_LIGHT_HORIZONTAL; ++i) {
+        matrix.setRotation(i, 1);    // The first display is position upside down
+    }
+    matrix.fillScreen(LOW);
+    matrix.write();
+}
+void fillStartLightFields(int n) {
+  matrix.fillScreen(LOW);
+  for (int i = 0; i < n; i++) {
+    for (int x = 0; x < 8; x++) {
+      for (int y = 0; y < 8; y++) {
+        matrix.drawPixel(x + i * 8, y, HIGH);
+      }
+    }
+  }
+  matrix.write(); // Send bitmap to display
+}
+void updateStartLight() {
+    if (state.startLight.falseStart) {
+        Serial.println(" Display False Start");
+        // todo
+    } else if (state.startLight.state > 0) {
+        Serial.printf(" Display Start Light %d\n", state.startLight.state);
+        fillStartLightFields(state.startLight.state);
+    } else {
+        Serial.println(" Clearing Start Light");
+        matrix.fillScreen(LOW);
+        matrix.write();
+    }
 }
 
 // --- State Update ---
@@ -130,7 +194,7 @@ void resetState() {
     .newSessionRecord = 0,
   };
 }
-void updateState(unsigned int event) {
+bool updateState(unsigned int event) {
   switch (event) {
     case 11:
       resetState();
@@ -312,25 +376,14 @@ void updateState(unsigned int event) {
     case 148:  // slot 6 stops refueling
       state.slot6.isRefueling = 0;
       break;
+    default:
+      return 0;
   }
-}
 
-// --- Status Led ---
-void setupStatusLed() {
-  pinMode(PIN_LED, OUTPUT);
-
-  digitalWrite(PIN_LED, HIGH);
+  return 1;
 }
-void toggleStatusLed() {
-  digitalWrite(PIN_LED, !digitalRead(PIN_LED));
-}
-void flashStatusLed(int n) {
-    while (n-- > 0) {
-        digitalWrite(PIN_LED, !digitalRead(PIN_LED));
-        delay(100);
-        digitalWrite(PIN_LED, !digitalRead(PIN_LED));
-        delay(100);
-    }
+void updateOnStatusChange() {
+    updateStartLight();
 }
 
 // --- Input Handling ---
@@ -387,6 +440,9 @@ void ICACHE_RAM_ATTR readInput() {
 
   unsigned int dataWithoutParityBit = clearBit(input.data, 8);
   Serial.printf("Received data %d %s\n", dataWithoutParityBit, toBinaryString(dataWithoutParityBit, 8));
-  updateState(dataWithoutParityBit);
+  bool updated = updateState(dataWithoutParityBit);
   printState();
+  if (updated) {
+      updateOnStatusChange();
+  }
 }
