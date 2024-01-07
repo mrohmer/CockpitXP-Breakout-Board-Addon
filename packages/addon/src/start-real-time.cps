@@ -9,6 +9,7 @@
 {%%PROCEDURE.EnqueueEvent%%}
 {%%PROCEDURE.CheckSlotIsFueling%%}
 {%%PROCEDURE.CheckSlotNeedsToRefuel%%}
+{%%PROCEDURE.CheckVirtualSafetyCar%%}
 
 var
   lastCheck: Extended;
@@ -29,6 +30,7 @@ begin
     if (cpGetSystemTimeMs - lastCheck >= 2000) then
     begin
       checkSlotIsFueling();
+      checkVirtualSafetyCar();
 
       lastCheck := cpGetSystemTimeMs;
     end;
