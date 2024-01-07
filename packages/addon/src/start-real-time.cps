@@ -11,6 +11,7 @@
 {%%PROCEDURE.CheckSlotIsFueling%%}
 {%%PROCEDURE.CheckSlotNeedsToRefuel%%}
 {%%PROCEDURE.CheckVirtualSafetyCar%%}
+{%%PROCEDURE.CheckPitlaneStatus%%}
 
 var
   lastCheck: Extended;
@@ -34,6 +35,7 @@ begin
       checkSlotIsFueling();
       checkSlotNeedsToRefuel();
       checkVirtualSafetyCar();
+      checkPitlaneStatus();
 
       lastCheck := cpGetSystemTimeMs;
     end;

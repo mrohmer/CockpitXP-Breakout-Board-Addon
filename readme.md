@@ -49,29 +49,29 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 1. Slot 6 starts refueling ✅
 1. Slot 6 stops refueling ✅
 
-1. Pitlane 1 off
-1. Pitlane 1 10%
-1. Pitlane 1 20%
-1. Pitlane 1 30%
-1. Pitlane 1 40%
-1. Pitlane 1 50%
-1. Pitlane 1 60%
-1. Pitlane 1 70%
-1. Pitlane 1 80%
-1. Pitlane 1 90%
-1. Pitlane 1 100%
+1. Pitlane 1 off ✅
+1. Pitlane 1 10% ✅
+1. Pitlane 1 20% ✅
+1. Pitlane 1 30% ✅
+1. Pitlane 1 40% ✅
+1. Pitlane 1 50% ✅
+1. Pitlane 1 60% ✅
+1. Pitlane 1 70% ✅
+1. Pitlane 1 80% ✅
+1. Pitlane 1 90% ✅
+1. Pitlane 1 100% ✅
 
-1. Pitlane 2 off
-1. Pitlane 2 10%
-1. Pitlane 2 20%
-1. Pitlane 2 30%
-1. Pitlane 2 40%
-1. Pitlane 2 50%
-1. Pitlane 2 60%
-1. Pitlane 2 70%
-1. Pitlane 2 80%
-1. Pitlane 2 90%
-1. Pitlane 2 100%
+1. Pitlane 2 off ✅
+1. Pitlane 2 10% ✅
+1. Pitlane 2 20% ✅
+1. Pitlane 2 30% ✅
+1. Pitlane 2 40% ✅
+1. Pitlane 2 50% ✅
+1. Pitlane 2 60% ✅
+1. Pitlane 2 70% ✅
+1. Pitlane 2 80% ✅
+1. Pitlane 2 90% ✅
+1. Pitlane 2 100% ✅
 
 1. Starting light 1 ✅
 1. Starting light 2 ✅

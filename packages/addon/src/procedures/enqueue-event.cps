@@ -64,33 +64,33 @@ begin
   if (pitlaneNbr = 1) then
   begin
     case percentage of
-      0..4: EnqueueEvent('Pitlane 1 off', 55);
-      5..14: EnqueueEvent('Pitlane 1 10%', 59);
-      15..24: EnqueueEvent('Pitlane 1 20%', 61);
-      25..34: EnqueueEvent('Pitlane 1 30%', 62);
-      35..44: EnqueueEvent('Pitlane 1 40%', 73);
-      45..54: EnqueueEvent('Pitlane 1 50%', 74);
-      55..64: EnqueueEvent('Pitlane 1 60%', 75);
-      65..74: EnqueueEvent('Pitlane 1 70%', 76);
-      75..84: EnqueueEvent('Pitlane 1 80%', 77);
-      85..94: EnqueueEvent('Pitlane 1 90%', 78);
-      95..100: EnqueueEvent('Pitlane 1 100%', 79);
+      0: EnqueueEvent('Pitlane 1 off', 55);
+      10: EnqueueEvent('Pitlane 1 10%', 59);
+      20: EnqueueEvent('Pitlane 1 20%', 61);
+      30: EnqueueEvent('Pitlane 1 30%', 62);
+      40: EnqueueEvent('Pitlane 1 40%', 73);
+      50: EnqueueEvent('Pitlane 1 50%', 74);
+      60: EnqueueEvent('Pitlane 1 60%', 75);
+      70: EnqueueEvent('Pitlane 1 70%', 76);
+      80: EnqueueEvent('Pitlane 1 80%', 77);
+      90: EnqueueEvent('Pitlane 1 90%', 78);
+      100: EnqueueEvent('Pitlane 1 100%', 79);
     end;
   end
   else if (pitlaneNbr = 2) then
   begin
     case percentage of
-      0..4: EnqueueEvent('Pitlane 2 off', 81);
-      5..14: EnqueueEvent('Pitlane 2 10%', 82);
-      15..24: EnqueueEvent('Pitlane 2 20%', 83);
-      25..34: EnqueueEvent('Pitlane 2 30%', 84);
-      35..44: EnqueueEvent('Pitlane 2 40%', 85);
-      45..54: EnqueueEvent('Pitlane 2 50%', 86);
-      55..64: EnqueueEvent('Pitlane 2 60%', 87);
-      65..74: EnqueueEvent('Pitlane 2 70%', 89);
-      75..84: EnqueueEvent('Pitlane 2 80%', 90);
-      85..94: EnqueueEvent('Pitlane 2 90%', 91);
-      95..100: EnqueueEvent('Pitlane 2 100%', 92);
+      0: EnqueueEvent('Pitlane 2 off', 81);
+      10: EnqueueEvent('Pitlane 2 10%', 82);
+      20: EnqueueEvent('Pitlane 2 20%', 83);
+      30: EnqueueEvent('Pitlane 2 30%', 84);
+      40: EnqueueEvent('Pitlane 2 40%', 85);
+      50: EnqueueEvent('Pitlane 2 50%', 86);
+      60: EnqueueEvent('Pitlane 2 60%', 87);
+      70: EnqueueEvent('Pitlane 2 70%', 89);
+      80: EnqueueEvent('Pitlane 2 80%', 90);
+      90: EnqueueEvent('Pitlane 2 90%', 91);
+      100: EnqueueEvent('Pitlane 2 100%', 92);
     end;
   end;
 end;
