@@ -83,7 +83,7 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 1. False start
 
 1. New track record
-1. Mew session record
+1. New session record
 
 1. Virtual Safety Car on
 1. Virtual Safety Car off
