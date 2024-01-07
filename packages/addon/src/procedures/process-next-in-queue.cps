@@ -53,8 +53,23 @@ end;
 
 procedure SendPackage(nbr: Integer; pkg: Integer);
 var
+  i, rest: Integer;
   arr: array [0..8] of Integer;
 begin
+  rest := pkg;
+  for i := 0 to 8 do
+  begin
+    if (rest % 2 = 1) then
+    begin
+      arr[9 - i] := 1;
+    end
+    else
+    begin
+      arr[9 - i] := 0;
+    end;
+    rest := (rest - rest % 2) / 2;
+  end;
+
   case pkg of
     11: arr := [1,0,0, 0,0,1, 0,1,1];
     21: arr := [1,0,0, 0,1,0, 1,0,1];
