@@ -17,34 +17,34 @@
 
 // --- Structs ---
 struct Input {  // Structure declaration
-  unsigned int chunks;
-  unsigned int data;
-  unsigned int chunksData[3][3];
+    unsigned int chunks;
+    unsigned int data;
+    unsigned int chunksData[3][3];
 };
 struct SlotState {
-  bool isRefueling;
-  bool needsRefueling;
+    bool isRefueling;
+    bool needsRefueling;
 };
 struct StartLightState {
-  bool falseStart;
-  unsigned int state;
+    bool falseStart;
+    unsigned int state;
 };
 struct State {
-  struct SlotState slot1;
-  struct SlotState slot2;
-  struct SlotState slot3;
-  struct SlotState slot4;
-  struct SlotState slot5;
-  struct SlotState slot6;
+    struct SlotState slot1;
+    struct SlotState slot2;
+    struct SlotState slot3;
+    struct SlotState slot4;
+    struct SlotState slot5;
+    struct SlotState slot6;
 
-  unsigned int pitlane1;
-  unsigned int pitlane2;
+    unsigned int pitlane1;
+    unsigned int pitlane2;
 
-  struct StartLightState startLight;
+    struct StartLightState startLight;
 
-  bool virtualSafetyCar;
-  bool newTrackRecord;
-  bool newSessionRecord;
+    bool virtualSafetyCar;
+    bool newTrackRecord;
+    bool newSessionRecord;
 };
 
 // --- Variables ---
@@ -55,10 +55,16 @@ Max72xxPanel matrix = Max72xxPanel(PIN_START_LIGHT_CS, PIN_START_LIGHT_HORIZONTA
 unsigned int cycle = 0;
 
 // --- Declarations ---
-void IRAM_ATTR readInput();
+void IRAM_ATTR
+
+readInput();
+
 void setupInputPins();
+
 void setupStatusLed();
+
 void toggleStatusLed();
+
 void flashStatusLed(int n);
 
 // --- Arduino Loop ---
@@ -83,7 +89,7 @@ void loop() {
 
 // --- UTILS ---
 char *toBinaryString(int n, int numberOfBits) {
-  char *string = (char *)malloc(numberOfBits + 1);
+  char *string = (char *) malloc(numberOfBits + 1);
   if (!string) {
     return NULL;
   }
@@ -94,6 +100,7 @@ char *toBinaryString(int n, int numberOfBits) {
   string[numberOfBits] = '\0';
   return string;
 }
+
 bool hasEvenParity(unsigned int n) {
   char *str = toBinaryString(n, 32);
   int count = 0;
@@ -105,38 +112,42 @@ bool hasEvenParity(unsigned int n) {
   }
   return count % 2 == 0;
 }
+
 unsigned int clearBit(unsigned int number, unsigned int n) {
-  return number & ~((unsigned int)1 << n);
+  return number & ~((unsigned int) 1 << n);
 }
 
 
 // --- Status Led ---
 void setupStatusLed() {
-    pinMode(PIN_LED, OUTPUT);
+  pinMode(PIN_LED, OUTPUT);
 
-    digitalWrite(PIN_LED, HIGH);
+  digitalWrite(PIN_LED, HIGH);
 }
+
 void toggleStatusLed() {
-    digitalWrite(PIN_LED, !digitalRead(PIN_LED));
+  digitalWrite(PIN_LED, !digitalRead(PIN_LED));
 }
+
 void flashStatusLed(int n) {
-    while (n-- > 0) {
-        digitalWrite(PIN_LED, !digitalRead(PIN_LED));
-        delay(100);
-        digitalWrite(PIN_LED, !digitalRead(PIN_LED));
-        delay(100);
-    }
+  while (n-- > 0) {
+    digitalWrite(PIN_LED, !digitalRead(PIN_LED));
+    delay(100);
+    digitalWrite(PIN_LED, !digitalRead(PIN_LED));
+    delay(100);
+  }
 }
 
 // --- Start Light ---
 void setupStartLight() {
-    matrix.setIntensity(0); // Use a value between 0 and 15 for brightness
-    for (int i = 0; i < PIN_START_LIGHT_HORIZONTAL; ++i) {
-        matrix.setRotation(i, 1);    // The first display is position upside down
-    }
-    matrix.fillScreen(LOW);
-    matrix.write();
+  matrix.setIntensity(0); // Use a value between 0 and 15 for brightness
+  for (int i = 0; i < PIN_START_LIGHT_HORIZONTAL; ++i) {
+    matrix.setRotation(i, 1);    // The first display is position upside down
+  }
+  matrix.fillScreen(LOW);
+  matrix.write();
 }
+
 void fillStartLightFields(int n) {
   matrix.fillScreen(LOW);
   for (int i = 0; i < n; i++) {
@@ -148,52 +159,61 @@ void fillStartLightFields(int n) {
   }
   matrix.write(); // Send bitmap to display
 }
+
 void updateStartLight() {
-    if (state.startLight.falseStart) {
-        Serial.println(" Display False Start");
-        // todo
-    } else if (state.startLight.state > 0) {
-        Serial.printf(" Display Start Light %d\n", state.startLight.state);
-        fillStartLightFields(state.startLight.state);
-    } else {
-        Serial.println(" Clearing Start Light");
-        matrix.fillScreen(LOW);
-        matrix.write();
-    }
+  if (state.startLight.falseStart) {
+    Serial.println(" Display False Start");
+    // todo
+  } else if (state.startLight.state > 0) {
+    Serial.printf(" Display Start Light %d\n", state.startLight.state);
+    fillStartLightFields(state.startLight.state);
+  } else {
+    Serial.println(" Clearing Start Light");
+    matrix.fillScreen(LOW);
+    matrix.write();
+  }
 }
 
 // --- State Update ---
 void printState() {
   Serial.println("State:");
   Serial.printf("Pitlane 1: %d | Pitlane 2: %d\n", state.pitlane1, state.pitlane2);
-  Serial.printf("Slot1: %s | %s\n", state.slot1.isRefueling ? "isRefueling" : "-", state.slot1.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot2: %s | %s\n", state.slot2.isRefueling ? "isRefueling" : "-", state.slot2.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot3: %s | %s\n", state.slot3.isRefueling ? "isRefueling" : "-", state.slot3.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot4: %s | %s\n", state.slot4.isRefueling ? "isRefueling" : "-", state.slot4.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot5: %s | %s\n", state.slot5.isRefueling ? "isRefueling" : "-", state.slot5.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot6: %s | %s\n", state.slot6.isRefueling ? "isRefueling" : "-", state.slot6.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot1: %s | %s\n", state.slot1.isRefueling ? "isRefueling" : "-",
+                state.slot1.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot2: %s | %s\n", state.slot2.isRefueling ? "isRefueling" : "-",
+                state.slot2.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot3: %s | %s\n", state.slot3.isRefueling ? "isRefueling" : "-",
+                state.slot3.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot4: %s | %s\n", state.slot4.isRefueling ? "isRefueling" : "-",
+                state.slot4.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot5: %s | %s\n", state.slot5.isRefueling ? "isRefueling" : "-",
+                state.slot5.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot6: %s | %s\n", state.slot6.isRefueling ? "isRefueling" : "-",
+                state.slot6.needsRefueling ? "needs to refuel" : "-");
   Serial.printf("Start light: %d | %s\n", state.startLight.state, state.startLight.falseStart ? "false start" : "-");
   Serial.printf("Virtual Safety Car: %s\n", state.virtualSafetyCar ? "on" : "off");
   Serial.printf("Track Record: %s\n", state.newTrackRecord ? "on" : "off");
   Serial.printf("Session Record: %s\n", state.newSessionRecord ? "on" : "off");
 }
+
 void resetState() {
   state = {
-    .slot1 = { .isRefueling = 0, .needsRefueling = 0 },
-    .slot2 = { .isRefueling = 0, .needsRefueling = 0 },
-    .slot3 = { .isRefueling = 0, .needsRefueling = 0 },
-    .slot4 = { .isRefueling = 0, .needsRefueling = 0 },
-    .slot5 = { .isRefueling = 0, .needsRefueling = 0 },
-    .slot6 = { .isRefueling = 0, .needsRefueling = 0 },
-    .pitlane1 = 0,
-    .pitlane2 = 0,
-    .startLight = { .falseStart = 0, .state = 0 },
+          .slot1 = {.isRefueling = 0, .needsRefueling = 0},
+          .slot2 = {.isRefueling = 0, .needsRefueling = 0},
+          .slot3 = {.isRefueling = 0, .needsRefueling = 0},
+          .slot4 = {.isRefueling = 0, .needsRefueling = 0},
+          .slot5 = {.isRefueling = 0, .needsRefueling = 0},
+          .slot6 = {.isRefueling = 0, .needsRefueling = 0},
+          .pitlane1 = 0,
+          .pitlane2 = 0,
+          .startLight = {.falseStart = 0, .state = 0},
 
-    .virtualSafetyCar = 0,
-    .newTrackRecord = 0,
-    .newSessionRecord = 0,
+          .virtualSafetyCar = 0,
+          .newTrackRecord = 0,
+          .newSessionRecord = 0,
   };
 }
+
 bool updateState(unsigned int event) {
   switch (event) {
     case 11:
@@ -382,8 +402,9 @@ bool updateState(unsigned int event) {
 
   return 1;
 }
+
 void updateOnStatusChange() {
-    updateStartLight();
+  updateStartLight();
 }
 
 // --- Input Handling ---
@@ -397,14 +418,19 @@ void setupInputPins() {
   pinMode(PIN_CLOCK, USE_PULLUP ? INPUT_PULLUP : INPUT);
   attachInterrupt(digitalPinToInterrupt(PIN_CLOCK), readInput, RISING);
 }
+
 void resetInputData() {
   input.chunks = 0;
   input.data = 0;
 }
+
 int calcRowValue(int val1, int val2, int val3) {
   return (val1 << 2) + (val2 << 1) + val3;
 }
-void IRAM_ATTR readInput() {
+
+void IRAM_ATTR
+
+readInput() {
   int value1 = digitalRead(PIN_DATA_1) == !USE_PULLUP;
   int value2 = digitalRead(PIN_DATA_2) == !USE_PULLUP;
   int value3 = digitalRead(PIN_DATA_3) == !USE_PULLUP;
@@ -424,7 +450,8 @@ void IRAM_ATTR readInput() {
   }
 
   input.data += value << ((2 - input.chunks) * 3);
-  Serial.printf("received chunk %d, value (%d %x %s), data (%d %x %s)\n", input.chunks, value, value, toBinaryString(value, 3), input.data, input.data, toBinaryString(input.data, 9));
+  Serial.printf("received chunk %d, value (%d %x %s), data (%d %x %s)\n", input.chunks, value, value,
+                toBinaryString(value, 3), input.data, input.data, toBinaryString(input.data, 9));
   input.chunks++;
 
   if (input.chunks != 3) {
@@ -443,6 +470,6 @@ void IRAM_ATTR readInput() {
   bool updated = updateState(dataWithoutParityBit);
   printState();
   if (updated) {
-      updateOnStatusChange();
+    updateOnStatusChange();
   }
 }
