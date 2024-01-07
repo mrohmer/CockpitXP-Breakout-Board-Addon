@@ -3,9 +3,9 @@
 { Parameter: Cockpit.Slot=<SlotPlatz> }
 
 {%%PROCEDURE.EnqueueEvent%%}
-{%%FUNCTION.IsEventActive%%}
+{%%FUNCTION.IsEventInactive%%}
 begin
-  if (not isEventActive('SessionRecord')) then
+  if (isEventInactive('SessionRecord')) then
   begin
     exit;
   end;

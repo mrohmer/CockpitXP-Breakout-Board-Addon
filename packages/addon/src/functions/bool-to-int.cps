@@ -1,4 +1,4 @@
-function BoolToInt(Value: Boolean):Integer;
+function boolToInt(Value: Boolean):Integer;
 begin
   if Value then
   begin
