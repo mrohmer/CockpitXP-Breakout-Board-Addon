@@ -11,7 +11,7 @@
 #define MS_CYCLE 100
 #define MS_BETWEEN_STATUS_LOG 5000
 #define MS_BETWEEN_LED_TOGGLE 1000
-#define MS_BETWEEN_FALSE_START_TOGGLE 300
+#define MS_BETWEEN_FALSE_START_TOGGLE 200
 
 #include <Arduino.h>
 #include <Adafruit_I2CDevice.h>
