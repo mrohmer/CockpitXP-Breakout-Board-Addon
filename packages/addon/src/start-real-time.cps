@@ -8,6 +8,7 @@
 {%%PROCEDURE.ProcessNextInQueue%%}
 {%%PROCEDURE.EnqueueEvent%%}
 {%%PROCEDURE.CheckSlotIsFueling%%}
+{%%PROCEDURE.CheckSlotNeedsToRefuel%%}
 
 var
   lastCheck: Extended;
