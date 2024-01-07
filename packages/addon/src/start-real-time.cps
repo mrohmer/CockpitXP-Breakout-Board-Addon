@@ -3,6 +3,7 @@
 { Parameter: Keine }
 
 {%%FUNCTION.BoolToInt%%}
+{%%FUNCTION.IsEventActive%%}
 
 {%%PROCEDURE.InitTable%%}
 {%%PROCEDURE.ProcessNextInQueue%%}
