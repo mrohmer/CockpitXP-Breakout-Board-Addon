@@ -3,7 +3,7 @@
 { Parameter: Keine }
 
 {%%FUNCTION.BoolToInt%%}
-{%%FUNCTION.IsEventActive%%}
+{%%FUNCTION.IsEventInactive%%}
 
 {%%PROCEDURE.InitTable%%}
 {%%PROCEDURE.ProcessNextInQueue%%}
@@ -16,6 +16,7 @@ var
   lastCheck: Extended;
 
 begin
+  lastCheck := 0;
   cpSetIntegerVar('Exit', 0);
 
   InitTable();

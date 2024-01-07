@@ -20,7 +20,7 @@ procedure checkSlotIsFueling;
 var
   slot: Integer;
 begin
-  if (not isEventActive('Refueling')) then
+  if (isEventInactive('Refueling')) then
   begin
     exit;
   end;

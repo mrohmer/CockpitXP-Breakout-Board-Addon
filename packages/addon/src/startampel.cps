@@ -3,12 +3,12 @@
 { Parameter: Cockpit.Parameter = <Parameter des Events> }
 
 {%%PROCEDURE.EnqueueEvent%%}
-{%%FUNCTION.IsEventActive%%}
+{%%FUNCTION.IsEventInactive%%}
 
 var
   value: Integer;
 begin
-  if (not isEventActive('StartLight')) then
+  if (isEventInactive('StartLight')) then
   begin
     exit;
   end;
