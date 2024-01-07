@@ -30,6 +30,7 @@ begin
     if (cpGetSystemTimeMs - lastCheck >= 2000) then
     begin
       checkSlotIsFueling();
+      checkSlotNeedsToRefuel();
       checkVirtualSafetyCar();
 
       lastCheck := cpGetSystemTimeMs;

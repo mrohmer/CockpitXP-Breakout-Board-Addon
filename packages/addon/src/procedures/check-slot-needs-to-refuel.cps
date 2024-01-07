@@ -12,7 +12,7 @@ begin
     exit;
   end;
 
-  EnqueueSlotIsFuelingEvent(slot, value);
+  EnqueueSlotNeedsFuelingEvent(slot, value);
   cpSetIntegerVar('NeedsToRefuel:OldValue:' + IntToStr(slot), boolToInt(value));
 end;
 
