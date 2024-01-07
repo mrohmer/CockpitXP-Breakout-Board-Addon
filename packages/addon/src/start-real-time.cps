@@ -3,6 +3,7 @@
 { Parameter: Keine }
 
 {%%PROCEDURE.InitTable%%}
+{%%PROCEDURE.ProcessNextInQueue%%}
 {%%PROCEDURE.EnqueueEvent%%}
 
 begin

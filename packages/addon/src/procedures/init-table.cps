@@ -4,7 +4,7 @@ begin
   begin
     sql.Clear;
 
-    sql.Text := 'DROP TABLE breakout_board_queue IF EXISTS';
+    sql.Text := 'DROP TABLE IF EXISTS breakout_board_queue';
 
     Open;
 
