@@ -48,6 +48,7 @@ void ICACHE_RAM_ATTR readInput();
 void setupInputPins();
 void setupStatusLed();
 void toggleStatusLed();
+void flashStatusLed(int n);
 
 // --- Arduino Loop ---
 void setup() {
@@ -55,6 +56,9 @@ void setup() {
 
   setupStatusLed();
   setupInputPins();
+
+  Serial.println("Setup Done.");
+  flashStatusLed(10);
 }
 
 void loop() {
@@ -319,6 +323,14 @@ void setupStatusLed() {
 }
 void toggleStatusLed() {
   digitalWrite(ledPin, !digitalRead(ledPin));
+}
+void flashStatusLed(int n) {
+    while (n-- > 0) {
+        digitalWrite(ledPin, !digitalRead(ledPin));
+        delay(100);
+        digitalWrite(ledPin, !digitalRead(ledPin));
+        delay(100);
+    }
 }
 
 // --- Input Handling ---
