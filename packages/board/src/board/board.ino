@@ -8,6 +8,11 @@
 #define PIN_START_LIGHT_HORIZONTAL 5
 #define PIN_START_LIGHT_VERTICAL 1
 
+#define MS_CYCLE 100
+#define MS_BETWEEN_STATUS_LOG 5000
+#define MS_BETWEEN_LED_TOGGLE 1000
+#define MS_BETWEEN_FALSE_START_TOGGLE 500
+
 #include <Arduino.h>
 #include <Adafruit_I2CDevice.h>
 #include <Adafruit_GFX.h>
@@ -27,6 +32,8 @@ struct SlotState {
 };
 struct StartLightState {
     bool falseStart;
+    bool falseStartToggle;
+
     unsigned int state;
 };
 struct State {
@@ -46,13 +53,17 @@ struct State {
     bool newTrackRecord;
     bool newSessionRecord;
 };
+struct LastExecutionState {
+    unsigned long log;
+    unsigned long ledToggle;
+    unsigned long falseStartToggle;
+};
 
 // --- Variables ---
 struct Input input;
 struct State state;
+struct LastExecutionState lastExecution;
 Max72xxPanel matrix = Max72xxPanel(PIN_START_LIGHT_CS, PIN_START_LIGHT_HORIZONTAL, PIN_START_LIGHT_VERTICAL);
-
-unsigned int cycle = 0;
 
 // --- Declarations ---
 void IRAM_ATTR
@@ -62,6 +73,10 @@ readInput();
 void setupInputPins();
 
 void setupStatusLed();
+
+void cyclePrintStatusLog();
+
+void cycleToggleStatusLed();
 
 void toggleStatusLed();
 
@@ -80,11 +95,28 @@ void setup() {
 }
 
 void loop() {
-  cycle == 0 && Serial.println("Waiting for inputs...");
-  delay(1000);
-  toggleStatusLed();
+  cyclePrintStatusLog();
+  cycleToggleStatusLed();
+  delay(MS_CYCLE);
+}
 
-  cycle = (cycle + 1) % 5;
+// --- Cycle ---
+bool shouldExecuteInThisCycle(int difference, unsigned long lastExecution) {
+  return ((millis() - lastExecution) % difference) < MS_CYCLE;
+}
+
+void cyclePrintStatusLog() {
+  if (shouldExecuteInThisCycle(MS_BETWEEN_STATUS_LOG, lastExecution.log)) {
+    Serial.println("Waiting for inputs...");
+    lastExecution.log = millis();
+  }
+}
+
+void cycleToggleStatusLed() {
+  if (shouldExecuteInThisCycle(MS_BETWEEN_LED_TOGGLE, lastExecution.ledToggle)) {
+    toggleStatusLed();
+    lastExecution.ledToggle = millis();
+  }
 }
 
 // --- UTILS ---
@@ -161,10 +193,7 @@ void fillStartLightFields(int n) {
 }
 
 void updateStartLight() {
-  if (state.startLight.falseStart) {
-    Serial.println(" Display False Start");
-    // todo
-  } else if (state.startLight.state > 0) {
+  if (state.startLight.state > 0) {
     Serial.printf(" Display Start Light %d\n", state.startLight.state);
     fillStartLightFields(state.startLight.state);
   } else {
@@ -198,19 +227,19 @@ void printState() {
 
 void resetState() {
   state = {
-          .slot1 = {.isRefueling = 0, .needsRefueling = 0},
-          .slot2 = {.isRefueling = 0, .needsRefueling = 0},
-          .slot3 = {.isRefueling = 0, .needsRefueling = 0},
-          .slot4 = {.isRefueling = 0, .needsRefueling = 0},
-          .slot5 = {.isRefueling = 0, .needsRefueling = 0},
-          .slot6 = {.isRefueling = 0, .needsRefueling = 0},
+          .slot1 = {.isRefueling = false, .needsRefueling = false},
+          .slot2 = {.isRefueling = false, .needsRefueling = false},
+          .slot3 = {.isRefueling = false, .needsRefueling = false},
+          .slot4 = {.isRefueling = false, .needsRefueling = false},
+          .slot5 = {.isRefueling = false, .needsRefueling = false},
+          .slot6 = {.isRefueling = false, .needsRefueling = false},
           .pitlane1 = 0,
           .pitlane2 = 0,
-          .startLight = {.falseStart = 0, .state = 0},
+          .startLight = {.falseStart = false, .falseStartToggle = false, .state = 0},
 
-          .virtualSafetyCar = 0,
-          .newTrackRecord = 0,
-          .newSessionRecord = 0,
+          .virtualSafetyCar = false,
+          .newTrackRecord = false,
+          .newSessionRecord = false,
   };
 }
 
@@ -220,43 +249,43 @@ bool updateState(unsigned int event) {
       resetState();
       break;
     case 21:  // virtual safety car on
-      state.virtualSafetyCar = 1;
+      state.virtualSafetyCar = true;
       break;
     case 22:  // virtual safety car off
-      state.virtualSafetyCar = 0;
+      state.virtualSafetyCar = false;
       break;
     case 28:  // starting light off
       state.startLight.state = 0;
-      state.startLight.falseStart = 0;
+      state.startLight.falseStart = false;
       break;
     case 31:  // starting light 1
       state.startLight.state = 1;
-      state.startLight.falseStart = 0;
+      state.startLight.falseStart = false;
       break;
     case 35:  // starting light 2
       state.startLight.state = 2;
-      state.startLight.falseStart = 0;
+      state.startLight.falseStart = false;
       break;
     case 37:  // starting light 3
       state.startLight.state = 3;
-      state.startLight.falseStart = 0;
+      state.startLight.falseStart = false;
       break;
     case 38:  // starting light 4
       state.startLight.state = 4;
-      state.startLight.falseStart = 0;
+      state.startLight.falseStart = false;
       break;
     case 41:  // starting light 5
       state.startLight.state = 5;
-      state.startLight.falseStart = 0;
+      state.startLight.falseStart = false;
       break;
     case 42:  // starting light false start
-      state.startLight.falseStart = 1;
+      state.startLight.falseStart = true;
       break;
     case 49:  // new track record
-      state.newTrackRecord = 1;
+      state.newTrackRecord = true;
       break;
     case 50:  // new session record
-      state.newSessionRecord = 1;
+      state.newSessionRecord = true;
       break;
     case 55:  // pit lane 1 off
       state.pitlane1 = 0;
@@ -325,76 +354,76 @@ bool updateState(unsigned int event) {
       state.pitlane2 = 100;
       break;
     case 97:  // slot 1 needs to refuel
-      state.slot1.needsRefueling = 1;
+      state.slot1.needsRefueling = true;
       break;
     case 98:  // slot 1 does not need to refuel anymore
-      state.slot1.needsRefueling = 0;
+      state.slot1.needsRefueling = false;
       break;
     case 99:  // slot 1 starts refueling
-      state.slot1.isRefueling = 1;
+      state.slot1.isRefueling = true;
       break;
     case 100:  // slot 1 stops refueling
-      state.slot1.isRefueling = 0;
+      state.slot1.isRefueling = false;
       break;
     case 105:  // slot 2 needs to refuel
-      state.slot2.needsRefueling = 1;
+      state.slot2.needsRefueling = true;
       break;
     case 106:  // slot 2 does not need to refuel anymore
-      state.slot2.needsRefueling = 0;
+      state.slot2.needsRefueling = false;
       break;
     case 107:  // slot 2 starts refueling
-      state.slot2.isRefueling = 1;
+      state.slot2.isRefueling = true;
       break;
     case 108:  // slot 2 stops refueling
-      state.slot2.isRefueling = 0;
+      state.slot2.isRefueling = false;
       break;
     case 113:  // slot 3 needs to refuel
-      state.slot3.needsRefueling = 1;
+      state.slot3.needsRefueling = true;
       break;
     case 114:  // slot 3 does not need to refuel anymore
-      state.slot3.needsRefueling = 0;
+      state.slot3.needsRefueling = false;
       break;
     case 115:  // slot 3 starts refueling
-      state.slot3.isRefueling = 1;
+      state.slot3.isRefueling = true;
       break;
     case 116:  // slot 3 stops refueling
-      state.slot3.isRefueling = 0;
+      state.slot3.isRefueling = false;
       break;
     case 121:  // slot 4 needs to refuel
-      state.slot4.needsRefueling = 1;
+      state.slot4.needsRefueling = true;
       break;
     case 122:  // slot 4 does not need to refuel anymore
-      state.slot4.needsRefueling = 0;
+      state.slot4.needsRefueling = false;
       break;
     case 123:  // slot 4 starts refueling
-      state.slot4.isRefueling = 1;
+      state.slot4.isRefueling = true;
       break;
     case 124:  // slot 4 stops refueling
-      state.slot4.isRefueling = 0;
+      state.slot4.isRefueling = false;
       break;
     case 137:  // slot 5 needs to refuel
-      state.slot5.needsRefueling = 1;
+      state.slot5.needsRefueling = true;
       break;
     case 138:  // slot 5 does not need to refuel anymore
-      state.slot5.needsRefueling = 0;
+      state.slot5.needsRefueling = false;
       break;
     case 139:  // slot 5 starts refueling
-      state.slot5.isRefueling = 1;
+      state.slot5.isRefueling = true;
       break;
     case 140:  // slot 5 stops refueling
-      state.slot5.isRefueling = 0;
+      state.slot5.isRefueling = false;
       break;
     case 145:  // slot 6 needs to refuel
-      state.slot6.needsRefueling = 1;
+      state.slot6.needsRefueling = true;
       break;
     case 146:  // slot 6 does not need to refuel anymore
-      state.slot6.needsRefueling = 0;
+      state.slot6.needsRefueling = false;
       break;
     case 147:  // slot 6 starts refueling
-      state.slot6.isRefueling = 1;
+      state.slot6.isRefueling = true;
       break;
     case 148:  // slot 6 stops refueling
-      state.slot6.isRefueling = 0;
+      state.slot6.isRefueling = false;
       break;
     default:
       return 0;
