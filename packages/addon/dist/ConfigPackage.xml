@@ -5,26 +5,27 @@
         <Variable xmlindex="2" beschreibung="'Bahnrekord'-Event aktiviert" name="TrackRecordActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
         <Variable xmlindex="3" beschreibung="'Startampel'-Event aktiviert" name="SessionRecordActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
         <Variable xmlindex="4" beschreibung="'Sessionrekord'-Event aktiviert" name="StartLightActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
-        <Variable xmlindex="5" beschreibung="'Fehlstart'-Event aktiviert" name="FalseStartActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
-        <Variable xmlindex="6" beschreibung="'Pitlane'-Event aktiviert" name="PitlaneActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
-        <Variable xmlindex="7" beschreibung="'Fahrer Tankt'-Event aktiviert" name="RefuelingActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
-        <Variable xmlindex="8" beschreibung="'Tank Leer'-Event aktiviert" name="NeedsToRefuelActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
-        <Variable xmlindex="9" beschreibung="'Virtual Safety Car'-Event aktiviert" name="VirtualSafetyCarActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
+        <Variable xmlindex="5" beschreibung="'Pitlane'-Event aktiviert" name="PitlaneActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
+        <Variable xmlindex="6" beschreibung="'Fahrer Tankt'-Event aktiviert" name="RefuelingActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
+        <Variable xmlindex="7" beschreibung="'Tank Leer'-Event aktiviert" name="NeedsToRefuelActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
+        <Variable xmlindex="8" beschreibung="'Virtual Safety Car'-Event aktiviert" name="VirtualSafetyCarActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
 
 
-        <Variable xmlindex="10" beschreibung="*** 'Startampel'-Event ***" name="xxx2" datatyp="Text" value=" "></Variable>
+        <Variable xmlindex="9" beschreibung="*** 'Startampel'-Event ***" name="xxx2" datatyp="Text" value=" "></Variable>
+        <Variable xmlindex="10" beschreibung="Startampel Paramter Wert Aus" name="StartLightParameterOff" datatyp="Integer" value="0"></Variable>
         <Variable xmlindex="11" beschreibung="Startampel Paramter Wert 1" name="StartLightParameter1" datatyp="Integer" value="1"></Variable>
         <Variable xmlindex="12" beschreibung="Startampel Paramter Wert 2" name="StartLightParameter2" datatyp="Integer" value="2"></Variable>
         <Variable xmlindex="13" beschreibung="Startampel Paramter Wert 3" name="StartLightParameter3" datatyp="Integer" value="3"></Variable>
         <Variable xmlindex="14" beschreibung="Startampel Paramter Wert 4" name="StartLightParameter4" datatyp="Integer" value="4"></Variable>
         <Variable xmlindex="15" beschreibung="Startampel Paramter Wert 5" name="StartLightParameter5" datatyp="Integer" value="5"></Variable>
+        <Variable xmlindex="16" beschreibung="Startampel Paramter Wert Fehlstart" name="StartLightParameterFalseStart" datatyp="Integer" value="6"></Variable>
 
 
-        <Variable xmlindex="16" beschreibung="*** 'Tank Leer'-Event ***" name="xxx3" datatyp="Text" value=" "></Variable>
-        <Variable xmlindex="17" beschreibung="Schwellenwert für leerer Tank" name="NeedsToRefuelValue" datatyp="Integer" value="20"></Variable>
+        <Variable xmlindex="17" beschreibung="*** 'Tank Leer'-Event ***" name="xxx3" datatyp="Text" value=" "></Variable>
+        <Variable xmlindex="18" beschreibung="Schwellenwert für leerer Tank" name="NeedsToRefuelValue" datatyp="Integer" value="20"></Variable>
 
-        <Variable xmlindex="18" beschreibung="*** 'Virtual Safety Car'-Event ***" name="xxx3" datatyp="Text" value=" "></Variable>
-        <Variable xmlindex="19" beschreibung="Globale Virtual Safety Car Variable" name="VirtualSafetyCarVariable" datatyp="Integer" value="42"></Variable>
+        <Variable xmlindex="19" beschreibung="*** 'Virtual Safety Car'-Event ***" name="xxx3" datatyp="Text" value=" "></Variable>
+        <Variable xmlindex="20" beschreibung="Globale Virtual Safety Car Variable" name="VirtualSafetyCarVariable" datatyp="Integer" value="42"></Variable>
     </Variables>
     <IOConfig>
         <DigOutput name="Clock" devicenumber="1" number="9"></DigOutput>

@@ -79,8 +79,7 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 1. Starting light 4 ✅
 1. Starting light 5 ✅
 1. Starting light off ✅
-
-1. False start
+1. False start ✅
 
 1. New track record ✅
 1. New session record ✅

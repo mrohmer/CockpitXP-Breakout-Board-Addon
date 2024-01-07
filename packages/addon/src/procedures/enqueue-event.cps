@@ -44,7 +44,7 @@ begin
   end;
 end;
 
-procedure EnqueueFalseStartEvent(lightsOn: Integer);
+procedure EnqueueFalseStartEvent;
 begin
   EnqueueEvent('False start', 42);
 end;

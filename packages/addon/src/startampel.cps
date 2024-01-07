@@ -13,7 +13,17 @@ begin
     exit;
   end;
 
-  if (cpGetIntegerVar('StartLightParameter1') = Cockpit.Parameter) then
+  if (cpGetIntegerVar('StartLightParameterFalseStart') = Cockpit.Parameter) then
+  begin
+    EnqueueFalseStartEvent();
+    exit;
+  end;
+
+  if (cpGetIntegerVar('StartLightParameterOff') = Cockpit.Parameter) then
+  begin
+    value := 0;
+  end
+  else if (cpGetIntegerVar('StartLightParameter1') = Cockpit.Parameter) then
   begin
     value := 1;
   end
@@ -37,7 +47,6 @@ begin
   begin
     exit;
   end;
-
 
   EnqueueStartingLightNbrEvent(value);
 end.
