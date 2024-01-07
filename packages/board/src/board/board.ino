@@ -11,7 +11,7 @@
 #define MS_CYCLE 100
 #define MS_BETWEEN_STATUS_LOG 5000
 #define MS_BETWEEN_LED_TOGGLE 1000
-#define MS_BETWEEN_FALSE_START_TOGGLE 500
+#define MS_BETWEEN_FALSE_START_TOGGLE 300
 
 #include <Arduino.h>
 #include <Adafruit_I2CDevice.h>
@@ -78,9 +78,13 @@ void cyclePrintStatusLog();
 
 void cycleToggleStatusLed();
 
+void cycleToggleStartLightFalseStart();
+
 void toggleStatusLed();
 
 void flashStatusLed(int n);
+
+void toggleStartLightFalseStart();
 
 // --- Arduino Loop ---
 void setup() {
@@ -97,6 +101,7 @@ void setup() {
 void loop() {
   cyclePrintStatusLog();
   cycleToggleStatusLed();
+  cycleToggleStartLightFalseStart();
   delay(MS_CYCLE);
 }
 
@@ -116,6 +121,13 @@ void cycleToggleStatusLed() {
   if (shouldExecuteInThisCycle(MS_BETWEEN_LED_TOGGLE, lastExecution.ledToggle)) {
     toggleStatusLed();
     lastExecution.ledToggle = millis();
+  }
+}
+
+void cycleToggleStartLightFalseStart() {
+  if (shouldExecuteInThisCycle(MS_BETWEEN_FALSE_START_TOGGLE, lastExecution.falseStartToggle)) {
+    toggleStartLightFalseStart();
+    lastExecution.falseStartToggle = millis();
   }
 }
 
@@ -191,6 +203,10 @@ void fillStartLightFields(int n) {
   }
   matrix.write(); // Send bitmap to display
 }
+void clearStartLightFields() {
+  matrix.fillScreen(LOW);
+  matrix.write(); // Send bitmap to display
+}
 
 void updateStartLight() {
   if (state.startLight.state > 0) {
@@ -201,6 +217,18 @@ void updateStartLight() {
     matrix.fillScreen(LOW);
     matrix.write();
   }
+}
+void toggleStartLightFalseStart() {
+  if (!state.startLight.falseStart) {
+    return;
+  }
+
+  if (state.startLight.falseStartToggle) {
+    clearStartLightFields();
+  } else {
+    fillStartLightFields(PIN_START_LIGHT_HORIZONTAL);
+  }
+  state.startLight.falseStartToggle = !state.startLight.falseStartToggle;
 }
 
 // --- State Update ---
