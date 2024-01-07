@@ -5,7 +5,8 @@
       "outputs": ["dist/**"]
     },
     "upload": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "monitor": {
       "cache": false,
