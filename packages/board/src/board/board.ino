@@ -108,7 +108,7 @@ void printState() {
   Serial.printf("Slot4: %s | %s\n", state.slot4.isRefueling ? "isRefueling" : "-", state.slot4.needsRefueling ? "needs to refuel" : "-");
   Serial.printf("Slot5: %s | %s\n", state.slot5.isRefueling ? "isRefueling" : "-", state.slot5.needsRefueling ? "needs to refuel" : "-");
   Serial.printf("Slot6: %s | %s\n", state.slot6.isRefueling ? "isRefueling" : "-", state.slot6.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Start light: %d | %s\n", state.startLight.falseStart, state.startLight.falseStart ? "false start" : "-");
+  Serial.printf("Start light: %d | %s\n", state.startLight.state, state.startLight.falseStart ? "false start" : "-");
   Serial.printf("Virtual Safety Car: %s\n", state.virtualSafetyCar ? "on" : "off");
   Serial.printf("Track Record: %s\n", state.newTrackRecord ? "on" : "off");
   Serial.printf("Session Record: %s\n", state.newSessionRecord ? "on" : "off");
