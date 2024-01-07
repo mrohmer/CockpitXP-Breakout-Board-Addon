@@ -17,39 +17,39 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 
 ### Events
 
-1. Reset all
+1. Reset all ✅
 
-1. Slot 1 needs to refuel
-1. Slot 1 does not need to refuel anymore
-1. Slot 1 starts refueling
-1. Slot 1 stops refueling
+1. Slot 1 needs to refuel ✅
+1. Slot 1 does not need to refuel anymore ✅
+1. Slot 1 starts refueling ✅
+1. Slot 1 stops refueling ✅
 
-1. Slot 2 needs to refuel
-1. Slot 2 does not need to refuel anymore
-1. Slot 2 starts refueling
-1. Slot 2 stops refueling
+1. Slot 2 needs to refuel ✅
+1. Slot 2 does not need to refuel anymore ✅
+1. Slot 2 starts refueling ✅
+1. Slot 2 stops refueling ✅
 
-1. Slot 3 needs to refuel
-1. Slot 3 does not need to refuel anymore
-1. Slot 3 starts refueling
-1. Slot 3 stops refueling
+1. Slot 3 needs to refuel ✅
+1. Slot 3 does not need to refuel anymore ✅
+1. Slot 3 starts refueling ✅
+1. Slot 3 stops refueling ✅
 
-1. Slot 4 needs to refuel
-1. Slot 4 does not need to refuel anymore
-1. Slot 4 starts refueling
-1. Slot 4 stops refueling
+1. Slot 4 needs to refuel ✅
+1. Slot 4 does not need to refuel anymore ✅
+1. Slot 4 starts refueling ✅
+1. Slot 4 stops refueling ✅
 
-1. Slot 5 needs to refuel
-1. Slot 5 does not need to refuel anymore
-1. Slot 5 starts refueling
-1. Slot 5 stops refueling
+1. Slot 5 needs to refuel ✅
+1. Slot 5 does not need to refuel anymore ✅
+1. Slot 5 starts refueling ✅
+1. Slot 5 stops refueling ✅
 
-1. Slot 6 needs to refuel
-1. Slot 6 does not need to refuel anymore
-1. Slot 6 starts refueling
-1. Slot 6 stops refueling
+1. Slot 6 needs to refuel ✅
+1. Slot 6 does not need to refuel anymore ✅
+1. Slot 6 starts refueling ✅
+1. Slot 6 stops refueling ✅
 
-1. Pitlane 1 of
+1. Pitlane 1 off
 1. Pitlane 1 10%
 1. Pitlane 1 20%
 1. Pitlane 1 30%
@@ -73,20 +73,20 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 1. Pitlane 2 90%
 1. Pitlane 2 100%
 
-1. Starting light 1
-1. Starting light 2
-1. Starting light 3
-1. Starting light 4
-1. Starting light 5
-1. Starting light off
+1. Starting light 1 ✅
+1. Starting light 2 ✅
+1. Starting light 3 ✅
+1. Starting light 4 ✅
+1. Starting light 5 ✅
+1. Starting light off ✅
 
 1. False start
 
-1. New track record
-1. New session record
+1. New track record ✅
+1. New session record ✅
 
-1. Virtual Safety Car on
-1. Virtual Safety Car off
+1. Virtual Safety Car on ✅
+1. Virtual Safety Car off ✅
 
 ### Mapping
 
