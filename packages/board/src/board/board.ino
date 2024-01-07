@@ -1,3 +1,10 @@
+#define PIN_CLOCK 5
+#define PIN_DATA_1 12
+#define PIN_DATA_2 13
+#define PIN_DATA_3 14
+#define PIN_LED 2
+#define USE_PULLUP true
+
 // --- Structs ---
 struct Input {  // Structure declaration
   unsigned int chunks;
@@ -29,13 +36,6 @@ struct State {
   bool newTrackRecord;
   bool newSessionRecord;
 };
-
-// --- Constants ---
-const byte clockPin = 5;
-const byte dataPin1 = 12;
-const byte dataPin2 = 13;
-const byte dataPin3 = 14;
-const byte ledPin = 2;
 
 // --- Variables ---
 struct Input input;
@@ -317,32 +317,32 @@ void updateState(unsigned int event) {
 
 // --- Status Led ---
 void setupStatusLed() {
-  pinMode(ledPin, OUTPUT);
+  pinMode(PIN_LED, OUTPUT);
 
-  digitalWrite(ledPin, HIGH);
+  digitalWrite(PIN_LED, HIGH);
 }
 void toggleStatusLed() {
-  digitalWrite(ledPin, !digitalRead(ledPin));
+  digitalWrite(PIN_LED, !digitalRead(PIN_LED));
 }
 void flashStatusLed(int n) {
     while (n-- > 0) {
-        digitalWrite(ledPin, !digitalRead(ledPin));
+        digitalWrite(PIN_LED, !digitalRead(PIN_LED));
         delay(100);
-        digitalWrite(ledPin, !digitalRead(ledPin));
+        digitalWrite(PIN_LED, !digitalRead(PIN_LED));
         delay(100);
     }
 }
 
 // --- Input Handling ---
 void setupInputPins() {
-  pinMode(dataPin1, INPUT_PULLUP);
-  digitalWrite(dataPin1, LOW);
-  pinMode(dataPin2, INPUT_PULLUP);
-  digitalWrite(dataPin2, LOW);
-  pinMode(dataPin3, INPUT_PULLUP);
-  digitalWrite(dataPin3, LOW);
-  pinMode(clockPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(clockPin), readInput, RISING);
+  pinMode(PIN_DATA_1, USE_PULLUP ? INPUT_PULLUP : INPUT);
+  digitalWrite(PIN_DATA_1, LOW);
+  pinMode(PIN_DATA_2, USE_PULLUP ? INPUT_PULLUP : INPUT);
+  digitalWrite(PIN_DATA_2, LOW);
+  pinMode(PIN_DATA_3, USE_PULLUP ? INPUT_PULLUP : INPUT);
+  digitalWrite(PIN_DATA_3, LOW);
+  pinMode(PIN_CLOCK, USE_PULLUP ? INPUT_PULLUP : INPUT);
+  attachInterrupt(digitalPinToInterrupt(PIN_CLOCK), readInput, RISING);
 }
 void resetInputData() {
   input.chunks = 0;
@@ -352,8 +352,12 @@ int calcRowValue(int val1, int val2, int val3) {
   return (val1 << 2) + (val2 << 1) + val3;
 }
 void ICACHE_RAM_ATTR readInput() {
-  Serial.printf("Interrupt %d%d%d\n", !digitalRead(dataPin1), !digitalRead(dataPin2), !digitalRead(dataPin3));
-  int value = calcRowValue(!digitalRead(dataPin1), !digitalRead(dataPin2), !digitalRead(dataPin3));
+  int value1 = digitalRead(PIN_DATA_1) == !USE_PULLUP;
+  int value2 = digitalRead(PIN_DATA_2) == !USE_PULLUP;
+  int value3 = digitalRead(PIN_DATA_3) == !USE_PULLUP;
+
+  Serial.printf("Interrupt %d%d%d\n", value1, value2, value3);
+  int value = calcRowValue(value1, value2, value3);
 
   if (value == 0) {
     Serial.printf("Received reset signal\n");
