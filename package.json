@@ -2,6 +2,8 @@
   "name": "@rohmer/cockpit-xp-breakout-board-root",
   "scripts": {
     "build": "turbo run build",
+    "board:upload": "turbo run upload --filter @rohmer/cockpit-xp-breakout-board-board",
+    "board:monitor": "turbo run monitor --filter @rohmer/cockpit-xp-breakout-board-board",
     "values": "node scripts/calc-possible-values",
     "prepare": "husky install"
   },

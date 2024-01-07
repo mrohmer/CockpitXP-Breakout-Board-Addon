@@ -3,6 +3,14 @@
   "pipeline": {
     "build": {
       "outputs": ["dist/**"]
+    },
+    "upload": {
+      "cache": false,
+      "persistent": true
+    },
+    "monitor": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

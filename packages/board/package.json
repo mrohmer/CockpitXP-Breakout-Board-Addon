@@ -1,0 +1,9 @@
+{
+  "name": "@rohmer/cockpit-xp-breakout-board-board",
+  "scripts": {
+    "build": "pio run",
+    "upload": "pio run --target upload && pio device monitor",
+    "monitor": "pio device monitor"
+  },
+  "private": true
+}
