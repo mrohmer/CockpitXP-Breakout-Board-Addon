@@ -1,50 +1,39 @@
-Type
-  Event = record
-    id: Integer;
-    highLevel: String;
-    decimal: Integer;
-    package1: String;
-    package2: String;
-    package3: String;
-  end;
 
-function GetNext(): Event;
+function GetNext(column: String): Integer;
 begin
   with newQueryAnw do
   begin
     sql.Clear;
 
-    sql.Text := 'SELECT id, package1, package2, package3, highLevel, decimal FROM breakout_board_queue ORDER BY date DESC LIMIT 1';
+    sql.Text := 'SELECT id, decimal FROM breakout_board_queue ORDER BY date DESC LIMIT 1';
 
     Open;
 
     if (IsEmpty) then
     begin
-      Result.id := -1;
+      Result := -1;
       exit;
     end;
 
     First;
 
-    Result.id := FieldByName('id').AsInteger;
-    Result.package1 := FieldByName('package1').AsString;
-    Result.package2 := FieldByName('package2').AsString;
-    Result.package3 := FieldByName('package3').AsString;
-    Result.highLevel := FieldByName('highLevel').AsString;
-    Result.decimal := FieldByName('decimal').AsInteger;
+    Result := FieldByName(column).AsInteger;
 
     Free;
   end;
 end;
 
-procedure DeleteEvent(id: Integer);
+procedure DeleteNextEvent();
+var
+  id: Integer;
 begin
+  id := GetNext('id');
   with newQueryAnw do
   begin
     sql.Clear;
 
-    sql.Text := 'DELETE FROM breakout_board_queue WHERE id = :id';
-    ParamByName('id').AsInteger = id;
+    sql.Text := 'DELETE FROM breakout_board_queue WHERE id=:id';
+    ParamByName('id').AsInteger := id;
 
     Open;
 
@@ -52,84 +41,117 @@ begin
   end;
 end;
 
-procedure DeleteEventSafe(id: Integer);
+procedure DeleteNextEventSafe();
 begin
-  try
-    DeleteEvent(id);
-  except
+  //try
+    DeleteNextEvent();
+  //except
       // just to be sure...
-    exit;
-  end;
+  //  exit;
+  //end;
 end;
 
-procedure SendPackage(package: String);
+function calcParityBit(arr: array [0..8] of Integer): Integer;
+var
+  i, value: Integer;
 begin
-  cpSetOutput('Data1', LeftStr(package, 1) = '1');
-  cpSetOutput('Data2', RightStr(LeftStr(package, 2), 1) = '1');
-  cpSetOutput('Data3', RightStr(package, 1) = '1');
+  value := 0;
+  for i := 0 to 9 do
+  begin
+    if (arr[i] = 1) and (value = 1) then
+    begin
+      value := 0;
+    end
+    else if (arr[i] = 1) and (value = 0) then
+    begin
+      value := 1;
+    end;
+  end;
+  Result := value;
+end;
+
+procedure SendPackage(nbr: Integer; pkg: Integer);
+var
+  i, value, rest, tmp: Integer;
+  arr: array [0..8] of Integer;
+begin
+  value := pkg;
+  for i := 0 to 8 do
+  begin
+    tmp := Int(value / 2);
+    rest := value - tmp * 2;
+    arr[9 - i] := rest;
+    value := tmp;
+  end;
+
+  arr[0] := calcParityBit(arr);
+
+  cpSetOutput('Data1', arr[(nbr - 1) * 3] = 1);
+  cpSetOutput('Data2', arr[(nbr - 1) * 3 + 1] = 1);
+  cpSetOutput('Data3', arr[(nbr - 1) * 3 + 2] = 1);
   cpSetOutput('Clock', true);
 end;
 
-function EventToStr(event: Event): String;
+function EventToStr(event: Integer): String;
 begin
-  Result := '(' + IntToStr(event.id) + ', ' + event.highLevel + ', ' + IntToStr(event.decimal) + ', ' + event.package1 + event.package2 + event.package3 + ')';
+  Result := '(' + IntToStr(event) + ')';
 end;
-procedure LogEventSuccess(event: Event);
+procedure LogEventSuccess(event: Integer);
 begin
   Cockpit.WriteLog := 'Processed event: ' + EventToStr(event);
 end;
-procedure LogEventFailure(event: Event);
+procedure LogEventFailure(event: Integer);
 begin
   Cockpit.WriteLog := 'Processing event failed: ' + EventToStr(event); // todo: add error
 end;
 
-procedure SendEvent(event: Event);
+procedure SendEvent(event: Integer);
 begin
-  try
-    SendPackage(event.package1);
+  //try
+    SendPackage(1, event);
 
     cpSleep(25);
     cpSetOutput('Clock', false);
     cpSleep(25);
 
-    SendPackage(event.package2);
+    SendPackage(2, event);
 
     cpSleep(25);
     cpSetOutput('Clock', false);
     cpSleep(25);
 
-    SendPackage(event.package3);
+    SendPackage(3, event);
 
     cpSleep(25);
-  finally
+  //finally
       // definitely reset the clock so it can be used for the next event
     cpSetOutput('Clock', false);
     cpSleep(25);
-  end;
+  //end;
 end;
 
 procedure ProcessNextInQueue;
 var
-  next: Event;
+  next: Integer;
 begin
-  try
-    next := GetNext();
+  // try
+    next := GetNext('decimal');
 
-    if (next.id = -1) then
+    if (next = -1) then
     begin
       exit;
     end;
-  except
-    exit;
-  end;
+  //except
+  //  exit;
+  //end;
 
-  try
+  //try
     SendEvent(next);
     LogEventSuccess(next);
-  except
-    LogEventFailure(next);
-  finally
-      // delete it in any case to prevent piling up in the queue
-    DeleteEventSafe(next.id);
-  end;
+  //except
+  //  LogEventFailure(next);
+  //finally
+    // delete it in any case to prevent piling up in the queue
+    DeleteNextEventSafe();
+  //end;
 end;

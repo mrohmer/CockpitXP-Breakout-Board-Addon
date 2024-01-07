@@ -2,10 +2,21 @@
 { Event: StartRealTime }
 { Parameter: Keine }
 
+{%%FUNCTION.BoolToInt%%}
+{%%FUNCTION.IsEventInactive%%}
+
 {%%PROCEDURE.InitTable%%}
+{%%PROCEDURE.ProcessNextInQueue%%}
 {%%PROCEDURE.EnqueueEvent%%}
+{%%PROCEDURE.CheckSlotIsFueling%%}
+{%%PROCEDURE.CheckSlotNeedsToRefuel%%}
+{%%PROCEDURE.CheckVirtualSafetyCar%%}
+
+var
+  lastCheck: Extended;
 
 begin
+  lastCheck := 0;
   cpSetIntegerVar('Exit', 0);
 
   InitTable();
@@ -16,6 +27,15 @@ begin
     if (cpGetIntegerVar('Exit') = 1) then
     begin
       exit;
+    end;
+
+    if (cpGetSystemTimeMs - lastCheck >= 2000) then
+    begin
+      checkSlotIsFueling();
+      checkSlotNeedsToRefuel();
+      checkVirtualSafetyCar();
+
+      lastCheck := cpGetSystemTimeMs;
     end;
 
     ProcessNextInQueue();
