@@ -12,6 +12,7 @@
 #include <Adafruit_I2CDevice.h>
 #include <Adafruit_GFX.h>
 #include <Max72xxPanel.h>
+#include <string.h>
 
 
 // --- Structs ---
@@ -54,7 +55,7 @@ Max72xxPanel matrix = Max72xxPanel(PIN_START_LIGHT_CS, PIN_START_LIGHT_HORIZONTA
 unsigned int cycle = 0;
 
 // --- Declarations ---
-void ICACHE_RAM_ATTR readInput();
+void IRAM_ATTR readInput();
 void setupInputPins();
 void setupStatusLed();
 void toggleStatusLed();
@@ -96,8 +97,7 @@ char *toBinaryString(int n, int numberOfBits) {
 bool hasEvenParity(unsigned int n) {
   char *str = toBinaryString(n, 32);
   int count = 0;
-  int length = sizeof(str) / sizeof(str[0]);
-  for (int i = 0; i < length; i++) {
+  for (unsigned int i = 0; i < strlen(str); i++) {
     char compLetter = str[i];
     if (strcmp(&compLetter, "1")) {
       count++;
@@ -404,7 +404,7 @@ void resetInputData() {
 int calcRowValue(int val1, int val2, int val3) {
   return (val1 << 2) + (val2 << 1) + val3;
 }
-void ICACHE_RAM_ATTR readInput() {
+void IRAM_ATTR readInput() {
   int value1 = digitalRead(PIN_DATA_1) == !USE_PULLUP;
   int value2 = digitalRead(PIN_DATA_2) == !USE_PULLUP;
   int value3 = digitalRead(PIN_DATA_3) == !USE_PULLUP;
