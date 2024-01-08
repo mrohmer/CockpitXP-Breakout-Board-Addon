@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build
-        run: pnpm build
+        run: pnpm build --filter @rohmer/cockpit-xp-breakout-board-addon
       - uses: actions/upload-artifact@v4
         with:
           name: addon
