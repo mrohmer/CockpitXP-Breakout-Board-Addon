@@ -1,11 +1,12 @@
-
-function GetNext(column: String): Integer;
+function GetNext(column: String; log: Boolean): Integer;
+var
+  decimal, res: Integer;
 begin
   with newQueryAnw do
   begin
     sql.Clear;
 
-    sql.Text := 'SELECT id, decimal FROM breakout_board_queue ORDER BY date DESC LIMIT 1';
+    sql.Text := 'SELECT id, highLevel, decimal FROM breakout_board_queue ORDER BY date DESC LIMIT 1';
 
     Open;
 
@@ -17,7 +18,22 @@ begin
 
     First;
 
-    Result := FieldByName(column).AsInteger;
+    decimal := FieldByName(column).AsInteger;
+
+    if (decimal < 1) then
+    begin
+      Result := -1;
+      exit;
+    end;
+
+
+    if (log) then
+    begin
+      Cockpit.WriteLog := 'Found Event: ' + FieldByName('highLevel').AsString + '(' + IntToStr(decimal) + ')';
+    end;
+
+    res := FieldByName(column).AsInteger;
+    Result := res;
 
     Free;
   end;
@@ -27,7 +43,7 @@ procedure DeleteNextEvent();
 var
   id: Integer;
 begin
-  id := GetNext('id');
+  id := GetNext('id', false);
   with newQueryAnw do
   begin
     sql.Clear;
@@ -44,9 +60,9 @@ end;
 procedure DeleteNextEventSafe();
 begin
   //try
-    DeleteNextEvent();
+  DeleteNextEvent();
   //except
-      // just to be sure...
+  // just to be sure...
   //  exit;
   //end;
 end;
@@ -56,7 +72,7 @@ var
   i, value: Integer;
 begin
   value := 0;
-  for i := 0 to 9 do
+  for i := 0 to 8 do
   begin
     if (arr[i] = 1) and (value = 1) then
     begin
@@ -70,6 +86,20 @@ begin
   Result := value;
 end;
 
+procedure LogChunk(chunk: Integer; arr: array [0..8] of Integer);
+var
+  i, start: Integer;
+  str: String;
+begin
+  str := '';
+  start := (chunk - 1) * 3;
+  for i := start to start + 2 do
+  begin
+    str := str + IntToStr(arr[i]);
+  end;
+  Cockpit.WriteLog := 'Chunk ' + IntToStr(chunk) + ': ' + str;
+end;
+
 procedure SendPackage(nbr: Integer; pkg: Integer);
 var
   i, value, rest, tmp: Integer;
@@ -80,11 +110,13 @@ begin
   begin
     tmp := Int(value / 2);
     rest := value - tmp * 2;
-    arr[9 - i] := rest;
+    arr[8 - i] := rest;
     value := tmp;
   end;
 
   arr[0] := calcParityBit(arr);
+
+  LogChunk(nbr, arr);
 
   cpSetOutput('Data1', arr[(nbr - 1) * 3] = 1);
   cpSetOutput('Data2', arr[(nbr - 1) * 3 + 1] = 1);
@@ -96,10 +128,12 @@ function EventToStr(event: Integer): String;
 begin
   Result := '(' + IntToStr(event) + ')';
 end;
+
 procedure LogEventSuccess(event: Integer);
 begin
   Cockpit.WriteLog := 'Processed event: ' + EventToStr(event);
 end;
+
 procedure LogEventFailure(event: Integer);
 begin
   Cockpit.WriteLog := 'Processing event failed: ' + EventToStr(event); // todo: add error
@@ -108,25 +142,25 @@ end;
 procedure SendEvent(event: Integer);
 begin
   //try
-    SendPackage(1, event);
+  SendPackage(1, event);
 
-    cpSleep(25);
-    cpSetOutput('Clock', false);
-    cpSleep(25);
+  cpSleep(25);
+  cpSetOutput('Clock', false);
+  cpSleep(25);
 
-    SendPackage(2, event);
+  SendPackage(2, event);
 
-    cpSleep(25);
-    cpSetOutput('Clock', false);
-    cpSleep(25);
+  cpSleep(25);
+  cpSetOutput('Clock', false);
+  cpSleep(25);
 
-    SendPackage(3, event);
+  SendPackage(3, event);
 
-    cpSleep(25);
+  cpSleep(25);
   //finally
-      // definitely reset the clock so it can be used for the next event
-    cpSetOutput('Clock', false);
-    cpSleep(25);
+  // definitely reset the clock so it can be used for the next event
+  cpSetOutput('Clock', false);
+  cpSleep(25);
   //end;
 end;
 
@@ -135,23 +169,23 @@ var
   next: Integer;
 begin
   // try
-    next := GetNext('decimal');
+  next := GetNext('decimal', true);
 
-    if (next = -1) then
-    begin
-      exit;
-    end;
+  if (next < 1) then
+  begin
+    exit;
+  end;
   //except
   //  exit;
   //end;
 
   //try
-    SendEvent(next);
-    LogEventSuccess(next);
+  SendEvent(next);
+  LogEventSuccess(next);
   //except
   //  LogEventFailure(next);
   //finally
-    // delete it in any case to prevent piling up in the queue
-    DeleteNextEventSafe();
+  // delete it in any case to prevent piling up in the queue
+  DeleteNextEventSafe();
   //end;
 end;
