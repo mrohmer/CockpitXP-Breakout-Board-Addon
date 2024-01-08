@@ -46,7 +46,7 @@ jobs:
           cp -a packages/board/readme.md dist/mr-breakout-board/
           mkdir -p dist/docs
           cp readme.md dist/mr-breakout-board-addon
-          cp docs dist/docs
+          cp -a docs dist/docs
       - name: Zip Assets
         run: |
           cd dist
