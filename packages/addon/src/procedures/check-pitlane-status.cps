@@ -13,7 +13,7 @@ begin
 
   Cockpit.Slot := slot;
 
-  entranceTime := cpGetFlotVar('Pitlane:' + IntToStr(pitlane) + ':Slot:Time');
+  entranceTime := cpGetFloatVar('Pitlane:' + IntToStr(pitlane) + ':Slot:Time');
 
   if (entranceTime = 0) or (Cockpit.SlotId < 1) or ((cpGetSystemTimeMs - entranceTime > cpGetIntegerVar('PitlaneSecurityTime')) and (not Cockpit.EsWirdGetankt)) then
   begin
@@ -56,7 +56,7 @@ end;
 
 procedure checkPitlaneStatus;
 var
-  slot: Integer;
+  pitlane: Integer;
 begin
   if (isEventInactive('Pitlane')) then
   begin
