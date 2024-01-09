@@ -17,11 +17,18 @@
 #define PIN_PITLANE_2_60 7 // VIA I2C
 #define PIN_PITLANE_2_80 8 // VIA I2C
 #define PIN_PITLANE_2_100 9 // VIA I2C
+#define PIN_FUELING_SLOT_1 10 // VIA I2C
+#define PIN_FUELING_SLOT_2 11 // VIA I2C
+#define PIN_FUELING_SLOT_3 12 // VIA I2C
+#define PIN_FUELING_SLOT_4 13 // VIA I2C
+#define PIN_FUELING_SLOT_5 14 // VIA I2C
+#define PIN_FUELING_SLOT_6 15 // VIA I2C
 
 #define MS_CYCLE 100
 #define MS_BETWEEN_STATUS_LOG 5000
 #define MS_BETWEEN_LED_TOGGLE 1000
 #define MS_BETWEEN_FALSE_START_TOGGLE 200
+#define MS_BETWEEN_NEEDS_TO_REFUEL_TOGGLE 200
 
 #define HAS_I2C_CONNECTED false
 
@@ -43,6 +50,16 @@ struct SlotState {
     bool isRefueling;
     bool needsRefueling;
 };
+struct SlotsState {
+    struct SlotState slot1;
+    struct SlotState slot2;
+    struct SlotState slot3;
+    struct SlotState slot4;
+    struct SlotState slot5;
+    struct SlotState slot6;
+
+    bool lastNeedsToRefuelToggleState;
+};
 struct StartLightState {
     bool falseStart;
     bool falseStartToggle;
@@ -50,12 +67,7 @@ struct StartLightState {
     unsigned int state;
 };
 struct State {
-    struct SlotState slot1;
-    struct SlotState slot2;
-    struct SlotState slot3;
-    struct SlotState slot4;
-    struct SlotState slot5;
-    struct SlotState slot6;
+    struct SlotsState slots;
 
     unsigned int pitlane1;
     unsigned int pitlane2;
@@ -70,6 +82,7 @@ struct LastExecutionState {
     unsigned long log;
     unsigned long ledToggle;
     unsigned long falseStartToggle;
+    unsigned long needsToRefuelToggle;
 };
 
 // --- Variables ---
@@ -92,17 +105,23 @@ void setupI2C();
 
 void setupPitlane();
 
+void setupFueling();
+
 void cyclePrintStatusLog();
 
 void cycleToggleStatusLed();
 
 void cycleToggleStartLightFalseStart();
 
+void cycleToggleNeedsToRefuel();
+
 void toggleStatusLed();
 
 void flashStatusLed(int n);
 
 void toggleStartLightFalseStart();
+
+void toggleNeedsToRefuel();
 
 void restoreState();
 
@@ -113,6 +132,7 @@ void setup() {
   setupStartLight();
   setupI2C();
   setupPitlane();
+  setupFueling();
   setupStatusLed();
   setupInputPins();
 
@@ -126,6 +146,7 @@ void loop() {
   cyclePrintStatusLog();
   cycleToggleStatusLed();
   cycleToggleStartLightFalseStart();
+  cycleToggleNeedsToRefuel();
   delay(MS_CYCLE);
 }
 
@@ -152,6 +173,14 @@ void cycleToggleStartLightFalseStart() {
   if (shouldExecuteInThisCycle(MS_BETWEEN_FALSE_START_TOGGLE, lastExecution.falseStartToggle)) {
     toggleStartLightFalseStart();
     lastExecution.falseStartToggle = millis();
+  }
+}
+
+
+void cycleToggleNeedsToRefuel() {
+  if (shouldExecuteInThisCycle(MS_BETWEEN_NEEDS_TO_REFUEL_TOGGLE, lastExecution.needsToRefuelToggle)) {
+    toggleNeedsToRefuel();
+    lastExecution.needsToRefuelToggle = millis();
   }
 }
 
@@ -322,22 +351,74 @@ void updatePitlanes() {
   );
 }
 
+// --- Fueling ---
+void setupFueling() {
+  if (!HAS_I2C_CONNECTED) {
+    return;
+  }
+  mcp.pinMode(PIN_FUELING_SLOT_1, OUTPUT);
+  mcp.pinMode(PIN_FUELING_SLOT_2, OUTPUT);
+  mcp.pinMode(PIN_FUELING_SLOT_3, OUTPUT);
+  mcp.pinMode(PIN_FUELING_SLOT_4, OUTPUT);
+  mcp.pinMode(PIN_FUELING_SLOT_5, OUTPUT);
+  mcp.pinMode(PIN_FUELING_SLOT_6, OUTPUT);
+}
+
+void updateSlotIsRefueling(bool isRefueling, unsigned int pin) {
+  if (!HAS_I2C_CONNECTED) {
+    return;
+  }
+  mcp.digitalWrite(pin, isRefueling ? HIGH : LOW);
+}
+
+void updateIsRefueling() {
+  updateSlotIsRefueling(state.slots.slot1.isRefueling, PIN_FUELING_SLOT_1);
+  updateSlotIsRefueling(state.slots.slot2.isRefueling, PIN_FUELING_SLOT_2);
+  updateSlotIsRefueling(state.slots.slot3.isRefueling, PIN_FUELING_SLOT_3);
+  updateSlotIsRefueling(state.slots.slot4.isRefueling, PIN_FUELING_SLOT_4);
+  updateSlotIsRefueling(state.slots.slot5.isRefueling, PIN_FUELING_SLOT_5);
+  updateSlotIsRefueling(state.slots.slot6.isRefueling, PIN_FUELING_SLOT_6);
+}
+
+void toggleSlotNeedsToRefuel(bool needsToRefuel, bool isRefueling, unsigned int pin) {
+  if (!HAS_I2C_CONNECTED) {
+    return;
+  }
+
+  if (isRefueling) {
+    // handled in interrupt
+    return;
+  }
+
+  mcp.digitalWrite(pin, state.slots.lastNeedsToRefuelToggleState && needsToRefuel ? HIGH : LOW);
+}
+
+void toggleNeedsToRefuel() {
+  state.slots.lastNeedsToRefuelToggleState = !state.slots.lastNeedsToRefuelToggleState;
+  toggleSlotNeedsToRefuel(state.slots.slot1.needsRefueling, state.slots.slot1.isRefueling, PIN_FUELING_SLOT_1);
+  toggleSlotNeedsToRefuel(state.slots.slot2.needsRefueling, state.slots.slot2.isRefueling, PIN_FUELING_SLOT_2);
+  toggleSlotNeedsToRefuel(state.slots.slot3.needsRefueling, state.slots.slot3.isRefueling, PIN_FUELING_SLOT_3);
+  toggleSlotNeedsToRefuel(state.slots.slot4.needsRefueling, state.slots.slot4.isRefueling, PIN_FUELING_SLOT_4);
+  toggleSlotNeedsToRefuel(state.slots.slot5.needsRefueling, state.slots.slot5.isRefueling, PIN_FUELING_SLOT_5);
+  toggleSlotNeedsToRefuel(state.slots.slot6.needsRefueling, state.slots.slot6.isRefueling, PIN_FUELING_SLOT_6);
+}
+
 // --- State Update ---
 void printState() {
   Serial.println("State:");
   Serial.printf("Pitlane 1: %d | Pitlane 2: %d\n", state.pitlane1, state.pitlane2);
-  Serial.printf("Slot1: %s | %s\n", state.slot1.isRefueling ? "isRefueling" : "-",
-                state.slot1.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot2: %s | %s\n", state.slot2.isRefueling ? "isRefueling" : "-",
-                state.slot2.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot3: %s | %s\n", state.slot3.isRefueling ? "isRefueling" : "-",
-                state.slot3.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot4: %s | %s\n", state.slot4.isRefueling ? "isRefueling" : "-",
-                state.slot4.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot5: %s | %s\n", state.slot5.isRefueling ? "isRefueling" : "-",
-                state.slot5.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot6: %s | %s\n", state.slot6.isRefueling ? "isRefueling" : "-",
-                state.slot6.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot1: %s | %s\n", state.slots.slot1.isRefueling ? "isRefueling" : "-",
+                state.slots.slot1.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot2: %s | %s\n", state.slots.slot2.isRefueling ? "isRefueling" : "-",
+                state.slots.slot2.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot3: %s | %s\n", state.slots.slot3.isRefueling ? "isRefueling" : "-",
+                state.slots.slot3.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot4: %s | %s\n", state.slots.slot4.isRefueling ? "isRefueling" : "-",
+                state.slots.slot4.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot5: %s | %s\n", state.slots.slot5.isRefueling ? "isRefueling" : "-",
+                state.slots.slot5.needsRefueling ? "needs to refuel" : "-");
+  Serial.printf("Slot6: %s | %s\n", state.slots.slot6.isRefueling ? "isRefueling" : "-",
+                state.slots.slot6.needsRefueling ? "needs to refuel" : "-");
   Serial.printf("Start light: %d | %s\n", state.startLight.state, state.startLight.falseStart ? "false start" : "-");
   Serial.printf("Virtual Safety Car: %s\n", state.virtualSafetyCar ? "on" : "off");
   Serial.printf("Track Record: %s\n", state.newTrackRecord ? "on" : "off");
@@ -346,15 +427,18 @@ void printState() {
 
 void resetState() {
   state = {
-          .slot1 = {.isRefueling = false, .needsRefueling = false},
-          .slot2 = {.isRefueling = false, .needsRefueling = false},
-          .slot3 = {.isRefueling = false, .needsRefueling = false},
-          .slot4 = {.isRefueling = false, .needsRefueling = false},
-          .slot5 = {.isRefueling = false, .needsRefueling = false},
-          .slot6 = {.isRefueling = false, .needsRefueling = false},
+          .slots = {
+                  .slot1 = {.isRefueling = false, .needsRefueling = false},
+                  .slot2 = {.isRefueling = false, .needsRefueling = false},
+                  .slot3 = {.isRefueling = false, .needsRefueling = false},
+                  .slot4 = {.isRefueling = false, .needsRefueling = false},
+                  .slot5 = {.isRefueling = false, .needsRefueling = false},
+                  .slot6 = {.isRefueling = false, .needsRefueling = false},
+                  .lastNeedsToRefuelToggleState = false
+          },
           .pitlane1 = 0,
           .pitlane2 = 0,
-          .startLight = {.falseStart = false, .falseStartToggle = false, .state = 0},
+          .startLight = { .falseStart = false, .falseStartToggle = false, .state = 0 },
 
           .virtualSafetyCar = false,
           .newTrackRecord = false,
@@ -477,76 +561,76 @@ bool updateState(unsigned int event) {
       state.pitlane2 = 100;
       break;
     case 97:  // slot 1 needs to refuel
-      state.slot1.needsRefueling = true;
+      state.slots.slot1.needsRefueling = true;
       break;
     case 98:  // slot 1 does not need to refuel anymore
-      state.slot1.needsRefueling = false;
+      state.slots.slot1.needsRefueling = false;
       break;
     case 99:  // slot 1 starts refueling
-      state.slot1.isRefueling = true;
+      state.slots.slot1.isRefueling = true;
       break;
     case 100:  // slot 1 stops refueling
-      state.slot1.isRefueling = false;
+      state.slots.slot1.isRefueling = false;
       break;
     case 105:  // slot 2 needs to refuel
-      state.slot2.needsRefueling = true;
+      state.slots.slot2.needsRefueling = true;
       break;
     case 106:  // slot 2 does not need to refuel anymore
-      state.slot2.needsRefueling = false;
+      state.slots.slot2.needsRefueling = false;
       break;
     case 107:  // slot 2 starts refueling
-      state.slot2.isRefueling = true;
+      state.slots.slot2.isRefueling = true;
       break;
     case 108:  // slot 2 stops refueling
-      state.slot2.isRefueling = false;
+      state.slots.slot2.isRefueling = false;
       break;
     case 113:  // slot 3 needs to refuel
-      state.slot3.needsRefueling = true;
+      state.slots.slot3.needsRefueling = true;
       break;
     case 114:  // slot 3 does not need to refuel anymore
-      state.slot3.needsRefueling = false;
+      state.slots.slot3.needsRefueling = false;
       break;
     case 115:  // slot 3 starts refueling
-      state.slot3.isRefueling = true;
+      state.slots.slot3.isRefueling = true;
       break;
     case 116:  // slot 3 stops refueling
-      state.slot3.isRefueling = false;
+      state.slots.slot3.isRefueling = false;
       break;
     case 121:  // slot 4 needs to refuel
-      state.slot4.needsRefueling = true;
+      state.slots.slot4.needsRefueling = true;
       break;
     case 122:  // slot 4 does not need to refuel anymore
-      state.slot4.needsRefueling = false;
+      state.slots.slot4.needsRefueling = false;
       break;
     case 123:  // slot 4 starts refueling
-      state.slot4.isRefueling = true;
+      state.slots.slot4.isRefueling = true;
       break;
     case 124:  // slot 4 stops refueling
-      state.slot4.isRefueling = false;
+      state.slots.slot4.isRefueling = false;
       break;
     case 137:  // slot 5 needs to refuel
-      state.slot5.needsRefueling = true;
+      state.slots.slot5.needsRefueling = true;
       break;
     case 138:  // slot 5 does not need to refuel anymore
-      state.slot5.needsRefueling = false;
+      state.slots.slot5.needsRefueling = false;
       break;
     case 139:  // slot 5 starts refueling
-      state.slot5.isRefueling = true;
+      state.slots.slot5.isRefueling = true;
       break;
     case 140:  // slot 5 stops refueling
-      state.slot5.isRefueling = false;
+      state.slots.slot5.isRefueling = false;
       break;
     case 145:  // slot 6 needs to refuel
-      state.slot6.needsRefueling = true;
+      state.slots.slot6.needsRefueling = true;
       break;
     case 146:  // slot 6 does not need to refuel anymore
-      state.slot6.needsRefueling = false;
+      state.slots.slot6.needsRefueling = false;
       break;
     case 147:  // slot 6 starts refueling
-      state.slot6.isRefueling = true;
+      state.slots.slot6.isRefueling = true;
       break;
     case 148:  // slot 6 stops refueling
-      state.slot6.isRefueling = false;
+      state.slots.slot6.isRefueling = false;
       break;
     default:
       return 0;
@@ -558,6 +642,7 @@ bool updateState(unsigned int event) {
 void updateOnStatusChange() {
   updateStartLight();
   updatePitlanes();
+  updateIsRefueling();
 }
 
 // --- Input Handling ---
@@ -631,5 +716,4 @@ void restoreState() {
   // todo: restore in case of power outage
   resetState();
   updateOnStatusChange();
-  updatePitlanes();
 }
