@@ -23,7 +23,7 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 |
 ❌: not even touched
 
-1. Reset all (addon: ✅, board: ❌)
+1. Reset all (addon: ✅, board: ✅)
 
 1. Slot 1 needs to refuel (addon: ✅, board: ☑️)
 1. Slot 1 does not need to refuel anymore (addon: ✅, board: ☑️)
