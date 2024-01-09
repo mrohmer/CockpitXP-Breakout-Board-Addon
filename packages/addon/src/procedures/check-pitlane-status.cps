@@ -24,7 +24,7 @@ begin
     exit;
   end;
 
-  case Cockpit.TankStand of
+  case Int(Cockpit.TankStand) of
     0..4: Result := 0;
     5..14: Result := 10;
     15..24: Result := 20;
