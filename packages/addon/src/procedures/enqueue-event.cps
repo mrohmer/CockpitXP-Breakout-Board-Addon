@@ -46,12 +46,12 @@ end;
 
 procedure EnqueueStartingLightGreenEvent;
 begin
-  EnqueueEvent('Starting light Green', 42);
+  EnqueueEvent('Starting light Green', 44);
 end;
 
 procedure EnqueueFalseStartEvent;
 begin
-  EnqueueEvent('False start', 44);
+  EnqueueEvent('False start', 42);
 end;
 
 procedure EnqueueNewTrackRecordEvent;

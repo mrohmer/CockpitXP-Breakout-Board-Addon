@@ -310,12 +310,12 @@ bool updateState(unsigned int event) {
       state.startLight.state = 5;
       state.startLight.falseStart = false;
       break;
-    case 42:  // starting light green
+    case 42:  // starting light false start
+      state.startLight.falseStart = true;
+      break;
+    case 44:  // starting light green
       state.startLight.state = 5;
       state.startLight.falseStart = false;
-      break;
-    case 44:  // starting light false start
-      state.startLight.falseStart = true;
       break;
     case 49:  // new track record
       state.newTrackRecord = true;
