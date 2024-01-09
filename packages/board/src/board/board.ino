@@ -444,9 +444,11 @@ void toggleVirtualSafetyCar() {
     return;
   }
 
+  bool prevState = state.virtualSafetyCar.lastToggleState;
+  state.virtualSafetyCar.lastToggleState = !state.virtualSafetyCar.lastToggleState;
   bool nextState = state.virtualSafetyCar.state && state.virtualSafetyCar.lastToggleState;
 
-  if (nextState == state.virtualSafetyCar.lastToggleState) {
+  if (nextState == prevState) {
     return;
   }
 
