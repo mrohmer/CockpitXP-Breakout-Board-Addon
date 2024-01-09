@@ -86,6 +86,8 @@ void flashStatusLed(int n);
 
 void toggleStartLightFalseStart();
 
+void restoreState();
+
 // --- Arduino Loop ---
 void setup() {
   Serial.begin(9600);
@@ -96,6 +98,8 @@ void setup() {
 
   Serial.println("Setup Done.");
   flashStatusLed(10);
+
+  restoreState();
 }
 
 void loop() {
@@ -529,4 +533,9 @@ readInput() {
   if (updated) {
     updateOnStatusChange();
   }
+}
+void restoreState() {
+  // todo: restore in case of power outage
+  resetState();
+  updateOnStatusChange();
 }
