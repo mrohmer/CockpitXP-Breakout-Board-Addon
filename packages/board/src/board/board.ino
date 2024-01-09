@@ -402,7 +402,7 @@ void updateIsRefueling() {
   updateSlotIsRefueling(state.slots.slot6.isRefueling, PIN_FUELING_SLOT_6);
 }
 
-void toggleSlotNeedsToRefuel(bool needsToRefuel, bool isRefueling, unsigned int pin) {
+void toggleSlotNeedsToRefuel(bool needsToRefuel, bool isRefueling, bool prevState, unsigned int pin) {
   if (!HAS_I2C_CONNECTED) {
     return;
   }
@@ -412,17 +412,24 @@ void toggleSlotNeedsToRefuel(bool needsToRefuel, bool isRefueling, unsigned int 
     return;
   }
 
-  mcp.digitalWrite(pin, state.slots.lastNeedsToRefuelToggleState && needsToRefuel ? HIGH : LOW);
+  bool nextState = state.slots.lastNeedsToRefuelToggleState && needsToRefuel;
+
+  if (prevState == nextState) {
+    return;
+  }
+
+  mcp.digitalWrite(pin, nextState ? HIGH : LOW);
 }
 
 void toggleNeedsToRefuel() {
+  bool prevState = state.slots.lastNeedsToRefuelToggleState;
   state.slots.lastNeedsToRefuelToggleState = !state.slots.lastNeedsToRefuelToggleState;
-  toggleSlotNeedsToRefuel(state.slots.slot1.needsRefueling, state.slots.slot1.isRefueling, PIN_FUELING_SLOT_1);
-  toggleSlotNeedsToRefuel(state.slots.slot2.needsRefueling, state.slots.slot2.isRefueling, PIN_FUELING_SLOT_2);
-  toggleSlotNeedsToRefuel(state.slots.slot3.needsRefueling, state.slots.slot3.isRefueling, PIN_FUELING_SLOT_3);
-  toggleSlotNeedsToRefuel(state.slots.slot4.needsRefueling, state.slots.slot4.isRefueling, PIN_FUELING_SLOT_4);
-  toggleSlotNeedsToRefuel(state.slots.slot5.needsRefueling, state.slots.slot5.isRefueling, PIN_FUELING_SLOT_5);
-  toggleSlotNeedsToRefuel(state.slots.slot6.needsRefueling, state.slots.slot6.isRefueling, PIN_FUELING_SLOT_6);
+  toggleSlotNeedsToRefuel(state.slots.slot1.needsRefueling, state.slots.slot1.isRefueling, prevState, PIN_FUELING_SLOT_1);
+  toggleSlotNeedsToRefuel(state.slots.slot2.needsRefueling, state.slots.slot2.isRefueling, prevState, PIN_FUELING_SLOT_2);
+  toggleSlotNeedsToRefuel(state.slots.slot3.needsRefueling, state.slots.slot3.isRefueling, prevState, PIN_FUELING_SLOT_3);
+  toggleSlotNeedsToRefuel(state.slots.slot4.needsRefueling, state.slots.slot4.isRefueling, prevState, PIN_FUELING_SLOT_4);
+  toggleSlotNeedsToRefuel(state.slots.slot5.needsRefueling, state.slots.slot5.isRefueling, prevState, PIN_FUELING_SLOT_5);
+  toggleSlotNeedsToRefuel(state.slots.slot6.needsRefueling, state.slots.slot6.isRefueling, prevState, PIN_FUELING_SLOT_6);
 }
 
 // --- Virtual Safety Car
