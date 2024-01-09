@@ -7,17 +7,30 @@
 #define PIN_START_LIGHT_CS 15
 #define PIN_START_LIGHT_HORIZONTAL 5
 #define PIN_START_LIGHT_VERTICAL 1
+#define PIN_PITLANE_1_20 0 // VIA I2C
+#define PIN_PITLANE_1_40 1 // VIA I2C
+#define PIN_PITLANE_1_60 2 // VIA I2C
+#define PIN_PITLANE_1_80 3 // VIA I2C
+#define PIN_PITLANE_1_100 4 // VIA I2C
+#define PIN_PITLANE_2_20 5 // VIA I2C
+#define PIN_PITLANE_2_40 6 // VIA I2C
+#define PIN_PITLANE_2_60 7 // VIA I2C
+#define PIN_PITLANE_2_80 8 // VIA I2C
+#define PIN_PITLANE_2_100 9 // VIA I2C
 
 #define MS_CYCLE 100
 #define MS_BETWEEN_STATUS_LOG 5000
 #define MS_BETWEEN_LED_TOGGLE 1000
 #define MS_BETWEEN_FALSE_START_TOGGLE 200
 
+#define HAS_I2C_CONNECTED false
+
 #include <Arduino.h>
 #include <Adafruit_I2CDevice.h>
 #include <Adafruit_GFX.h>
 #include <Max72xxPanel.h>
 #include <string.h>
+#include <Adafruit_MCP23X17.h>
 
 
 // --- Structs ---
@@ -64,6 +77,7 @@ struct Input input;
 struct State state;
 struct LastExecutionState lastExecution;
 Max72xxPanel matrix = Max72xxPanel(PIN_START_LIGHT_CS, PIN_START_LIGHT_HORIZONTAL, PIN_START_LIGHT_VERTICAL);
+Adafruit_MCP23X17 mcp;
 
 // --- Declarations ---
 void IRAM_ATTR
@@ -73,6 +87,10 @@ readInput();
 void setupInputPins();
 
 void setupStatusLed();
+
+void setupI2C();
+
+void setupPitlane();
 
 void cyclePrintStatusLog();
 
@@ -92,9 +110,11 @@ void restoreState();
 void setup() {
   Serial.begin(9600);
 
+  setupStartLight();
+  setupI2C();
+  setupPitlane();
   setupStatusLed();
   setupInputPins();
-  setupStartLight();
 
   Serial.println("Setup Done.");
   flashStatusLed(10);
@@ -165,6 +185,16 @@ unsigned int clearBit(unsigned int number, unsigned int n) {
   return number & ~((unsigned int) 1 << n);
 }
 
+// --- I2C ---
+void setupI2C() {
+  if (!HAS_I2C_CONNECTED) {
+    return;
+  }
+  if (!mcp.begin_I2C()) {
+    Serial.println("Error.");
+    while (1);
+  }
+}
 
 // --- Status Led ---
 void setupStatusLed() {
@@ -207,6 +237,7 @@ void fillStartLightFields(int n) {
   }
   matrix.write(); // Send bitmap to display
 }
+
 void clearStartLightFields() {
   matrix.fillScreen(LOW);
   matrix.write(); // Send bitmap to display
@@ -222,6 +253,7 @@ void updateStartLight() {
     matrix.write();
   }
 }
+
 void toggleStartLightFalseStart() {
   if (!state.startLight.falseStart) {
     return;
@@ -233,6 +265,61 @@ void toggleStartLightFalseStart() {
     fillStartLightFields(PIN_START_LIGHT_HORIZONTAL);
   }
   state.startLight.falseStartToggle = !state.startLight.falseStartToggle;
+}
+
+// --- Pitlane ---
+void setupPitlane() {
+  if (!HAS_I2C_CONNECTED) {
+    return;
+  }
+
+  mcp.pinMode(PIN_PITLANE_1_20, OUTPUT);
+  mcp.pinMode(PIN_PITLANE_1_40, OUTPUT);
+  mcp.pinMode(PIN_PITLANE_1_60, OUTPUT);
+  mcp.pinMode(PIN_PITLANE_1_80, OUTPUT);
+  mcp.pinMode(PIN_PITLANE_1_100, OUTPUT);
+  mcp.pinMode(PIN_PITLANE_2_20, OUTPUT);
+  mcp.pinMode(PIN_PITLANE_2_40, OUTPUT);
+  mcp.pinMode(PIN_PITLANE_2_60, OUTPUT);
+  mcp.pinMode(PIN_PITLANE_2_80, OUTPUT);
+  mcp.pinMode(PIN_PITLANE_2_100, OUTPUT);
+}
+
+void updatePitlane(
+        unsigned int value,
+        unsigned int pin20,
+        unsigned int pin40,
+        unsigned int pin60,
+        unsigned int pin80,
+        unsigned int pin100
+) {
+  if (!HAS_I2C_CONNECTED) {
+    return;
+  }
+  mcp.digitalWrite(pin20, value >= 15 ? HIGH : LOW);
+  mcp.digitalWrite(pin40, value >= 35 ? HIGH : LOW);
+  mcp.digitalWrite(pin60, value >= 55 ? HIGH : LOW);
+  mcp.digitalWrite(pin80, value >= 75 ? HIGH : LOW);
+  mcp.digitalWrite(pin100, value >= 95 ? HIGH : LOW);
+}
+
+void updatePitlanes() {
+  updatePitlane(
+          state.pitlane1,
+          PIN_PITLANE_1_20,
+          PIN_PITLANE_1_40,
+          PIN_PITLANE_1_60,
+          PIN_PITLANE_1_80,
+          PIN_PITLANE_1_100
+  );
+  updatePitlane(
+          state.pitlane2,
+          PIN_PITLANE_2_20,
+          PIN_PITLANE_2_40,
+          PIN_PITLANE_2_60,
+          PIN_PITLANE_2_80,
+          PIN_PITLANE_2_100
+  );
 }
 
 // --- State Update ---
@@ -470,6 +557,7 @@ bool updateState(unsigned int event) {
 
 void updateOnStatusChange() {
   updateStartLight();
+  updatePitlanes();
 }
 
 // --- Input Handling ---
@@ -538,8 +626,10 @@ readInput() {
     updateOnStatusChange();
   }
 }
+
 void restoreState() {
   // todo: restore in case of power outage
   resetState();
   updateOnStatusChange();
+  updatePitlanes();
 }
