@@ -79,6 +79,7 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 1. Starting light 4 (addon: ✅, board: ✅)
 1. Starting light 5 (addon: ✅, board: ✅)
 1. Starting light off (addon: ✅, board: ✅)
+1. Starting light green (addon: ✅, board: ✅)
 1. False start (addon: ✅, board: ✅)
 
 1. New track record (addon: ✅, board: ❌)

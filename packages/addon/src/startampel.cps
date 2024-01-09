@@ -18,6 +18,11 @@ begin
     EnqueueFalseStartEvent();
     exit;
   end;
+  if (cpGetIntegerVar('StartLightParameterGreen') = Cockpit.Parameter) then
+  begin
+    EnqueueStartingLightGreenEvent();
+    exit;
+  end;
 
   if (cpGetIntegerVar('StartLightParameterOff') = Cockpit.Parameter) then
   begin
