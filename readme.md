@@ -91,8 +91,8 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 1. New track record (addon: ✅, board: ❌)
 1. New session record (addon: ✅, board: ❌)
 
-1. Virtual Safety Car on (addon: ✅, board: ❌)
-1. Virtual Safety Car off (addon: ✅, board: ❌)
+1. Virtual Safety Car on (addon: ✅, board: ☑️)
+1. Virtual Safety Car off (addon: ✅, board: ☑️)
 
 ### Mapping
 

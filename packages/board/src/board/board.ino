@@ -23,12 +23,14 @@
 #define PIN_FUELING_SLOT_4 13 // VIA I2C
 #define PIN_FUELING_SLOT_5 14 // VIA I2C
 #define PIN_FUELING_SLOT_6 15 // VIA I2C
+#define PIN_VIRTUAL_SAFETY_CAR 16 // VIA I2C
 
 #define MS_CYCLE 100
 #define MS_BETWEEN_STATUS_LOG 5000
 #define MS_BETWEEN_LED_TOGGLE 1000
 #define MS_BETWEEN_FALSE_START_TOGGLE 200
 #define MS_BETWEEN_NEEDS_TO_REFUEL_TOGGLE 200
+#define MS_BETWEEN_VIRTUAL_SAFETY_CAR_TOGGLE 150
 
 #define HAS_I2C_CONNECTED false
 
@@ -66,6 +68,11 @@ struct StartLightState {
 
     unsigned int state;
 };
+struct VirtualSafetyCarState {
+    bool state;
+
+    bool lastToggleState;
+};
 struct State {
     struct SlotsState slots;
 
@@ -74,7 +81,7 @@ struct State {
 
     struct StartLightState startLight;
 
-    bool virtualSafetyCar;
+    struct VirtualSafetyCarState virtualSafetyCar;
     bool newTrackRecord;
     bool newSessionRecord;
 };
@@ -83,6 +90,7 @@ struct LastExecutionState {
     unsigned long ledToggle;
     unsigned long falseStartToggle;
     unsigned long needsToRefuelToggle;
+    unsigned long virtualSafetyCarToggle;
 };
 
 // --- Variables ---
@@ -107,6 +115,8 @@ void setupPitlane();
 
 void setupFueling();
 
+void setupVirtualSafetyCar();
+
 void cyclePrintStatusLog();
 
 void cycleToggleStatusLed();
@@ -115,6 +125,8 @@ void cycleToggleStartLightFalseStart();
 
 void cycleToggleNeedsToRefuel();
 
+void cycleToggleVirtualSafetyCar();
+
 void toggleStatusLed();
 
 void flashStatusLed(int n);
@@ -122,6 +134,8 @@ void flashStatusLed(int n);
 void toggleStartLightFalseStart();
 
 void toggleNeedsToRefuel();
+
+void toggleVirtualSafetyCar();
 
 void restoreState();
 
@@ -133,6 +147,7 @@ void setup() {
   setupI2C();
   setupPitlane();
   setupFueling();
+  setupVirtualSafetyCar();
   setupStatusLed();
   setupInputPins();
 
@@ -147,6 +162,7 @@ void loop() {
   cycleToggleStatusLed();
   cycleToggleStartLightFalseStart();
   cycleToggleNeedsToRefuel();
+  cycleToggleVirtualSafetyCar();
   delay(MS_CYCLE);
 }
 
@@ -176,11 +192,17 @@ void cycleToggleStartLightFalseStart() {
   }
 }
 
-
 void cycleToggleNeedsToRefuel() {
   if (shouldExecuteInThisCycle(MS_BETWEEN_NEEDS_TO_REFUEL_TOGGLE, lastExecution.needsToRefuelToggle)) {
     toggleNeedsToRefuel();
     lastExecution.needsToRefuelToggle = millis();
+  }
+}
+
+void cycleToggleVirtualSafetyCar() {
+  if (shouldExecuteInThisCycle(MS_BETWEEN_VIRTUAL_SAFETY_CAR_TOGGLE, lastExecution.virtualSafetyCarToggle)) {
+    toggleVirtualSafetyCar();
+    lastExecution.virtualSafetyCarToggle = millis();
   }
 }
 
@@ -403,6 +425,28 @@ void toggleNeedsToRefuel() {
   toggleSlotNeedsToRefuel(state.slots.slot6.needsRefueling, state.slots.slot6.isRefueling, PIN_FUELING_SLOT_6);
 }
 
+// --- Virtual Safety Car
+void setupVirtualSafetyCar() {
+  if (!HAS_I2C_CONNECTED) {
+    return;
+  }
+  mcp.pinMode(PIN_VIRTUAL_SAFETY_CAR, OUTPUT);
+}
+void toggleVirtualSafetyCar() {
+  if (!HAS_I2C_CONNECTED) {
+    return;
+  }
+
+  bool nextState = state.virtualSafetyCar.state && state.virtualSafetyCar.lastToggleState;
+
+  if (nextState == state.virtualSafetyCar.lastToggleState) {
+    return;
+  }
+
+  mcp.digitalWrite(PIN_VIRTUAL_SAFETY_CAR, nextState ? HIGH : LOW);
+  state.virtualSafetyCar.lastToggleState = nextState;
+}
+
 // --- State Update ---
 void printState() {
   Serial.println("State:");
@@ -420,7 +464,7 @@ void printState() {
   Serial.printf("Slot6: %s | %s\n", state.slots.slot6.isRefueling ? "isRefueling" : "-",
                 state.slots.slot6.needsRefueling ? "needs to refuel" : "-");
   Serial.printf("Start light: %d | %s\n", state.startLight.state, state.startLight.falseStart ? "false start" : "-");
-  Serial.printf("Virtual Safety Car: %s\n", state.virtualSafetyCar ? "on" : "off");
+  Serial.printf("Virtual Safety Car: %s\n", state.virtualSafetyCar.state ? "on" : "off");
   Serial.printf("Track Record: %s\n", state.newTrackRecord ? "on" : "off");
   Serial.printf("Session Record: %s\n", state.newSessionRecord ? "on" : "off");
 }
@@ -440,7 +484,7 @@ void resetState() {
           .pitlane2 = 0,
           .startLight = { .falseStart = false, .falseStartToggle = false, .state = 0 },
 
-          .virtualSafetyCar = false,
+          .virtualSafetyCar = {.state = false, .lastToggleState = false},
           .newTrackRecord = false,
           .newSessionRecord = false,
   };
@@ -452,10 +496,10 @@ bool updateState(unsigned int event) {
       resetState();
       break;
     case 21:  // virtual safety car on
-      state.virtualSafetyCar = true;
+      state.virtualSafetyCar.state = true;
       break;
     case 22:  // virtual safety car off
-      state.virtualSafetyCar = false;
+      state.virtualSafetyCar.state = false;
       break;
     case 28:  // starting light off
       state.startLight.state = 0;
