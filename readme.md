@@ -17,6 +17,12 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 
 ### Events
 
+✅: implemented
+|
+️☑️: implemented but not fully done
+|
+❌: not even touched
+
 1. Reset all (addon: ✅, board: ❌)
 
 1. Slot 1 needs to refuel (addon: ✅, board: ☑️)
