@@ -22,7 +22,7 @@ begin
 
   sleepTime := cpGetIntegerVar('TimingSleep');
   signalHoldTime := cpGetIntegerVar('TimingSignalSwitch');
-  eventTransferTime := signalHoldTime * 6;
+  eventTransferTime := signalHoldTime * 11;
   timePerCycle := eventTransferTime + sleepTime;
 
   timeBetweenPolls := cpGetIntegerVar('TimingEventPollling');
