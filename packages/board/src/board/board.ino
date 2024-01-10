@@ -84,6 +84,8 @@ struct State {
     struct VirtualSafetyCarState virtualSafetyCar;
     bool newTrackRecord;
     bool newSessionRecord;
+
+    bool needsUpdate;
 };
 struct LastExecutionState {
     unsigned long log;
@@ -139,6 +141,8 @@ void toggleVirtualSafetyCar();
 
 void restoreState();
 
+void updateOnStatusChange();
+
 // --- Arduino Loop ---
 void setup() {
   Serial.begin(9600);
@@ -158,6 +162,9 @@ void setup() {
 }
 
 void loop() {
+  if (state.needsUpdate) {
+    updateOnStatusChange();
+  }
   cyclePrintStatusLog();
   cycleToggleStatusLed();
   cycleToggleStartLightFalseStart();
@@ -496,6 +503,7 @@ void resetState() {
           .virtualSafetyCar = {.state = false, .lastToggleState = false},
           .newTrackRecord = false,
           .newSessionRecord = false,
+          .needsUpdate = true,
   };
 }
 
@@ -693,6 +701,8 @@ bool updateState(unsigned int event) {
 }
 
 void updateOnStatusChange() {
+  state.needsUpdate = false;
+
   updateStartLight();
   updatePitlanes();
   updateIsRefueling();
@@ -760,8 +770,9 @@ readInput() {
   Serial.printf("Received data %d %s\n", dataWithoutParityBit, toBinaryString(dataWithoutParityBit, 8));
   bool updated = updateState(dataWithoutParityBit);
   printState();
+
   if (updated) {
-    updateOnStatusChange();
+    state.needsUpdate = true;
   }
 }
 
