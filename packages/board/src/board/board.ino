@@ -3,7 +3,7 @@
 #define PIN_DATA_2 3
 #define PIN_DATA_3 4
 #define PIN_LED 2
-#define USE_PULLUP true
+#define USE_PULLUP false
 #define PIN_START_LIGHT_CS 15
 #define PIN_START_LIGHT_HORIZONTAL 5
 #define PIN_START_LIGHT_VERTICAL 1
