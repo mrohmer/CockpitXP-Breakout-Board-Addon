@@ -121,7 +121,28 @@ begin
   cpSetOutput('Data1', arr[(nbr - 1) * 3] = 1);
   cpSetOutput('Data2', arr[(nbr - 1) * 3 + 1] = 1);
   cpSetOutput('Data3', arr[(nbr - 1) * 3 + 2] = 1);
+end;
+
+procedure SendReset;
+begin
+
+  cpSetOutput('Data1', false);
+  cpSetOutput('Data2', false);
+  cpSetOutput('Data3', false);
+
+end;
+
+procedure Flush(signalHoldTime: Integer; isLast: Boolean);
+begin
+  cpSleep(signalHoldTime);
   cpSetOutput('Clock', true);
+  cpSleep(signalHoldTime);
+  cpSetOutput('Clock', false);
+
+  if (isLast = false) then
+  begin
+    cpSleep(signalHoldTime);
+  end;
 end;
 
 function EventToStr(event: Integer): String;
@@ -142,25 +163,21 @@ end;
 procedure SendEvent(event: Integer; signalHoldTime: Integer);
 begin
   //try
-  SendPackage(1, event);
+  SendReset;
+  Flush(signalHoldTime, false);
 
-  cpSleep(signalHoldTime);
-  cpSetOutput('Clock', false);
-  cpSleep(signalHoldTime);
+  SendPackage(1, event);
+  Flush(signalHoldTime, false);
 
   SendPackage(2, event);
-
-  cpSleep(signalHoldTime);
-  cpSetOutput('Clock', false);
-  cpSleep(signalHoldTime);
+  Flush(signalHoldTime, false);
 
   SendPackage(3, event);
+  Flush(signalHoldTime, true);
 
-  cpSleep(signalHoldTime);
-  //finally
+  //except
   // definitely reset the clock so it can be used for the next event
-  cpSetOutput('Clock', false);
-  cpSleep(signalHoldTime);
+  //  cpSetOutput('Clock', false);
   //end;
 end;
 

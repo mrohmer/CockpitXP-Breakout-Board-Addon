@@ -52,7 +52,7 @@ begin
       lastCheck := cpGetSystemTimeMs;
     end;
 
-    ProcessNextInQueue();
+    ProcessNextInQueue(signalHoldTime);
 
     cpSleep(sleepTime);
   end;
