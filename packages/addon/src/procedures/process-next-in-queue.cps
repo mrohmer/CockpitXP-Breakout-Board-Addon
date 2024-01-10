@@ -139,32 +139,32 @@ begin
   Cockpit.WriteLog := 'Processing event failed: ' + EventToStr(event); // todo: add error
 end;
 
-procedure SendEvent(event: Integer);
+procedure SendEvent(event: Integer; signalHoldTime: Integer);
 begin
   //try
   SendPackage(1, event);
 
-  cpSleep(25);
+  cpSleep(signalHoldTime);
   cpSetOutput('Clock', false);
-  cpSleep(25);
+  cpSleep(signalHoldTime);
 
   SendPackage(2, event);
 
-  cpSleep(25);
+  cpSleep(signalHoldTime);
   cpSetOutput('Clock', false);
-  cpSleep(25);
+  cpSleep(signalHoldTime);
 
   SendPackage(3, event);
 
-  cpSleep(25);
+  cpSleep(signalHoldTime);
   //finally
   // definitely reset the clock so it can be used for the next event
   cpSetOutput('Clock', false);
-  cpSleep(25);
+  cpSleep(signalHoldTime);
   //end;
 end;
 
-procedure ProcessNextInQueue;
+procedure ProcessNextInQueue(signalHoldTime: Integer);
 var
   next: Integer;
 begin
@@ -180,7 +180,7 @@ begin
   //end;
 
   //try
-  SendEvent(next);
+  SendEvent(next, signalHoldTime);
   LogEventSuccess(next);
   //except
   //  LogEventFailure(next);

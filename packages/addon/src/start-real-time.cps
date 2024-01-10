@@ -15,10 +15,22 @@
 
 var
   lastCheck: Extended;
-
+  sleepTime, timeBetweenPolls, signalHoldTime, eventTransferTime, timePerCycle: Integer;
 begin
   lastCheck := 0;
   cpSetIntegerVar('Exit', 0);
+
+  sleepTime := cpGetIntegerVar('TimingSleep');
+  signalHoldTime := cpGetIntegerVar('TimingSignalSwitch');
+  eventTransferTime := signalHoldTime * 6;
+  timePerCycle := eventTransferTime + sleepTime;
+
+  timeBetweenPolls := cpGetIntegerVar('TimingEventPollling');
+  if (timeBetweenPolls < timePerCycle * 2) then
+  begin
+    // should definelty never check that events more then every second cycle. this is already a lot.
+    timeBetweenPolls := timePerCycle * 2;
+  end;
 
   InitTable();
   EnqueueResetAllEvent();
@@ -30,7 +42,7 @@ begin
       exit;
     end;
 
-    if (cpGetSystemTimeMs - lastCheck >= 2000) then
+    if (cpGetSystemTimeMs - lastCheck >= timeBetweenPolls) then
     begin
       checkSlotIsFueling();
       checkSlotNeedsToRefuel();
@@ -42,6 +54,6 @@ begin
 
     ProcessNextInQueue();
 
-    cpSleep(50);
+    cpSleep(sleepTime);
   end;
 end.
