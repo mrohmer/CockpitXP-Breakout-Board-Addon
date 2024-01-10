@@ -295,7 +295,7 @@ void clearStartLightFields() {
 }
 
 void updateStartLight() {
-  if (state.startLight.state > 0) {
+  if (state.startLight.state > 0 && state.startLight.state <= 5) {
     Serial.printf(" Display Start Light %d\n", state.startLight.state);
     fillStartLightFields(state.startLight.state);
   } else {
@@ -538,7 +538,7 @@ bool updateState(unsigned int event) {
       state.startLight.falseStart = true;
       break;
     case 44:  // starting light green
-      state.startLight.state = 5;
+      state.startLight.state = 6;
       state.startLight.falseStart = false;
       break;
     case 49:  // new track record
