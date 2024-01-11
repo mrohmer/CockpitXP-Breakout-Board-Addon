@@ -17,3 +17,4 @@ Therefore, you need to have the cli installed (see [here](https://platformio.org
 | D8  | GPIO15 | Start Light CS  |
 | D7  | GPIO13 | Start Light DIN |
 | D5  | GPIO14 | Start Light CLK |
+| TX  | GPIO1  | Pitlane         |

@@ -7,16 +7,7 @@
 #define PIN_START_LIGHT_CS 15
 #define PIN_START_LIGHT_HORIZONTAL 5
 #define PIN_START_LIGHT_VERTICAL 1
-#define PIN_PITLANE_1_20 0 // VIA I2C
-#define PIN_PITLANE_1_40 1 // VIA I2C
-#define PIN_PITLANE_1_60 2 // VIA I2C
-#define PIN_PITLANE_1_80 3 // VIA I2C
-#define PIN_PITLANE_1_100 4 // VIA I2C
-#define PIN_PITLANE_2_20 5 // VIA I2C
-#define PIN_PITLANE_2_40 6 // VIA I2C
-#define PIN_PITLANE_2_60 7 // VIA I2C
-#define PIN_PITLANE_2_80 8 // VIA I2C
-#define PIN_PITLANE_2_100 9 // VIA I2C
+#define PIN_PITLANE 1
 #define PIN_FUELING_SLOT_1 10 // VIA I2C
 #define PIN_FUELING_SLOT_2 11 // VIA I2C
 #define PIN_FUELING_SLOT_3 12 // VIA I2C
@@ -24,6 +15,10 @@
 #define PIN_FUELING_SLOT_5 14 // VIA I2C
 #define PIN_FUELING_SLOT_6 15 // VIA I2C
 #define PIN_VIRTUAL_SAFETY_CAR 16 // VIA I2C
+
+#define PITLANE_NUMPIXELS 32
+#define PITLANE_1_FIRST_INDEX 0
+#define PITLANE_2_FIRST_INDEX 16
 
 #define MS_CYCLE 100
 #define MS_BETWEEN_STATUS_LOG 5000
@@ -33,6 +28,7 @@
 #define MS_BETWEEN_VIRTUAL_SAFETY_CAR_TOGGLE 150
 
 #define HAS_I2C_CONNECTED false
+#define HAS_PITLANE_CONNECTED false
 
 #include <Arduino.h>
 #include <Adafruit_I2CDevice.h>
@@ -40,6 +36,7 @@
 #include <Max72xxPanel.h>
 #include <string.h>
 #include <Adafruit_MCP23X17.h>
+#include <Adafruit_NeoPixel.h>
 
 
 // --- Structs ---
@@ -101,6 +98,8 @@ struct State state;
 struct LastExecutionState lastExecution;
 Max72xxPanel matrix = Max72xxPanel(PIN_START_LIGHT_CS, PIN_START_LIGHT_HORIZONTAL, PIN_START_LIGHT_VERTICAL);
 Adafruit_MCP23X17 mcp;
+
+Adafruit_NeoPixel pitlane = Adafruit_NeoPixel(PITLANE_NUMPIXELS, PIN_PITLANE, NEO_GRB + NEO_KHZ800);
 
 // --- Declarations ---
 void IRAM_ATTR
@@ -327,57 +326,72 @@ void toggleStartLightFalseStart() {
 
 // --- Pitlane ---
 void setupPitlane() {
-  if (!HAS_I2C_CONNECTED) {
+  if (!HAS_PITLANE_CONNECTED) {
     return;
   }
 
-  mcp.pinMode(PIN_PITLANE_1_20, OUTPUT);
-  mcp.pinMode(PIN_PITLANE_1_40, OUTPUT);
-  mcp.pinMode(PIN_PITLANE_1_60, OUTPUT);
-  mcp.pinMode(PIN_PITLANE_1_80, OUTPUT);
-  mcp.pinMode(PIN_PITLANE_1_100, OUTPUT);
-  mcp.pinMode(PIN_PITLANE_2_20, OUTPUT);
-  mcp.pinMode(PIN_PITLANE_2_40, OUTPUT);
-  mcp.pinMode(PIN_PITLANE_2_60, OUTPUT);
-  mcp.pinMode(PIN_PITLANE_2_80, OUTPUT);
-  mcp.pinMode(PIN_PITLANE_2_100, OUTPUT);
+  pitlane.begin();
+  pitlane.setBrightness(0);
+  pitlane.show();
 }
 
-void updatePitlane(
-        unsigned int value,
-        unsigned int pin20,
-        unsigned int pin40,
-        unsigned int pin60,
-        unsigned int pin80,
-        unsigned int pin100
-) {
-  if (!HAS_I2C_CONNECTED) {
+
+void setPitlaneActiveIndicatorPixel(int value, int firstIndex) {
+  if (!HAS_PITLANE_CONNECTED) {
     return;
   }
-  mcp.digitalWrite(pin20, value >= 15 ? HIGH : LOW);
-  mcp.digitalWrite(pin40, value >= 35 ? HIGH : LOW);
-  mcp.digitalWrite(pin60, value >= 55 ? HIGH : LOW);
-  mcp.digitalWrite(pin80, value >= 75 ? HIGH : LOW);
-  mcp.digitalWrite(pin100, value >= 95 ? HIGH : LOW);
+
+  if (value < 0) {
+    pitlane.setPixelColor(firstIndex, pitlane.Color(0, 0, 0));
+    return;
+  }
+
+
+  pitlane.setPixelColor(firstIndex, pitlane.Color(255, 255, 255));
+}
+
+void updatePitlaneBar(int value, int firstIndex) {
+  if (!HAS_PITLANE_CONNECTED) {
+    return;
+  }
+
+  int index = firstIndex;
+  pitlane.fill(pitlane.Color(255, 0, 0), index, min(3, value));
+  if (value > 3) {
+    pitlane.fill(pitlane.Color(255, 255, 0), index + 3, min(12, value) - 3);
+  }
+  if (value > 12) {
+    pitlane.fill(pitlane.Color(0, 255, 0), index + 12, value - 12);
+  }
+}
+
+void updatePitlane(int value, int firstIndex) {
+  setPitlaneActiveIndicatorPixel(
+          value,
+          firstIndex
+  );
+  updatePitlaneBar(
+          value,
+          firstIndex
+  );
 }
 
 void updatePitlanes() {
+  if (!HAS_PITLANE_CONNECTED) {
+    return;
+  }
+
+  pitlane.clear();
   updatePitlane(
           state.pitlane1,
-          PIN_PITLANE_1_20,
-          PIN_PITLANE_1_40,
-          PIN_PITLANE_1_60,
-          PIN_PITLANE_1_80,
-          PIN_PITLANE_1_100
+          PITLANE_1_FIRST_INDEX
   );
   updatePitlane(
           state.pitlane2,
-          PIN_PITLANE_2_20,
-          PIN_PITLANE_2_40,
-          PIN_PITLANE_2_60,
-          PIN_PITLANE_2_80,
-          PIN_PITLANE_2_100
+          PITLANE_2_FIRST_INDEX
   );
+
+  pitlane.show();
 }
 
 // --- Fueling ---
@@ -431,12 +445,18 @@ void toggleSlotNeedsToRefuel(bool needsToRefuel, bool isRefueling, bool prevStat
 void toggleNeedsToRefuel() {
   bool prevState = state.slots.lastNeedsToRefuelToggleState;
   state.slots.lastNeedsToRefuelToggleState = !state.slots.lastNeedsToRefuelToggleState;
-  toggleSlotNeedsToRefuel(state.slots.slot1.needsRefueling, state.slots.slot1.isRefueling, prevState, PIN_FUELING_SLOT_1);
-  toggleSlotNeedsToRefuel(state.slots.slot2.needsRefueling, state.slots.slot2.isRefueling, prevState, PIN_FUELING_SLOT_2);
-  toggleSlotNeedsToRefuel(state.slots.slot3.needsRefueling, state.slots.slot3.isRefueling, prevState, PIN_FUELING_SLOT_3);
-  toggleSlotNeedsToRefuel(state.slots.slot4.needsRefueling, state.slots.slot4.isRefueling, prevState, PIN_FUELING_SLOT_4);
-  toggleSlotNeedsToRefuel(state.slots.slot5.needsRefueling, state.slots.slot5.isRefueling, prevState, PIN_FUELING_SLOT_5);
-  toggleSlotNeedsToRefuel(state.slots.slot6.needsRefueling, state.slots.slot6.isRefueling, prevState, PIN_FUELING_SLOT_6);
+  toggleSlotNeedsToRefuel(state.slots.slot1.needsRefueling, state.slots.slot1.isRefueling, prevState,
+                          PIN_FUELING_SLOT_1);
+  toggleSlotNeedsToRefuel(state.slots.slot2.needsRefueling, state.slots.slot2.isRefueling, prevState,
+                          PIN_FUELING_SLOT_2);
+  toggleSlotNeedsToRefuel(state.slots.slot3.needsRefueling, state.slots.slot3.isRefueling, prevState,
+                          PIN_FUELING_SLOT_3);
+  toggleSlotNeedsToRefuel(state.slots.slot4.needsRefueling, state.slots.slot4.isRefueling, prevState,
+                          PIN_FUELING_SLOT_4);
+  toggleSlotNeedsToRefuel(state.slots.slot5.needsRefueling, state.slots.slot5.isRefueling, prevState,
+                          PIN_FUELING_SLOT_5);
+  toggleSlotNeedsToRefuel(state.slots.slot6.needsRefueling, state.slots.slot6.isRefueling, prevState,
+                          PIN_FUELING_SLOT_6);
 }
 
 // --- Virtual Safety Car
@@ -446,6 +466,7 @@ void setupVirtualSafetyCar() {
   }
   mcp.pinMode(PIN_VIRTUAL_SAFETY_CAR, OUTPUT);
 }
+
 void toggleVirtualSafetyCar() {
   if (!HAS_I2C_CONNECTED) {
     return;
@@ -498,7 +519,7 @@ void resetState() {
           },
           .pitlane1 = 0,
           .pitlane2 = 0,
-          .startLight = { .falseStart = false, .falseStartToggle = false, .state = 0 },
+          .startLight = {.falseStart = false, .falseStartToggle = false, .state = 0},
 
           .virtualSafetyCar = {.state = false, .lastToggleState = false},
           .newTrackRecord = false,
@@ -556,141 +577,171 @@ bool updateState(unsigned int event) {
       state.newSessionRecord = true;
       break;
     case 55:  // pit lane 1 off
+      state.pitlane1 = -1;
+      break;
+    case 59:  // pit lane 1 0%
       state.pitlane1 = 0;
       break;
-    case 59:  // pit lane 1 10%
+    case 61:  // pit lane 1 7%
+      state.pitlane1 = 1;
+      break;
+    case 62:  // pit lane 1 14%
+      state.pitlane1 = 2;
+      break;
+    case 73:  // pit lane 1 21%
+      state.pitlane1 = 3;
+      break;
+    case 74:  // pit lane 1 29%
+      state.pitlane1 = 4;
+      break;
+    case 75:  // pit lane 1 36%
+      state.pitlane1 = 5;
+      break;
+    case 76:  // pit lane 1 43%
+      state.pitlane1 = 6;
+      break;
+    case 77:  // pit lane 1 50%
+      state.pitlane1 = 7;
+      break;
+    case 78:  // pit lane 1 57%
+      state.pitlane1 = 8;
+      break;
+    case 79:  // pit lane 1 64%
+      state.pitlane1 = 9;
+      break;
+    case 81:  // pit lane 1 71%
       state.pitlane1 = 10;
       break;
-    case 61:  // pit lane 1 20%
-      state.pitlane1 = 20;
+    case 82:  // pit lane 1 79%
+      state.pitlane1 = 11;
       break;
-    case 62:  // pit lane 1 30%
-      state.pitlane1 = 30;
+    case 83:  // pit lane 1 86%
+      state.pitlane1 = 12;
       break;
-    case 73:  // pit lane 1 40%
-      state.pitlane1 = 40;
+    case 84:  // pit lane 1 93%
+      state.pitlane1 = 13;
       break;
-    case 74:  // pit lane 1 50%
-      state.pitlane1 = 50;
+    case 85:  // pit lane 1 100%
+      state.pitlane1 = 14;
       break;
-    case 75:  // pit lane 1 60%
-      state.pitlane1 = 60;
+    case 89:  // pit lane 2 off
+      state.pitlane2 = -1;
       break;
-    case 76:  // pit lane 1 70%
-      state.pitlane1 = 70;
-      break;
-    case 77:  // pit lane 1 80%
-      state.pitlane1 = 80;
-      break;
-    case 78:  // pit lane 1 90%
-      state.pitlane1 = 90;
-      break;
-    case 79:  // pit lane 1 100%
-      state.pitlane1 = 100;
-      break;
-    case 81:  // pit lane 2 off
+    case 90:  // pit lane 2 0%
       state.pitlane2 = 0;
       break;
-    case 82:  // pit lane 2 10%
+    case 91:  // pit lane 2 7%
+      state.pitlane2 = 1;
+      break;
+    case 92:  // pit lane 2 14%
+      state.pitlane2 = 2;
+      break;
+    case 93:  // pit lane 2 21%
+      state.pitlane2 = 3;
+      break;
+    case 94:  // pit lane 2 29%
+      state.pitlane2 = 4;
+      break;
+    case 95:  // pit lane 2 36%
+      state.pitlane2 = 5;
+      break;
+    case 97:  // pit lane 2 43%
+      state.pitlane2 = 6;
+      break;
+    case 98:  // pit lane 2 50%
+      state.pitlane2 = 7;
+      break;
+    case 99:  // pit lane 2 57%
+      state.pitlane2 = 8;
+      break;
+    case 100:  // pit lane 2 64%
+      state.pitlane2 = 9;
+      break;
+    case 101:  // pit lane 2 71%
       state.pitlane2 = 10;
       break;
-    case 83:  // pit lane 2 20%
-      state.pitlane2 = 20;
+    case 102:  // pit lane 2 79%
+      state.pitlane2 = 11;
       break;
-    case 84:  // pit lane 2 30%
-      state.pitlane2 = 30;
+    case 103:  // pit lane 2 86%
+      state.pitlane2 = 12;
       break;
-    case 85:  // pit lane 2 40%
-      state.pitlane2 = 40;
+    case 105:  // pit lane 2 93%
+      state.pitlane2 = 13;
       break;
-    case 86:  // pit lane 2 50%
-      state.pitlane2 = 50;
+    case 106:  // pit lane 2 100%
+      state.pitlane2 = 14;
       break;
-    case 87:  // pit lane 2 60%
-      state.pitlane2 = 60;
-      break;
-    case 89:  // pit lane 2 70%
-      state.pitlane2 = 70;
-      break;
-    case 90:  // pit lane 2 80%
-      state.pitlane2 = 80;
-      break;
-    case 91:  // pit lane 2 90%
-      state.pitlane2 = 90;
-      break;
-    case 92:  // pit lane 2 100%
-      state.pitlane2 = 100;
-      break;
-    case 97:  // slot 1 needs to refuel
+    case 145:  // slot 1 needs to refuel
       state.slots.slot1.needsRefueling = true;
       break;
-    case 98:  // slot 1 does not need to refuel anymore
+    case 146:  // slot 1 does not need to refuel anymore
       state.slots.slot1.needsRefueling = false;
       break;
-    case 99:  // slot 1 starts refueling
+    case 147:  // slot 1 starts refueling
       state.slots.slot1.isRefueling = true;
       break;
-    case 100:  // slot 1 stops refueling
+    case 148:  // slot 1 stops refueling
       state.slots.slot1.isRefueling = false;
       break;
-    case 105:  // slot 2 needs to refuel
+    case 153:  // slot 2 needs to refuel
       state.slots.slot2.needsRefueling = true;
       break;
-    case 106:  // slot 2 does not need to refuel anymore
+    case 154:  // slot 2 does not need to refuel anymore
       state.slots.slot2.needsRefueling = false;
       break;
-    case 107:  // slot 2 starts refueling
+    case 155:  // slot 2 starts refueling
       state.slots.slot2.isRefueling = true;
       break;
-    case 108:  // slot 2 stops refueling
+    case 156:  // slot 2 stops refueling
       state.slots.slot2.isRefueling = false;
       break;
-    case 113:  // slot 3 needs to refuel
+    case 161:  // slot 3 needs to refuel
       state.slots.slot3.needsRefueling = true;
       break;
-    case 114:  // slot 3 does not need to refuel anymore
+    case 162:  // slot 3 does not need to refuel anymore
       state.slots.slot3.needsRefueling = false;
       break;
-    case 115:  // slot 3 starts refueling
+    case 163:  // slot 3 starts refueling
       state.slots.slot3.isRefueling = true;
       break;
-    case 116:  // slot 3 stops refueling
+    case 164:  // slot 3 stops refueling
       state.slots.slot3.isRefueling = false;
       break;
-    case 121:  // slot 4 needs to refuel
+    case 169:  // slot 4 needs to refuel
       state.slots.slot4.needsRefueling = true;
       break;
-    case 122:  // slot 4 does not need to refuel anymore
+    case 170:  // slot 4 does not need to refuel anymore
       state.slots.slot4.needsRefueling = false;
       break;
-    case 123:  // slot 4 starts refueling
+    case 171:  // slot 4 starts refueling
       state.slots.slot4.isRefueling = true;
       break;
-    case 124:  // slot 4 stops refueling
+    case 172:  // slot 4 stops refueling
       state.slots.slot4.isRefueling = false;
       break;
-    case 137:  // slot 5 needs to refuel
+    case 177:  // slot 5 needs to refuel
       state.slots.slot5.needsRefueling = true;
       break;
-    case 138:  // slot 5 does not need to refuel anymore
+    case 178:  // slot 5 does not need to refuel anymore
       state.slots.slot5.needsRefueling = false;
       break;
-    case 139:  // slot 5 starts refueling
+    case 179:  // slot 5 starts refueling
       state.slots.slot5.isRefueling = true;
       break;
-    case 140:  // slot 5 stops refueling
+    case 180:  // slot 5 stops refueling
       state.slots.slot5.isRefueling = false;
       break;
-    case 145:  // slot 6 needs to refuel
+    case 185:  // slot 6 needs to refuel
       state.slots.slot6.needsRefueling = true;
       break;
-    case 146:  // slot 6 does not need to refuel anymore
+    case 186:  // slot 6 does not need to refuel anymore
       state.slots.slot6.needsRefueling = false;
       break;
-    case 147:  // slot 6 starts refueling
+    case 187:  // slot 6 starts refueling
       state.slots.slot6.isRefueling = true;
       break;
-    case 148:  // slot 6 stops refueling
+    case 18:  // slot 6 stops refueling
       state.slots.slot6.isRefueling = false;
       break;
     default:

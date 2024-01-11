@@ -7,7 +7,7 @@ begin
 
   if (slot < 1) then
   begin
-    Result := 0;
+    Result := -1;
     exit;
   end;
 
@@ -20,22 +20,26 @@ begin
     // entrance time is 0 => should not happen when a car is in pit
     // we don't have a slot associated with this nbr
     // entrance time is above security time and the car is not refueling anymore
-    Result := 0;
+    Result := -1;
     exit;
   end;
 
   case Int(Cockpit.TankStand) of
-    0..4: Result := 0;
-    5..14: Result := 10;
-    15..24: Result := 20;
-    25..34: Result := 30;
-    35..44: Result := 40;
-    45..54: Result := 50;
-    55..64: Result := 60;
-    65..74: Result := 70;
-    75..84: Result := 80;
-    85..94: Result := 90;
-    95..100: Result := 100;
+    0..3: Result := 0;     //  0 ->   0 ->   3   0.00000
+    4..10: Result := 1;    //  4 ->   7 ->  10   7.14286
+    11..17: Result := 2;   // 11 ->  14 ->  17  14.28571
+    18..24: Result := 3;   // 18 ->  21 ->  24  21.42857
+    25..31: Result := 4;   // 25 ->  29 ->  31  28.57143
+    32..38: Result := 5;   // 32 ->  36 ->  38  35.71429
+    39..45: Result := 6;   // 39 ->  43 ->  45  42.85714
+    46..53: Result := 7;   // 46 ->  50 ->  53  50.00000
+    54..60: Result := 8;   // 54 ->  57 ->  60  57.14286
+    61..67: Result := 9;   // 61 ->  64 ->  67  64.28571
+    68..74: Result := 10;  // 68 ->  71 ->  74  71.42857
+    75..81: Result := 11;  // 75 ->  79 ->  81  78.57143
+    82..88: Result := 12;  // 82 ->  86 ->  88  85.71429
+    89..95: Result := 13;  // 89 ->  93 ->  95  92.85714
+    96..100: Result := 14; // 96 -> 100 -> 100 100.00000
   end;
 end;
 procedure checkPitlaneStatusByNbr(pitlane: Integer);

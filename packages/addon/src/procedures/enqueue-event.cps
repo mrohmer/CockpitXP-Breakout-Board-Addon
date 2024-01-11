@@ -64,38 +64,48 @@ begin
   EnqueueEvent('New session record', 50);
 end;
 
-procedure EnqueuePitlaneEvent(pitlaneNbr: Integer; percentage: Integer);
+procedure EnqueuePitlaneEvent(pitlaneNbr: Integer; nbr: Integer);
 begin
   if (pitlaneNbr = 1) then
   begin
     case percentage of
-      0: EnqueueEvent('Pitlane 1 off', 55);
-      10: EnqueueEvent('Pitlane 1 10%', 59);
-      20: EnqueueEvent('Pitlane 1 20%', 61);
-      30: EnqueueEvent('Pitlane 1 30%', 62);
-      40: EnqueueEvent('Pitlane 1 40%', 73);
-      50: EnqueueEvent('Pitlane 1 50%', 74);
-      60: EnqueueEvent('Pitlane 1 60%', 75);
-      70: EnqueueEvent('Pitlane 1 70%', 76);
-      80: EnqueueEvent('Pitlane 1 80%', 77);
-      90: EnqueueEvent('Pitlane 1 90%', 78);
-      100: EnqueueEvent('Pitlane 1 100%', 79);
+      -1: EnqueueEvent('Pitlane 1 off', 55);
+      0: EnqueueEvent('Pitlane 1 0%', 59);
+      1: EnqueueEvent('Pitlane 1 7%', 61);
+      2: EnqueueEvent('Pitlane 1 14%', 62);
+      3: EnqueueEvent('Pitlane 1 21%', 73);
+      4: EnqueueEvent('Pitlane 1 29%', 74);
+      5: EnqueueEvent('Pitlane 1 36%', 75);
+      6: EnqueueEvent('Pitlane 1 43%', 76);
+      7: EnqueueEvent('Pitlane 1 50%', 77);
+      8: EnqueueEvent('Pitlane 1 57%', 78);
+      9: EnqueueEvent('Pitlane 1 64%', 79);
+      10: EnqueueEvent('Pitlane 1 71%', 81);
+      11: EnqueueEvent('Pitlane 1 79%', 82);
+      12: EnqueueEvent('Pitlane 1 86%', 83);
+      13: EnqueueEvent('Pitlane 1 93%', 84);
+      14: EnqueueEvent('Pitlane 1 100%', 85);
     end;
   end
   else if (pitlaneNbr = 2) then
   begin
     case percentage of
-      0: EnqueueEvent('Pitlane 2 off', 81);
-      10: EnqueueEvent('Pitlane 2 10%', 82);
-      20: EnqueueEvent('Pitlane 2 20%', 83);
-      30: EnqueueEvent('Pitlane 2 30%', 84);
-      40: EnqueueEvent('Pitlane 2 40%', 85);
-      50: EnqueueEvent('Pitlane 2 50%', 86);
-      60: EnqueueEvent('Pitlane 2 60%', 87);
-      70: EnqueueEvent('Pitlane 2 70%', 89);
-      80: EnqueueEvent('Pitlane 2 80%', 90);
-      90: EnqueueEvent('Pitlane 2 90%', 91);
-      100: EnqueueEvent('Pitlane 2 100%', 92);
+      -1: EnqueueEvent('Pitlane 2 off', 89);
+      0: EnqueueEvent('Pitlane 2 0%', 90);
+      1: EnqueueEvent('Pitlane 2 7%', 91);
+      2: EnqueueEvent('Pitlane 2 14%', 92);
+      3: EnqueueEvent('Pitlane 2 21%', 93);
+      4: EnqueueEvent('Pitlane 2 29%', 94);
+      5: EnqueueEvent('Pitlane 2 36%', 95);
+      6: EnqueueEvent('Pitlane 2 43%', 97);
+      7: EnqueueEvent('Pitlane 2 50%', 98);
+      8: EnqueueEvent('Pitlane 2 57%', 99);
+      9: EnqueueEvent('Pitlane 2 64%', 100);
+      10: EnqueueEvent('Pitlane 2 71%', 101);
+      11: EnqueueEvent('Pitlane 2 79%', 102);
+      12: EnqueueEvent('Pitlane 2 86%', 103);
+      13: EnqueueEvent('Pitlane 2 93%', 105);
+      14: EnqueueEvent('Pitlane 2 100%', 106);
     end;
   end;
 end;
@@ -106,12 +116,12 @@ var
   highLevel: String;
 begin
   case slotId of
-    1: decimal := 97;
-    2: decimal := 105;
-    3: decimal := 113;
-    4: decimal := 121;
-    5: decimal := 137;
-    6: decimal := 145;
+    1: decimal := 145;
+    2: decimal := 153;
+    3: decimal := 161;
+    4: decimal := 169;
+    5: decimal := 177;
+    6: decimal := 185;
     else
     begin
       exit;
@@ -137,12 +147,12 @@ var
   highLevel: String;
 begin
   case slotId of
-    1: decimal := 99;
-    2: decimal := 107;
-    3: decimal := 115;
-    4: decimal := 123;
-    5: decimal := 139;
-    6: decimal := 147;
+    1: decimal := 147;
+    2: decimal := 155;
+    3: decimal := 163;
+    4: decimal := 171;
+    5: decimal := 179;
+    6: decimal := 187;
     else
     begin
       exit;
