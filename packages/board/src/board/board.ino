@@ -1,9 +1,18 @@
+#ifndef USE_PULLUP
+#   define USE_PULLUP false
+#endif
+#ifndef OMIT_I2C_CONNECTION
+#   define OMIT_I2C_CONNECTION false
+#endif
+#ifndef OMIT_PITLANE_CONNECTION
+#   define OMIT_PITLANE_CONNECTION false
+#endif
+
 #define PIN_CLOCK 5
 #define PIN_DATA_1 12
 #define PIN_DATA_2 3
 #define PIN_DATA_3 4
 #define PIN_LED 2
-#define USE_PULLUP false
 #define PIN_START_LIGHT_CS 15
 #define PIN_START_LIGHT_HORIZONTAL 5
 #define PIN_START_LIGHT_VERTICAL 1
@@ -26,9 +35,6 @@
 #define MS_BETWEEN_FALSE_START_TOGGLE 200
 #define MS_BETWEEN_NEEDS_TO_REFUEL_TOGGLE 200
 #define MS_BETWEEN_VIRTUAL_SAFETY_CAR_TOGGLE 150
-
-#define HAS_I2C_CONNECTED false
-#define HAS_PITLANE_CONNECTED false
 
 #include <Arduino.h>
 #include <Adafruit_I2CDevice.h>
@@ -244,7 +250,7 @@ unsigned int clearBit(unsigned int number, unsigned int n) {
 
 // --- I2C ---
 void setupI2C() {
-  if (!HAS_I2C_CONNECTED) {
+  if (OMIT_I2C_CONNECTION) {
     return;
   }
   if (!mcp.begin_I2C()) {
@@ -326,7 +332,7 @@ void toggleStartLightFalseStart() {
 
 // --- Pitlane ---
 void setupPitlane() {
-  if (!HAS_PITLANE_CONNECTED) {
+  if (OMIT_PITLANE_CONNECTION) {
     return;
   }
 
@@ -337,7 +343,7 @@ void setupPitlane() {
 
 
 void setPitlaneActiveIndicatorPixel(int value, int firstIndex) {
-  if (!HAS_PITLANE_CONNECTED) {
+  if (OMIT_PITLANE_CONNECTION) {
     return;
   }
 
@@ -351,7 +357,7 @@ void setPitlaneActiveIndicatorPixel(int value, int firstIndex) {
 }
 
 void updatePitlaneBar(int value, int firstIndex) {
-  if (!HAS_PITLANE_CONNECTED) {
+  if (OMIT_PITLANE_CONNECTION) {
     return;
   }
 
@@ -377,7 +383,7 @@ void updatePitlane(int value, int firstIndex) {
 }
 
 void updatePitlanes() {
-  if (!HAS_PITLANE_CONNECTED) {
+  if (OMIT_PITLANE_CONNECTION) {
     return;
   }
 
@@ -396,7 +402,7 @@ void updatePitlanes() {
 
 // --- Fueling ---
 void setupFueling() {
-  if (!HAS_I2C_CONNECTED) {
+  if (OMIT_I2C_CONNECTION) {
     return;
   }
   mcp.pinMode(PIN_FUELING_SLOT_1, OUTPUT);
@@ -408,7 +414,7 @@ void setupFueling() {
 }
 
 void updateSlotIsRefueling(bool isRefueling, unsigned int pin) {
-  if (!HAS_I2C_CONNECTED) {
+  if (OMIT_I2C_CONNECTION) {
     return;
   }
   mcp.digitalWrite(pin, isRefueling ? HIGH : LOW);
@@ -424,7 +430,7 @@ void updateIsRefueling() {
 }
 
 void toggleSlotNeedsToRefuel(bool needsToRefuel, bool isRefueling, bool prevState, unsigned int pin) {
-  if (!HAS_I2C_CONNECTED) {
+  if (OMIT_I2C_CONNECTION) {
     return;
   }
 
@@ -461,14 +467,14 @@ void toggleNeedsToRefuel() {
 
 // --- Virtual Safety Car
 void setupVirtualSafetyCar() {
-  if (!HAS_I2C_CONNECTED) {
+  if (OMIT_I2C_CONNECTION) {
     return;
   }
   mcp.pinMode(PIN_VIRTUAL_SAFETY_CAR, OUTPUT);
 }
 
 void toggleVirtualSafetyCar() {
-  if (!HAS_I2C_CONNECTED) {
+  if (OMIT_I2C_CONNECTION) {
     return;
   }
 

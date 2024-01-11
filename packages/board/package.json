@@ -1,8 +1,10 @@
 {
   "name": "@rohmer/cockpit-xp-breakout-board-board",
   "scripts": {
-    "build": "pio run",
-    "upload": "pio run --target upload && pio device monitor",
+    "build": "pio run -e nodemcuv2",
+    "build:test": "pio run -e nodemcuv2-test",
+    "upload": "pio run --target upload -e nodemcu && pio device monitor",
+    "upload:test": "pio run --target upload -e nodemcuv2-test && pio device monitor",
     "monitor": "pio device monitor"
   },
   "private": true

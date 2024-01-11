@@ -4,7 +4,14 @@
     "build": {
       "outputs": ["dist/**"]
     },
+    "build:test": {
+      "outputs": ["dist/**"]
+    },
     "upload": {
+      "cache": false,
+      "persistent": true
+    },
+    "upload:test": {
       "cache": false,
       "persistent": true
     },
