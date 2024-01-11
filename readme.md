@@ -94,6 +94,12 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 1. Virtual Safety Car on (addon: ✅, board: ☑️)
 1. Virtual Safety Car off (addon: ✅, board: ☑️)
 
+### Possible Other Events
+
+- Total Progress of Race
+- Race Mode
+- Current Standings
+
 ### Mapping
 
 Even though we would need 6bit to encode the numbers for every event we need to take into account that we can't use
