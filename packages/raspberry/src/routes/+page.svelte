@@ -12,6 +12,29 @@
     dataType: 'json',
     timeoutMs: 1000,
   });
+
+  const onIncPitlane = () => () => {
+    form.update((value) => {
+      return {
+        ...value,
+        event: {
+          ...(value?.event ?? {}),
+          value: Math.min((value?.event?.value ?? 0) + 1, 14),
+        }
+      }
+    })
+  }
+  const onDecPitlane = () => () => {
+    form.update((value) => {
+      return {
+        ...value,
+        event: {
+          ...(value?.event ?? {}),
+          value: Math.max((value?.event?.value ?? 0) - 1, -1),
+        }
+      }
+    })
+  }
 </script>
 
 <div class="max-w-2xl mx-auto px-2 py-10">
@@ -107,18 +130,37 @@
                 </div>
                 <div class="flex">
                     <label class="flex-1" for="event-pitlane-value">Value</label>
-                    <select class="select select-bordered w-44 text-center" id="event-pitlane-value"
-                            bind:value={$form.event.value}
-                            {...$constraints?.event?.value}
-                    >
-                        {#each Array.from(Array(16)) as _, index}
-                            {#if index === 0}
-                                <option value={-1}>off</option>
-                            {:else}
-                                <option>{index - 1}</option>
-                            {/if}
-                        {/each}
-                    </select>
+
+                    <div class="join">
+                        <div>
+                            <button class="btn btn-square join-item z-10" on:click={onDecPitlane()} type="button">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+                                </svg>
+
+                            </button>
+                        </div>
+                        <select class="select select-bordered w-20 text-center join-item z-0" id="event-pitlane-value"
+                                bind:value={$form.event.value}
+                                {...$constraints?.event?.value}
+                        >
+                            {#each Array.from(Array(16)) as _, index}
+                                {#if index === 0}
+                                    <option value={-1}>off</option>
+                                {:else}
+                                    <option>{index - 1}</option>
+                                {/if}
+                            {/each}
+                        </select>
+                        <div>
+                            <button class="btn btn-square join-item z-10" on:click={onIncPitlane()} type="button">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             {:else if $form.event.category === Category.Record}
                 <div class="flex">
