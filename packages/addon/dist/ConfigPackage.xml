@@ -37,7 +37,7 @@
 
         <Variable xmlindex="28" beschreibung="*** Timings ***" name="xxx6" datatyp="Text" value=" "></Variable>
         <Variable xmlindex="29" beschreibung="Zeit zwischen Polls nach Updates (in ms)" name="TimingEventPollling" datatyp="Integer" value="1000"></Variable>
-        <Variable xmlindex="30" beschreibung="Zeit die ein Signalwert an den Outputs gehalten wird (in ms)" name="TimingSignalSwitch" datatyp="Integer" value="10"></Variable>
+        <Variable xmlindex="30" beschreibung="Zeit die ein Signalwert an den Outputs gehalten wird (in ms)" name="TimingSignalSwitch" datatyp="Integer" value="7"></Variable>
         <Variable xmlindex="31" beschreibung="Zeit zwischen Events [Sleep in Start Real Time] (in ms)" name="TimingSleep" datatyp="Integer" value="40"></Variable>
     </Variables>
     <IOConfig>
