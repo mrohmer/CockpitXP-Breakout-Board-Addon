@@ -7,7 +7,7 @@ begin
     sql.Clear;
 
     groupStatements := '';
-    for i := 1 to 19 do
+    for i := 1 to 20 do
     begin
       if (i > 1) then
       begin
@@ -38,6 +38,7 @@ begin
     ParamByName('group17').AsString := 'SlotIsFueling4';
     ParamByName('group18').AsString := 'SlotIsFueling5';
     ParamByName('group19').AsString := 'SlotIsFueling6';
+    ParamByName('group20').AsString := 'RaceState';
 
     Open;
 
