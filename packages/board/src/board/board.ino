@@ -678,76 +678,76 @@ bool updateState(unsigned int event) {
     case 106:  // pit lane 2 100%
       state.pitlane2 = 14;
       break;
-    case 145:  // slot 1 needs to refuel
+    case 137:  // slot 1 needs to refuel
       state.slots.slot1.needsRefueling = true;
       break;
-    case 146:  // slot 1 does not need to refuel anymore
+    case 138:  // slot 1 does not need to refuel anymore
       state.slots.slot1.needsRefueling = false;
       break;
-    case 147:  // slot 1 starts refueling
-      state.slots.slot1.isRefueling = true;
-      break;
-    case 148:  // slot 1 stops refueling
-      state.slots.slot1.isRefueling = false;
-      break;
-    case 153:  // slot 2 needs to refuel
+    case 139:  // slot 2 needs to refuel
       state.slots.slot2.needsRefueling = true;
       break;
-    case 154:  // slot 2 does not need to refuel anymore
+    case 140:  // slot 2 does not need to refuel anymore
       state.slots.slot2.needsRefueling = false;
       break;
-    case 155:  // slot 2 starts refueling
-      state.slots.slot2.isRefueling = true;
-      break;
-    case 156:  // slot 2 stops refueling
-      state.slots.slot2.isRefueling = false;
-      break;
-    case 161:  // slot 3 needs to refuel
+    case 141:  // slot 3 needs to refuel
       state.slots.slot3.needsRefueling = true;
       break;
-    case 162:  // slot 3 does not need to refuel anymore
+    case 142:  // slot 3 does not need to refuel anymore
       state.slots.slot3.needsRefueling = false;
       break;
-    case 163:  // slot 3 starts refueling
-      state.slots.slot3.isRefueling = true;
-      break;
-    case 164:  // slot 3 stops refueling
-      state.slots.slot3.isRefueling = false;
-      break;
-    case 169:  // slot 4 needs to refuel
+    case 143:  // slot 4 needs to refuel
       state.slots.slot4.needsRefueling = true;
       break;
-    case 170:  // slot 4 does not need to refuel anymore
+    case 145:  // slot 4 does not need to refuel anymore
       state.slots.slot4.needsRefueling = false;
       break;
-    case 171:  // slot 4 starts refueling
-      state.slots.slot4.isRefueling = true;
-      break;
-    case 172:  // slot 4 stops refueling
-      state.slots.slot4.isRefueling = false;
-      break;
-    case 177:  // slot 5 needs to refuel
+    case 146:  // slot 5 needs to refuel
       state.slots.slot5.needsRefueling = true;
       break;
-    case 178:  // slot 5 does not need to refuel anymore
+    case 147:  // slot 5 does not need to refuel anymore
       state.slots.slot5.needsRefueling = false;
       break;
-    case 179:  // slot 5 starts refueling
-      state.slots.slot5.isRefueling = true;
-      break;
-    case 180:  // slot 5 stops refueling
-      state.slots.slot5.isRefueling = false;
-      break;
-    case 185:  // slot 6 needs to refuel
+    case 148:  // slot 6 needs to refuel
       state.slots.slot6.needsRefueling = true;
       break;
-    case 186:  // slot 6 does not need to refuel anymore
+    case 149:  // slot 6 does not need to refuel anymore
       state.slots.slot6.needsRefueling = false;
       break;
-    case 187:  // slot 6 starts refueling
+    case 161:  // slot 1 starts refueling
+      state.slots.slot1.isRefueling = true;
+      break;
+    case 162:  // slot 1 stops refueling
+      state.slots.slot1.isRefueling = false;
+      break;
+    case 163:  // slot 2 starts refueling
+      state.slots.slot2.isRefueling = true;
+      break;
+    case 164:  // slot 2 stops refueling
+      state.slots.slot2.isRefueling = false;
+      break;
+    case 165:  // slot 3 starts refueling
+      state.slots.slot3.isRefueling = true;
+      break;
+    case 166:  // slot 3 stops refueling
+      state.slots.slot3.isRefueling = false;
+      break;
+    case 167:  // slot 4 starts refueling
+      state.slots.slot4.isRefueling = true;
+      break;
+    case 169:  // slot 4 stops refueling
+      state.slots.slot4.isRefueling = false;
+      break;
+    case 170:  // slot 5 starts refueling
+      state.slots.slot5.isRefueling = true;
+      break;
+    case 171:  // slot 5 stops refueling
+      state.slots.slot5.isRefueling = false;
+      break;
+    case 172:  // slot 6 starts refueling
       state.slots.slot6.isRefueling = true;
       break;
-    case 18:  // slot 6 stops refueling
+    case 173:  // slot 6 stops refueling
       state.slots.slot6.isRefueling = false;
       break;
     default:

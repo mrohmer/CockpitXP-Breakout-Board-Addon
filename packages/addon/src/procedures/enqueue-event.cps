@@ -110,64 +110,81 @@ begin
   end;
 end;
 
-procedure EnqueueSlotNeedsFuelingEvent(slotId: Integer; isOn: Boolean);
+procedure EnqueueSlotNeedsFuelingEvent(slotId: Integer);
 var
   decimal: Integer;
-  highLevel: String;
 begin
   case slotId of
-    1: decimal := 145;
-    2: decimal := 153;
-    3: decimal := 161;
-    4: decimal := 169;
-    5: decimal := 177;
-    6: decimal := 185;
-    else
-    begin
-      exit;
-    end;
-  end;
-
-  if (isOn) then
-  begin
-    highLevel := 'Slot ' + IntToStr(slotId) + ' nees to refuel';
-  end
+    1: decimal := 137;
+    2: decimal := 139;
+    3: decimal := 141;
+    4: decimal := 143;
+    5: decimal := 146;
+    6: decimal := 148;
   else
   begin
-    highLevel := 'Slot ' + IntToStr(slotId) + ' does not need to refuel anymore';
-    decimal := decimal + 1;
+    exit;
+  end;
   end;
 
-  EnqueueEvent(highLevel, decimal);
+  EnqueueEvent('Slot ' + IntToStr(slotId) + ' nees to refuel', decimal);
+end;
+procedure EnqueueSlotStopsNeedsFuelingEvent(slotId: Integer);
+var
+  decimal: Integer;
+begin
+  case slotId of
+    1: decimal := 138;
+    2: decimal := 140;
+    3: decimal := 142;
+    4: decimal := 145;
+    5: decimal := 147;
+    6: decimal := 149;
+  else
+  begin
+    exit;
+  end;
+  end;
+
+  EnqueueEvent('Slot ' + IntToStr(slotId) + ' does not need to refuel anymore', decimal);
 end;
 
 procedure EnqueueSlotIsFuelingEvent(slotId: Integer; isOn: Boolean);
 var
   decimal: Integer;
-  highLevel: String;
 begin
   case slotId of
-    1: decimal := 147;
-    2: decimal := 155;
-    3: decimal := 163;
-    4: decimal := 171;
-    5: decimal := 179;
-    6: decimal := 187;
+    1: decimal := 161;
+    2: decimal := 163;
+    3: decimal := 165;
+    4: decimal := 167;
+    5: decimal := 170;
+    6: decimal := 172;
     else
     begin
       exit;
     end;
   end;
 
-  if (isOn) then
-  begin
-    highLevel := 'Slot ' + IntToStr(slotId) + ' starts refueling';
-  end
-  else
-  begin
-    highLevel := 'Slot ' + IntToStr(slotId) + ' stops refueling';
-    decimal := decimal + 1;
+  EnqueueEvent('Slot ' + IntToStr(slotId) + ' starts refueling', decimal);
+end;
+
+procedure EnqueueSlotStopsFuelingEvent(slotId: Integer; isOn: Boolean);
+var
+  decimal: Integer;
+begin
+  case slotId of
+    1: decimal := 162;
+    2: decimal := 164;
+    3: decimal := 166;
+    4: decimal := 169;
+    5: decimal := 171;
+    6: decimal := 173;
+    else
+    begin
+      exit;
+    end;
   end;
 
-  EnqueueEvent(highLevel, decimal);
+  EnqueueEvent('Slot ' + IntToStr(slotId) + ' stops refueling', decimal);
 end;

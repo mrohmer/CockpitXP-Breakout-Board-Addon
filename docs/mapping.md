@@ -139,58 +139,58 @@
 | (1)10 - 000 - 110 | 134 | ❌     |                                        |
 | (0)10 - 000 - 111 | 135 | ❌     |                                        |
 | (0)10 - 001 - 000 | 136 | ❌     |                                        |
-| (1)10 - 001 - 001 | 137 | ✅     |                                        |
-| (1)10 - 001 - 010 | 138 | ✅     |                                        |
-| (0)10 - 001 - 011 | 139 | ✅     |                                        |
-| (1)10 - 001 - 100 | 140 | ✅     |                                        |
-| (0)10 - 001 - 101 | 141 | ✅     |                                        |
-| (0)10 - 001 - 110 | 142 | ✅     |                                        |
-| (1)10 - 001 - 111 | 143 | ✅     |                                        |
+| (1)10 - 001 - 001 | 137 | ✅     | Slot 1 needs to refuel                 |
+| (1)10 - 001 - 010 | 138 | ✅     | Slot 1 does not need to refuel anymore |
+| (0)10 - 001 - 011 | 139 | ✅     | Slot 2 needs to refuel                 |
+| (1)10 - 001 - 100 | 140 | ✅     | Slot 2 does not need to refuel anymore |
+| (0)10 - 001 - 101 | 141 | ✅     | Slot 3 needs to refuel                 |
+| (0)10 - 001 - 110 | 142 | ✅     | Slot 3 does not need to refuel anymore |
+| (1)10 - 001 - 111 | 143 | ✅     | Slot 4 needs to refuel                 |
 | (0)10 - 010 - 000 | 144 | ❌     |                                        |
-| (1)10 - 010 - 001 | 145 | ✅     | Slot 1 needs to refuel                 |
-| (1)10 - 010 - 010 | 146 | ✅     | Slot 1 does not need to refuel anymore |
-| (0)10 - 010 - 011 | 147 | ✅     | Slot 1 starts refueling                |
-| (1)10 - 010 - 100 | 148 | ✅     | Slot 1 stops refueling                 |
-| (0)10 - 010 - 101 | 149 | ✅     |                                        |
+| (1)10 - 010 - 001 | 145 | ✅     | Slot 4 does not need to refuel anymore |
+| (1)10 - 010 - 010 | 146 | ✅     | Slot 5 needs to refuel                 |
+| (0)10 - 010 - 011 | 147 | ✅     | Slot 5 does not need to refuel anymore |
+| (1)10 - 010 - 100 | 148 | ✅     | Slot 6 needs to refuel                 |
+| (0)10 - 010 - 101 | 149 | ✅     | Slot 6 does not need to refuel anymore |
 | (0)10 - 010 - 110 | 150 | ✅     |                                        |
 | (1)10 - 010 - 111 | 151 | ✅     |                                        |
 | (1)10 - 011 - 000 | 152 | ❌     |                                        |
-| (0)10 - 011 - 001 | 153 | ✅     | Slot 2 needs to refuel                 |
-| (0)10 - 011 - 010 | 154 | ✅     | Slot 2 does not need to refuel anymore |
-| (1)10 - 011 - 011 | 155 | ✅     | Slot 2 starts refueling                |
-| (0)10 - 011 - 100 | 156 | ✅     | Slot 2 stops refueling                 |
+| (0)10 - 011 - 001 | 153 | ✅     |                                        |
+| (0)10 - 011 - 010 | 154 | ✅     |                                        |
+| (1)10 - 011 - 011 | 155 | ✅     |                                        |
+| (0)10 - 011 - 100 | 156 | ✅     |                                        |
 | (1)10 - 011 - 101 | 157 | ✅     |                                        |
 | (1)10 - 011 - 110 | 158 | ✅     |                                        |
 | (0)10 - 011 - 111 | 159 | ✅     |                                        |
 | (0)10 - 100 - 000 | 160 | ❌     |                                        |
-| (1)10 - 100 - 001 | 161 | ✅     | Slot 3 needs to refuel                 |
-| (1)10 - 100 - 010 | 162 | ✅     | Slot 3 does not need to refuel anymore |
-| (0)10 - 100 - 011 | 163 | ✅     | Slot 3 starts refueling                |
-| (1)10 - 100 - 100 | 164 | ✅     | Slot 3 stops refueling                 |
-| (0)10 - 100 - 101 | 165 | ✅     |                                        |
-| (0)10 - 100 - 110 | 166 | ✅     |                                        |
-| (1)10 - 100 - 111 | 167 | ✅     |                                        |
+| (1)10 - 100 - 001 | 161 | ✅     | Slot 1 starts refueling                |
+| (1)10 - 100 - 010 | 162 | ✅     | Slot 1 stops refueling                 |
+| (0)10 - 100 - 011 | 163 | ✅     | Slot 2 starts refueling                |
+| (1)10 - 100 - 100 | 164 | ✅     | Slot 2 stops refueling                 |
+| (0)10 - 100 - 101 | 165 | ✅     | Slot 3 starts refueling                |
+| (0)10 - 100 - 110 | 166 | ✅     | Slot 3 stops refueling                 |
+| (1)10 - 100 - 111 | 167 | ✅     | Slot 4 starts refueling                |
 | (1)10 - 101 - 000 | 168 | ❌     |                                        |
-| (0)10 - 101 - 001 | 169 | ✅     | Slot 4 needs to refuel                 |
-| (0)10 - 101 - 010 | 170 | ✅     | Slot 4 does not need to refuel anymore |
-| (1)10 - 101 - 011 | 171 | ✅     | Slot 4 starts refueling                |
-| (0)10 - 101 - 100 | 172 | ✅     | Slot 4 stops refueling                 |
-| (1)10 - 101 - 101 | 173 | ✅     |                                        |
+| (0)10 - 101 - 001 | 169 | ✅     | Slot 4 stops refueling                 |
+| (0)10 - 101 - 010 | 170 | ✅     | Slot 5 starts refueling                |
+| (1)10 - 101 - 011 | 171 | ✅     | Slot 5 stops refueling                 |
+| (0)10 - 101 - 100 | 172 | ✅     | Slot 6 starts refueling                |
+| (1)10 - 101 - 101 | 173 | ✅     | Slot 6 stops refueling                 |
 | (1)10 - 101 - 110 | 174 | ✅     |                                        |
 | (0)10 - 101 - 111 | 175 | ✅     |                                        |
 | (1)10 - 110 - 000 | 176 | ❌     |                                        |
-| (0)10 - 110 - 001 | 177 | ✅     | Slot 5 needs to refuel                 |
-| (0)10 - 110 - 010 | 178 | ✅     | Slot 5 does not need to refuel anymore |
-| (1)10 - 110 - 011 | 179 | ✅     | Slot 5 starts refueling                |
-| (0)10 - 110 - 100 | 180 | ✅     | Slot 5 stops refueling                 |
+| (0)10 - 110 - 001 | 177 | ✅     |                                        |
+| (0)10 - 110 - 010 | 178 | ✅     |                                        |
+| (1)10 - 110 - 011 | 179 | ✅     |                                        |
+| (0)10 - 110 - 100 | 180 | ✅     |                                        |
 | (1)10 - 110 - 101 | 181 | ✅     |                                        |
 | (1)10 - 110 - 110 | 182 | ✅     |                                        |
 | (0)10 - 110 - 111 | 183 | ✅     |                                        |
 | (0)10 - 111 - 000 | 184 | ❌     |                                        |
-| (1)10 - 111 - 001 | 185 | ✅     | Slot 6 needs to refuel                 |
-| (1)10 - 111 - 010 | 186 | ✅     | Slot 6 does not need to refuel anymore |
-| (0)10 - 111 - 011 | 187 | ✅     | Slot 6 starts refueling                |
-| (1)10 - 111 - 100 | 188 | ✅     | Slot 6 stops refueling                 |
+| (1)10 - 111 - 001 | 185 | ✅     |                                        |
+| (1)10 - 111 - 010 | 186 | ✅     |                                        |
+| (0)10 - 111 - 011 | 187 | ✅     |                                        |
+| (1)10 - 111 - 100 | 188 | ✅     |                                        |
 | (0)10 - 111 - 101 | 189 | ✅     |                                        |
 | (0)10 - 111 - 110 | 190 | ✅     |                                        |
 | (1)10 - 111 - 111 | 191 | ✅     |                                        |

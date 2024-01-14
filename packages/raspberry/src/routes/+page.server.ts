@@ -95,24 +95,34 @@ const transformFormValueToEvent = (event: z.infer<typeof schema>['event']): numb
   }
 }
 const transformSlotValueToEvent = (event: z.infer<typeof slotSchema>): number => {
-  const map: Record<`${SlotEvent}.${number}`, number> = {
-    [`${SlotEvent.NeedsRefueling}.1`]: 145,
-    [`${SlotEvent.NeedsRefueling}.2`]: 153,
-    [`${SlotEvent.NeedsRefueling}.3`]: 161,
-    [`${SlotEvent.NeedsRefueling}.4`]: 169,
-    [`${SlotEvent.NeedsRefueling}.5`]: 177,
-    [`${SlotEvent.NeedsRefueling}.6`]: 185,
-    [`${SlotEvent.IsRefueling}.1`]: 147,
-    [`${SlotEvent.IsRefueling}.2`]: 155,
-    [`${SlotEvent.IsRefueling}.3`]: 163,
-    [`${SlotEvent.IsRefueling}.4`]: 171,
-    [`${SlotEvent.IsRefueling}.5`]: 179,
-    [`${SlotEvent.IsRefueling}.6`]: 188,
+  const map: Record<`${SlotEvent}.${number}.${'on'|'off'}`, number> = {
+    [`${SlotEvent.NeedsRefueling}.1.on`]: 137,
+    [`${SlotEvent.NeedsRefueling}.1.off`]: 138,
+    [`${SlotEvent.NeedsRefueling}.2.on`]: 139,
+    [`${SlotEvent.NeedsRefueling}.2.off`]: 140,
+    [`${SlotEvent.NeedsRefueling}.3.on`]: 141,
+    [`${SlotEvent.NeedsRefueling}.3.off`]: 142,
+    [`${SlotEvent.NeedsRefueling}.4.on`]: 143,
+    [`${SlotEvent.NeedsRefueling}.4.off`]: 145,
+    [`${SlotEvent.NeedsRefueling}.5.on`]: 146,
+    [`${SlotEvent.NeedsRefueling}.5.off`]: 147,
+    [`${SlotEvent.NeedsRefueling}.6.on`]: 148,
+    [`${SlotEvent.NeedsRefueling}.6.off`]: 149,
+    [`${SlotEvent.IsRefueling}.1.on`]: 161,
+    [`${SlotEvent.IsRefueling}.1.off`]: 162,
+    [`${SlotEvent.IsRefueling}.2.on`]: 163,
+    [`${SlotEvent.IsRefueling}.2.off`]: 164,
+    [`${SlotEvent.IsRefueling}.3.on`]: 165,
+    [`${SlotEvent.IsRefueling}.3.off`]: 166,
+    [`${SlotEvent.IsRefueling}.4.on`]: 167,
+    [`${SlotEvent.IsRefueling}.4.off`]: 169,
+    [`${SlotEvent.IsRefueling}.5.on`]: 170,
+    [`${SlotEvent.IsRefueling}.5.off`]: 171,
+    [`${SlotEvent.IsRefueling}.6.on`]: 172,
+    [`${SlotEvent.IsRefueling}.6.off`]: 173,
   };
 
-  const value = map[`${event.event}.${event.slot}`];
-
-  return value + +(event.state === 'off');
+  return map[`${event.event}.${event.slot}.${event.state}`];
 }
 const transformPitlaneValueToEvent = (event: z.infer<typeof pitlaneSchema>): number => {
   const map: Record<`${number}.${'-'|''}${number}`, number> = {
