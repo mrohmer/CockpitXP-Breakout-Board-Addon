@@ -116,6 +116,18 @@
                         {/each}
                     </select>
                 </div>
+            {:else if $form.event.category === Category.RaceState}
+                <div class="flex">
+                    <label class="flex-1" for="event-race-state">State</label>
+                    <select class="select select-bordered w-44 text-center" id="event-race-state"
+                            bind:value={$form.event.state}
+                            {...$constraints?.event?.state}
+                    >
+                        {#each Array.from(Array(2)) as _, index}
+                            <option>{index === 1 ? 'on' : 'off'}</option>
+                        {/each}
+                    </select>
+                </div>
             {:else if $form.event.category === Category.Pitlane}
                 <div class="flex">
                     <label class="flex-1" for="event-pitlane-lane">Lane</label>

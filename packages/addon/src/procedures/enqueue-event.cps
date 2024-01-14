@@ -189,3 +189,16 @@ begin
 
   EnqueueEvent('Slot ' + IntToStr(slotId) + ' stops refueling', decimal, 'SlotIsFueling' + IntToStr(slotId));
 end;
+
+
+procedure EnqueueRaceStateChange(isRunning: Boolean);
+begin
+  if (isRunning) then
+  begin
+    EnqueueEvent('Race State Set to Running', 110, 'RaceState');
+  end
+  else
+  begin
+    EnqueueEvent('Race State Set to Not Running', 111, 'RaceState');
+  end;
+end;

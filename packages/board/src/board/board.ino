@@ -87,6 +87,7 @@ struct State {
     struct VirtualSafetyCarState virtualSafetyCar;
     bool newTrackRecord;
     bool newSessionRecord;
+    bool raceIsInProgress;
 
     bool needsUpdate;
 };
@@ -439,7 +440,7 @@ void toggleSlotNeedsToRefuel(bool needsToRefuel, bool isRefueling, bool prevStat
     return;
   }
 
-  bool nextState = state.slots.lastNeedsToRefuelToggleState && needsToRefuel;
+  bool nextState = state.slots.lastNeedsToRefuelToggleState && needsToRefuel && state.raceIsInProgress;
 
   if (prevState == nextState) {
     return;
@@ -480,7 +481,7 @@ void toggleVirtualSafetyCar() {
 
   bool prevState = state.virtualSafetyCar.lastToggleState;
   state.virtualSafetyCar.lastToggleState = !state.virtualSafetyCar.lastToggleState;
-  bool nextState = state.virtualSafetyCar.state && state.virtualSafetyCar.lastToggleState;
+  bool nextState = state.virtualSafetyCar.state && state.virtualSafetyCar.lastToggleState && state.raceIsInProgress;
 
   if (nextState == prevState) {
     return;
@@ -510,6 +511,7 @@ void printState() {
   Serial.printf("Virtual Safety Car: %s\n", state.virtualSafetyCar.state ? "on" : "off");
   Serial.printf("Track Record: %s\n", state.newTrackRecord ? "on" : "off");
   Serial.printf("Session Record: %s\n", state.newSessionRecord ? "on" : "off");
+  Serial.printf("Race State: %s\n", state.raceIsInProgress ? "Running" : "Stopped");
 }
 
 void resetState() {
@@ -530,6 +532,7 @@ void resetState() {
           .virtualSafetyCar = {.state = false, .lastToggleState = false},
           .newTrackRecord = false,
           .newSessionRecord = false,
+          .raceIsInProgress = false
           .needsUpdate = true,
   };
 }
@@ -677,6 +680,12 @@ bool updateState(unsigned int event) {
       break;
     case 106:  // pit lane 2 100%
       state.pitlane2 = 14;
+      break;
+    case 106:  // race state set to running
+      state.raceIsInProgress = true;
+      break;
+    case 106:  // race state set to not running
+      state.raceIsInProgress = false;
       break;
     case 137:  // slot 1 needs to refuel
       state.slots.slot1.needsRefueling = true;

@@ -31,6 +31,10 @@ const recordSchema = z.object({
   category: z.enum([Category.Record]),
   value: z.enum(['track', 'session']),
 });
+const raceState = z.object({
+  category: z.enum([Category.RaceState]),
+  state: z.enum(['on', 'off'])
+});
 // Name has a default value just to display something in the form.
 const schema = z.object({
   signalHoldTime: z.number().min(1).max(1000),
@@ -86,6 +90,11 @@ const transformFormValueToEvent = (event: z.infer<typeof schema>['event']): numb
         return 21;
       }
       return 22;
+    case Category.RaceState:
+      if (event.state === 'on') {
+        return 110;
+      }
+      return 111;
     case Category.Slot:
       return transformSlotValueToEvent(event);
     case Category.Pitlane:
