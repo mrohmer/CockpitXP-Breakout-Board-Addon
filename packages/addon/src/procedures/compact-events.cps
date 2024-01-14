@@ -1,6 +1,7 @@
 procedure ExecCompactEventsOfGroup;
 var
   groupStatements: string;
+  i: Integer;
 begin
   with newQueryAnw do
   begin
