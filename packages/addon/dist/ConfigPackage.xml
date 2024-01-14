@@ -39,6 +39,9 @@
         <Variable xmlindex="29" beschreibung="Zeit zwischen Polls nach Updates (in ms)" name="TimingEventPollling" datatyp="Integer" value="1000"></Variable>
         <Variable xmlindex="30" beschreibung="Zeit die ein Signalwert an den Outputs gehalten wird (in ms)" name="TimingSignalSwitch" datatyp="Integer" value="7"></Variable>
         <Variable xmlindex="31" beschreibung="Zeit zwischen Events [Sleep in Start Real Time] (in ms)" name="TimingSleep" datatyp="Integer" value="40"></Variable>
+
+        <Variable xmlindex="32" beschreibung="*** Diverses ***" name="xxx7" datatyp="Text" value=" "></Variable>
+        <Variable xmlindex="33" beschreibung="Event komprimierung aktiviert" name="EventCompactionActive" datatyp="Combo" set="Nein|Ja" value="1"></Variable>
     </Variables>
     <IOConfig>
         <DigOutput name="Clock" devicenumber="1" number="3"></DigOutput>

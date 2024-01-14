@@ -12,14 +12,17 @@
 {%%PROCEDURE.CheckSlotNeedsToRefuel%%}
 {%%PROCEDURE.CheckVirtualSafetyCar%%}
 {%%PROCEDURE.CheckPitlaneStatus%%}
+{%%PROCEDURE.CompactEvents%%}
 
 var
   lastCheck: Extended;
   sleepTime, timeBetweenPolls, signalHoldTime, eventTransferTime, timePerCycle: Integer;
+  isEventCompactionActive: Boolean;
 begin
   lastCheck := 0;
   cpSetIntegerVar('Exit', 0);
 
+  isEventCompactionActive := cpGetIntegerVar('EventCompactionActive') = 1;
   sleepTime := cpGetIntegerVar('TimingSleep');
   signalHoldTime := cpGetIntegerVar('TimingSignalSwitch');
   eventTransferTime := signalHoldTime * 11;
@@ -48,6 +51,11 @@ begin
       checkSlotNeedsToRefuel();
       checkVirtualSafetyCar();
       checkPitlaneStatus();
+
+      if (isEventCompactionActive) then
+      begin
+        CompactEvents;
+      end;
 
       lastCheck := cpGetSystemTimeMs;
     end;
