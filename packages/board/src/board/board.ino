@@ -7,6 +7,9 @@
 #ifndef OMIT_PITLANE_CONNECTION
 #   define OMIT_PITLANE_CONNECTION false
 #endif
+#ifndef OMIT_RACE_PROGRESS_CONNECTION
+#   define OMIT_RACE_PROGRESS_CONNECTION false
+#endif
 
 #define PIN_CLOCK 5
 #define PIN_DATA_1 12
@@ -17,6 +20,7 @@
 #define PIN_START_LIGHT_HORIZONTAL 5
 #define PIN_START_LIGHT_VERTICAL 1
 #define PIN_PITLANE 1
+#define PIN_RACE_PROGRESS 9
 #define PIN_FUELING_SLOT_1 10 // VIA I2C
 #define PIN_FUELING_SLOT_2 11 // VIA I2C
 #define PIN_FUELING_SLOT_3 12 // VIA I2C
@@ -28,6 +32,8 @@
 #define PITLANE_NUMPIXELS 32
 #define PITLANE_1_FIRST_INDEX 0
 #define PITLANE_2_FIRST_INDEX 16
+
+#define RACE_PROGRESS_NUMPIXELS 12
 
 #define MS_CYCLE 100
 #define MS_BETWEEN_STATUS_LOG 5000
@@ -88,6 +94,7 @@ struct State {
     bool newTrackRecord;
     bool newSessionRecord;
     bool raceIsInProgress;
+    unsigned int raceProgress;
 
     bool needsUpdate;
 };
@@ -107,6 +114,7 @@ Max72xxPanel matrix = Max72xxPanel(PIN_START_LIGHT_CS, PIN_START_LIGHT_HORIZONTA
 Adafruit_MCP23X17 mcp;
 
 Adafruit_NeoPixel pitlane = Adafruit_NeoPixel(PITLANE_NUMPIXELS, PIN_PITLANE, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel raceProgress = Adafruit_NeoPixel(RACE_PROGRESS_NUMPIXELS, PIN_RACE_PROGRESS, NEO_GRB + NEO_KHZ800);
 
 // --- Declarations ---
 void IRAM_ATTR
@@ -124,6 +132,8 @@ void setupPitlane();
 void setupFueling();
 
 void setupVirtualSafetyCar();
+
+void setupRaceProgress();
 
 void cyclePrintStatusLog();
 
@@ -158,6 +168,7 @@ void setup() {
   setupPitlane();
   setupFueling();
   setupVirtualSafetyCar();
+  setupRaceProgress();
   setupStatusLed();
   setupInputPins();
 
@@ -401,6 +412,31 @@ void updatePitlanes() {
   pitlane.show();
 }
 
+// --- Race Progress ---
+void setupRaceProgress() {
+  if (OMIT_RACE_PROGRESS_CONNECTION) {
+    return;
+  }
+
+  raceProgress.begin();
+  raceProgress.setBrightness(0);
+  raceProgress.show();
+}
+void updateRaceProgress() {
+  if (OMIT_PITLANE_CONNECTION) {
+    return;
+  }
+
+  raceProgress.clear();
+
+  raceProgress.fill(raceProgress.Color(255, 255, 255), 0, min(state.raceProgress, 8));
+  if (state.raceProgress > 8) {
+    raceProgress.fill(raceProgress.Color(255, 0, 0), 8, state.raceProgress - 8);
+  }
+
+  raceProgress.show();
+}
+
 // --- Fueling ---
 void setupFueling() {
   if (OMIT_I2C_CONNECTION) {
@@ -512,6 +548,7 @@ void printState() {
   Serial.printf("Track Record: %s\n", state.newTrackRecord ? "on" : "off");
   Serial.printf("Session Record: %s\n", state.newSessionRecord ? "on" : "off");
   Serial.printf("Race State: %s\n", state.raceIsInProgress ? "Running" : "Stopped");
+  Serial.printf("Race Progress: %d\n", state.raceProgress);
 }
 
 void resetState() {
@@ -532,7 +569,8 @@ void resetState() {
           .virtualSafetyCar = {.state = false, .lastToggleState = false},
           .newTrackRecord = false,
           .newSessionRecord = false,
-          .raceIsInProgress = false
+          .raceIsInProgress = false,
+          .raceProgress = 0,
           .needsUpdate = true,
   };
 }
@@ -687,6 +725,45 @@ bool updateState(unsigned int event) {
     case 106:  // race state set to not running
       state.raceIsInProgress = false;
       break;
+    case 113:  // race progress 0%
+      state.raceProgress = 0;
+      break;
+    case 114:  // race progress 8%
+      state.raceProgress = 1;
+      break;
+    case 115:  // race progress 17%
+      state.raceProgress = 2;
+      break;
+    case 116:  // race progress 25%
+      state.raceProgress = 3;
+      break;
+    case 117:  // race progress 33%
+      state.raceProgress = 4;
+      break;
+    case 118:  // race progress 42%
+      state.raceProgress = 5;
+      break;
+    case 119:  // race progress 50%
+      state.raceProgress = 6;
+      break;
+    case 121:  // race progress 58%
+      state.raceProgress = 7;
+      break;
+    case 122:  // race progress 67%
+      state.raceProgress = 8;
+      break;
+    case 123:  // race progress 75%
+      state.raceProgress = 9;
+      break;
+    case 124:  // race progress 83%
+      state.raceProgress = 10;
+      break;
+    case 125:  // race progress 92%
+      state.raceProgress = 11;
+      break;
+    case 126:  // race progress 100%
+      state.raceProgress = 12;
+      break;
     case 137:  // slot 1 needs to refuel
       state.slots.slot1.needsRefueling = true;
       break;
@@ -771,6 +848,7 @@ void updateOnStatusChange() {
 
   updateStartLight();
   updatePitlanes();
+  updateRaceProgress();
   updateIsRefueling();
 }
 

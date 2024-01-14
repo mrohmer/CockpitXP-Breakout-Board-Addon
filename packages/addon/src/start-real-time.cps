@@ -12,6 +12,7 @@
 {%%PROCEDURE.CheckSlotNeedsToRefuel%%}
 {%%PROCEDURE.CheckVirtualSafetyCar%%}
 {%%PROCEDURE.CheckPitlaneStatus%%}
+{%%PROCEDURE.CheckRaceProgress%%}
 {%%PROCEDURE.CompactEvents%%}
 
 var
@@ -51,6 +52,7 @@ begin
       checkSlotNeedsToRefuel();
       checkVirtualSafetyCar();
       checkPitlaneStatus();
+      checkRaceProgress();
 
       if (isEventCompactionActive) then
       begin

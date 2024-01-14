@@ -202,3 +202,21 @@ begin
     EnqueueEvent('Race State Set to Not Running', 111, 'RaceState');
   end;
 end;
+procedure EnqueueRaceProgressChange(value: Integer);
+begin
+  case value of
+    0: EnqueueEvent('Race Progress 0%', 113, 'RaceProgress');
+    1: EnqueueEvent('Race Progress 8%', 114, 'RaceProgress');
+    2: EnqueueEvent('Race Progress 17%', 115, 'RaceProgress');
+    3: EnqueueEvent('Race Progress 25%', 116, 'RaceProgress');
+    4: EnqueueEvent('Race Progress 33%', 117, 'RaceProgress');
+    5: EnqueueEvent('Race Progress 42%', 118, 'RaceProgress');
+    6: EnqueueEvent('Race Progress 50%', 119, 'RaceProgress');
+    7: EnqueueEvent('Race Progress 58%', 121, 'RaceProgress');
+    8: EnqueueEvent('Race Progress 67%', 122, 'RaceProgress');
+    9: EnqueueEvent('Race Progress 75%', 123, 'RaceProgress');
+    10: EnqueueEvent('Race Progress 83%', 124, 'RaceProgress');
+    11: EnqueueEvent('Race Progress 92%', 125, 'RaceProgress');
+    12: EnqueueEvent('Race Progress 100%', 126, 'RaceProgress');
+  end;
+end;

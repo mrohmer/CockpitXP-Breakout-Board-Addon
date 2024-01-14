@@ -6,4 +6,5 @@ export enum Category {
   VirtualSafetyCar = 'Virtual Safety Car',
   Record = 'Record',
   RaceState = 'RaceState',
+  RaceProgress = 'RaceProgress',
 }

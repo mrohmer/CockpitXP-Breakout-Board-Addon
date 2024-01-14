@@ -31,9 +31,13 @@ const recordSchema = z.object({
   category: z.enum([Category.Record]),
   value: z.enum(['track', 'session']),
 });
-const raceState = z.object({
+const raceStateSchema = z.object({
   category: z.enum([Category.RaceState]),
   state: z.enum(['on', 'off'])
+});
+const raceProgressSchema = z.object({
+  category: z.enum([Category.RaceProgress]),
+  value: z.number().min(0).max(12),
 });
 // Name has a default value just to display something in the form.
 const schema = z.object({
@@ -45,6 +49,8 @@ const schema = z.object({
     pitlaneSchema,
     startLightSchema,
     recordSchema,
+    raceStateSchema,
+    raceProgressSchema,
   ])
 });
 
@@ -95,6 +101,8 @@ const transformFormValueToEvent = (event: z.infer<typeof schema>['event']): numb
         return 110;
       }
       return 111;
+    case Category.RaceProgress:
+      return transformRaceProgressValueToEvent(event);
     case Category.Slot:
       return transformSlotValueToEvent(event);
     case Category.Pitlane:
@@ -180,6 +188,25 @@ const transformStartLightValueToEvent = (event: z.infer<typeof startLightSchema>
     '5': 41,
     '6': 44,
     '7': 42,
+  }
+
+  return map[`${event.value}`];
+}
+const transformRaceProgressValueToEvent = (event: z.infer<typeof raceProgressSchema>): number => {
+  const map: Record<`${number}`, number> = {
+    '0': 113,
+    '1': 114,
+    '2': 115,
+    '3': 116,
+    '4': 116,
+    '5': 118,
+    '6': 119,
+    '7': 121,
+    '8': 122,
+    '9': 123,
+    '10': 124,
+    '11': 125,
+    '12': 126,
   }
 
   return map[`${event.value}`];
