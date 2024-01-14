@@ -98,8 +98,8 @@ Besides that it would be nice to have one bit as parity bit to ensure correct da
 1. Race Mode Change Set to Qualifying (addon: ❌, board: ❌, raspberry: ❌)
 1. Race Mode Change Set to Race (addon: ❌, board: ❌, raspberry: ❌)
 
-1. Race State Set to Running (addon: ❌, board: ❌, raspberry: ❌)
-1. Race State Set to Not Running (addon: ❌, board: ❌, raspberry: ❌)
+1. Race State Set to Running (addon: ✅, board: ✅, raspberry: ✅)
+1. Race State Set to Not Running (addon: ✅, board: ✅, raspberry: ✅)
 
 1. Race Progress 0% (addon: ❌, board: ❌, raspberry: ❌)
 1. Race Progress 8% (addon: ❌, board: ❌, raspberry: ❌)
