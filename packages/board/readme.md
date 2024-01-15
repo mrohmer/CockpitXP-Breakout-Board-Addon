@@ -15,3 +15,11 @@ Therefore, you need to have the cli installed (see [here](https://platformio.org
 | D5  | GPIO14 | Race Progress       |
 | D1  | GPIO5  | SCL to MCP (Yellow) |
 | D2  | GPIO4  | SDA to MCP (Blue)   |
+
+# Wiring MCP23017
+
+| Pin | Nbr | Name   |
+|-----|-----|--------|
+| A7  | 7   | Data 1 |
+| A6  | 6   | Data 2 |
+| A5  | 7   | Data 3 |
