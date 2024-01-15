@@ -86,7 +86,7 @@ end;
 
 procedure checkRaceProgress;
 var
-  value, oldValue: Boolean;
+  value, oldValue: Integer;
 begin
   if (isEventInactive('RaceProgress')) then
   begin
@@ -100,6 +100,6 @@ begin
     exit;
   end;
 
-  EnqueueVirtualSafetyCarEvent(value);
+  EnqueueRaceProgressChange(value);
   cpSetIntegerVar('RaceProgress:OldValue', value);
 end;

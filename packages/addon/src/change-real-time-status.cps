@@ -3,8 +3,9 @@
 { Parameter: Cockpit.Parameter = <RennStatus> }
 
 {%%PROCEDURE.EnqueueEvent%%}
+{%%PROCEDURE.CheckRaceStatus%%}
 {%%FUNCTION.IsEventInactive%%}
-{%%FUNCTION.CheckRaceStatus%%}
+{%%FUNCTION.BoolToInt%%}
 
 begin
   checkRaceStatus;

@@ -1,4 +1,6 @@
 procedure checkRaceStatus;
+var
+  value, oldValue: Boolean;
 begin
   if (isEventInactive('RaceState')) then
   begin

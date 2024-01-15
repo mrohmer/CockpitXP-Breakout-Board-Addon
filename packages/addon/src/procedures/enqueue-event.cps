@@ -69,7 +69,7 @@ procedure EnqueuePitlaneEvent(pitlaneNbr: Integer; nbr: Integer);
 begin
   if (pitlaneNbr = 1) then
   begin
-    case percentage of
+    case nbr of
       -1: EnqueueEvent('Pitlane 1 off', 55, 'Pitlane1');
       0: EnqueueEvent('Pitlane 1 0%', 59, 'Pitlane1');
       1: EnqueueEvent('Pitlane 1 7%', 61, 'Pitlane1');
@@ -90,7 +90,7 @@ begin
   end
   else if (pitlaneNbr = 2) then
   begin
-    case percentage of
+    case nbr of
       -1: EnqueueEvent('Pitlane 2 off', 89, 'Pitlane2');
       0: EnqueueEvent('Pitlane 2 0%', 90, 'Pitlane2');
       1: EnqueueEvent('Pitlane 2 7%', 91, 'Pitlane2');
@@ -150,7 +150,7 @@ begin
   EnqueueEvent('Slot ' + IntToStr(slotId) + ' does not need to refuel anymore', decimal, 'SlotNeedsFueling' + IntToStr(slotId));
 end;
 
-procedure EnqueueSlotIsFuelingEvent(slotId: Integer; isOn: Boolean);
+procedure EnqueueSlotIsFuelingEvent(slotId: Integer);
 var
   decimal: Integer;
 begin
@@ -170,7 +170,7 @@ begin
   EnqueueEvent('Slot ' + IntToStr(slotId) + ' starts refueling', decimal, 'SlotIsFueling' + IntToStr(slotId));
 end;
 
-procedure EnqueueSlotStopsFuelingEvent(slotId: Integer; isOn: Boolean);
+procedure EnqueueSlotStopsFuelingEvent(slotId: Integer);
 var
   decimal: Integer;
 begin
