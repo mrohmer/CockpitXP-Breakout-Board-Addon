@@ -94,7 +94,7 @@ struct State {
     bool newTrackRecord;
     bool newSessionRecord;
     bool raceIsInProgress;
-    unsigned int raceProgress;
+    int raceProgress;
 
     bool needsUpdate;
 };
@@ -374,9 +374,9 @@ void updatePitlaneBar(int value, int firstIndex) {
   }
 
   int index = firstIndex;
-  pitlane.fill(pitlane.Color(255, 0, 0), index, min(3, value));
+  pitlane.fill(pitlane.Color(255, 0, 0), index, std::min(3, value));
   if (value > 3) {
-    pitlane.fill(pitlane.Color(255, 255, 0), index + 3, min(12, value) - 3);
+    pitlane.fill(pitlane.Color(255, 255, 0), index + 3, std::min(12, value) - 3);
   }
   if (value > 12) {
     pitlane.fill(pitlane.Color(0, 255, 0), index + 12, value - 12);
@@ -429,7 +429,7 @@ void updateRaceProgress() {
 
   raceProgress.clear();
 
-  raceProgress.fill(raceProgress.Color(255, 255, 255), 0, min(state.raceProgress, 8));
+  raceProgress.fill(raceProgress.Color(255, 255, 255), 0, std::min(state.raceProgress, 8));
   if (state.raceProgress > 8) {
     raceProgress.fill(raceProgress.Color(255, 0, 0), 8, state.raceProgress - 8);
   }
@@ -716,10 +716,10 @@ bool updateState(unsigned int event) {
     case 105:  // pit lane 2 93%
       state.pitlane2 = 13;
       break;
-    case 106:  // pit lane 2 100%
+    case 110:  // pit lane 2 100%
       state.pitlane2 = 14;
       break;
-    case 106:  // race state set to running
+    case 111:  // race state set to running
       state.raceIsInProgress = true;
       break;
     case 106:  // race state set to not running
