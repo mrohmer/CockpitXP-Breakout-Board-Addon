@@ -716,13 +716,13 @@ bool updateState(unsigned int event) {
     case 105:  // pit lane 2 93%
       state.pitlane2 = 13;
       break;
-    case 110:  // pit lane 2 100%
+    case 106:  // pit lane 2 100%
       state.pitlane2 = 14;
       break;
-    case 111:  // race state set to running
+    case 110:  // race state set to running
       state.raceIsInProgress = true;
       break;
-    case 106:  // race state set to not running
+    case 111:  // race state set to not running
       state.raceIsInProgress = false;
       break;
     case 113:  // race progress 0%
