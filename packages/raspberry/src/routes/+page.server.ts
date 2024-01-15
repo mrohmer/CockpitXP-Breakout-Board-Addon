@@ -58,7 +58,7 @@ export const load = (async () => {
   // Server API:
   const form = await superValidate({
     event: {} as any,
-    signalHoldTime: 25,
+    signalHoldTime: 7,
   }, schema);
 
   // Unless you throw, always return { form } in load and form actions.

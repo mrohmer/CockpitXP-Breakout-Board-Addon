@@ -3,7 +3,8 @@
   import {superForm} from 'sveltekit-superforms/client';
   import {Category} from '$lib/models/category';
   import {SlotEvent} from '$lib/models/slot-event';
-  import { slide } from 'svelte/transition';
+  import {slide} from 'svelte/transition';
+  import Counter from '$lib/components/Counter.svelte';
 
   export let data: PageData;
 
@@ -13,35 +14,36 @@
     timeoutMs: 1000,
   });
 
-  const onIncPitlane = () => () => {
-    form.update((value) => {
-      return {
-        ...value,
-        event: {
-          ...(value?.event ?? {}),
-          value: Math.min((value?.event?.value ?? 0) + 1, 14),
-        }
+  const updateEventValue = (key: string, diff: number, min: number, max: number) => {
+    form.update((value) => ({
+      ...value,
+      event: {
+        ...(value?.event ?? {}),
+        [key]: Math.max(Math.min((value?.event?.[key] ?? 0) + diff, max), min),
       }
-    })
+    }))
   }
-  const onDecPitlane = () => () => {
-    form.update((value) => {
-      return {
-        ...value,
-        event: {
-          ...(value?.event ?? {}),
-          value: Math.max((value?.event?.value ?? 0) - 1, -1),
-        }
-      }
-    })
-  }
+  const onIncPitlane = () => () => updateEventValue('value', 1, 0, 14);
+  const onDecPitlane = () => () => updateEventValue('value', -1, 0, 14);
+  const onIncPitlaneLane = () => () => updateEventValue('lane',1, 1, 2);
+  const onDecPitlaneLane = () => () => updateEventValue('lane',-1, 1, 2);
+  const onIncStartLight = () => () => updateEventValue('value',1, 0, 7);
+  const onDecStartLight = () => () => updateEventValue('value',-1, 0, 7);
+  const onIncSlot = () => () => updateEventValue('slot',1, 1, 6);
+  const onDecSlot = () => () => updateEventValue('slot',-1, 1, 6);
+  const onIncRaceProgress = () => () => updateEventValue('value',1, 0, 12);
+  const onDecRaceProgress = () => () => updateEventValue('value',-1, 0, 12);
 </script>
 
 <div class="max-w-2xl mx-auto px-2 py-10">
     <form method="POST" class="flex flex-col gap-9" use:enhance>
         {#if $message}
             <div role="alert" class="alert" transition:slide>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                     class="stroke-info shrink-0 w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
                 <span>{$message}</span>
             </div>
         {/if}
@@ -84,14 +86,17 @@
                 </div>
                 <div class="flex">
                     <label class="flex-1" for="event-slot">Slot</label>
-                    <select class="select select-bordered w-44 text-center" id="event-slot-slot"
-                            bind:value={$form.event.slot}
-                            {...$constraints?.event?.slot}
-                    >
-                        {#each Array.from(Array(6)) as _, index}
-                            <option>{index + 1}</option>
-                        {/each}
-                    </select>
+
+                    <Counter on:inc={onIncSlot()} on:dec={onDecSlot()}>
+                        <select class="select select-bordered w-20 text-center join-item z-0" id="event-slot-slot"
+                                bind:value={$form.event.slot}
+                                {...$constraints?.event?.slot}
+                        >
+                            {#each Array.from(Array(6)) as _, index}
+                                <option>{index + 1}</option>
+                            {/each}
+                        </select>
+                    </Counter>
                 </div>
                 <div class="flex">
                     <label class="flex-1" for="event-slot-state">State</label>
@@ -131,27 +136,23 @@
             {:else if $form.event.category === Category.Pitlane}
                 <div class="flex">
                     <label class="flex-1" for="event-pitlane-lane">Lane</label>
-                    <select class="select select-bordered w-44 text-center" id="event-pitlane-lane"
-                            bind:value={$form.event.lane}
-                            {...$constraints?.event?.lane}
-                    >
-                        {#each Array.from(Array(2)) as _, index}
-                            <option>{index + 1}</option>
-                        {/each}
-                    </select>
+
+
+                    <Counter on:inc={onIncPitlaneLane()} on:dec={onDecPitlaneLane()}>
+                        <select class="select select-bordered w-20 text-center join-item z-0" id="event-pitlane-lane"
+                                bind:value={$form.event.lane}
+                                {...$constraints?.event?.lane}
+                        >
+                            {#each Array.from(Array(2)) as _, index}
+                                <option>{index + 1}</option>
+                            {/each}
+                        </select>
+                    </Counter>
                 </div>
                 <div class="flex">
                     <label class="flex-1" for="event-pitlane-value">Value</label>
 
-                    <div class="join">
-                        <div>
-                            <button class="btn btn-square join-item z-10" on:click={onDecPitlane()} type="button">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
-                                </svg>
-
-                            </button>
-                        </div>
+                    <Counter on:inc={onIncPitlane()} on:dec={onDecPitlane()}>
                         <select class="select select-bordered w-20 text-center join-item z-0" id="event-pitlane-value"
                                 bind:value={$form.event.value}
                                 {...$constraints?.event?.value}
@@ -164,14 +165,7 @@
                                 {/if}
                             {/each}
                         </select>
-                        <div>
-                            <button class="btn btn-square join-item z-10" on:click={onIncPitlane()} type="button">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+                    </Counter>
 
                 </div>
             {:else if $form.event.category === Category.Record}
@@ -188,38 +182,44 @@
             {:else if $form.event.category === Category.StartLight}
                 <div class="flex">
                     <label class="flex-1" for="event-sl-value">Type</label>
-                    <select class="select select-bordered w-44 text-center" id="event-sl-value"
-                            bind:value={$form.event.value}
-                            {...$constraints?.event?.value}
-                    >
-                        {#each Array.from(Array(8)) as _, index}
-                            {#if index === 0}
-                                <option value={0}>off</option>
-                            {:else if index === 6}
-                                <option value={6}>green</option>
-                            {:else if index === 7}
-                                <option value={7}>false start</option>
-                            {:else}
-                                <option>{index}</option>
-                            {/if}
-                        {/each}
-                    </select>
+
+                    <Counter on:inc={onIncStartLight()} on:dec={onDecStartLight()}>
+                        <select class="select select-bordered w-20 text-center join-item z-0 p-0" id="event-sl-value"
+                                bind:value={$form.event.value}
+                                {...$constraints?.event?.value}
+                        >
+                            {#each Array.from(Array(8)) as _, index}
+                                {#if index === 0}
+                                    <option value={0}>off</option>
+                                {:else if index === 6}
+                                    <option value={6}>green</option>
+                                {:else if index === 7}
+                                    <option value={7}>false start</option>
+                                {:else}
+                                    <option>{index}</option>
+                                {/if}
+                            {/each}
+                        </select>
+                    </Counter>
                 </div>
             {:else if $form.event.category === Category.RaceProgress}
                 <div class="flex">
                     <label class="flex-1" for="event-race-progress-value">Value</label>
-                    <select class="select select-bordered w-44 text-center" id="event-race-progress-value"
-                            bind:value={$form.event.value}
-                            {...$constraints?.event?.value}
-                    >
-                        {#each Array.from(Array(12)) as _, index}
-                            {#if index === 0}
-                                <option value={0}>off</option>
-                            {:else}
-                                <option>{index}</option>
-                            {/if}
-                        {/each}
-                    </select>
+
+                    <Counter on:inc={onIncRaceProgress()} on:dec={onDecRaceProgress()}>
+                        <select class="select select-bordered w-20 text-center join-item z-0" id="event-race-progress-value"
+                                bind:value={$form.event.value}
+                                {...$constraints?.event?.value}
+                        >
+                            {#each Array.from(Array(13)) as _, index}
+                                {#if index === 0}
+                                    <option value={0}>off</option>
+                                {:else}
+                                    <option>{index}</option>
+                                {/if}
+                            {/each}
+                        </select>
+                    </Counter>
                 </div>
             {/if}
         </div>

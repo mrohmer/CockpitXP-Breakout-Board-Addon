@@ -7,7 +7,8 @@
     "board:upload": "turbo run upload --filter @rohmer/cockpit-xp-breakout-board-board",
     "board:monitor": "turbo run monitor --filter @rohmer/cockpit-xp-breakout-board-board",
     "values": "node scripts/calc-possible-values",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "dev": "turbo run dev"
   },
   "volta": {
     "node": "18.16.0",
