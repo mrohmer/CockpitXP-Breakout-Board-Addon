@@ -10,24 +10,15 @@
 #ifndef OMIT_RACE_PROGRESS_CONNECTION
 #   define OMIT_RACE_PROGRESS_CONNECTION false
 #endif
-
-#define PIN_CLOCK 13
-#define PIN_DATA_1 7 // VIA I2C
-#define PIN_DATA_2 6 // VIA I2C
-#define PIN_DATA_3 5 // VIA I2C
-#define PIN_LED 2
-#define PIN_START_LIGHT_CS 15
-#define PIN_START_LIGHT_HORIZONTAL 5
-#define PIN_START_LIGHT_VERTICAL 1
-#define PIN_PITLANE 12
-#define PIN_RACE_PROGRESS 14
-#define PIN_FUELING_SLOT_1 10 // VIA I2C
-#define PIN_FUELING_SLOT_2 11 // VIA I2C
-#define PIN_FUELING_SLOT_3 12 // VIA I2C
-#define PIN_FUELING_SLOT_4 13 // VIA I2C
-#define PIN_FUELING_SLOT_5 14 // VIA I2C
-#define PIN_FUELING_SLOT_6 15 // VIA I2C
-#define PIN_VIRTUAL_SAFETY_CAR 16 // VIA I2C
+#ifndef DATA_VIA_I2C
+#   define DATA_VIA_I2C false
+#endif
+#ifndef FUELING_SLOT_VIA_I2C
+#   define FUELING_SLOT_VIA_I2C false
+#endif
+#ifndef VIRTUAL_SAFETY_CAR_VIA_I2C
+#   define VIRTUAL_SAFETY_CAR_VIA_I2C false
+#endif
 
 #define PITLANE_NUMPIXELS 32
 #define PITLANE_1_FIRST_INDEX 0
@@ -49,7 +40,6 @@
 #include <string.h>
 #include <Adafruit_MCP23X17.h>
 #include <Adafruit_NeoPixel.h>
-
 
 // --- Structs ---
 struct Input {  // Structure declaration
@@ -453,19 +443,33 @@ void setupFueling() {
   if (OMIT_I2C_CONNECTION) {
     return;
   }
-  mcp.pinMode(PIN_FUELING_SLOT_1, OUTPUT);
-  mcp.pinMode(PIN_FUELING_SLOT_2, OUTPUT);
-  mcp.pinMode(PIN_FUELING_SLOT_3, OUTPUT);
-  mcp.pinMode(PIN_FUELING_SLOT_4, OUTPUT);
-  mcp.pinMode(PIN_FUELING_SLOT_5, OUTPUT);
-  mcp.pinMode(PIN_FUELING_SLOT_6, OUTPUT);
+
+  if (FUELING_SLOT_VIA_I2C) {
+    mcp.pinMode(PIN_FUELING_SLOT_1, OUTPUT);
+    mcp.pinMode(PIN_FUELING_SLOT_2, OUTPUT);
+    mcp.pinMode(PIN_FUELING_SLOT_3, OUTPUT);
+    mcp.pinMode(PIN_FUELING_SLOT_4, OUTPUT);
+    mcp.pinMode(PIN_FUELING_SLOT_5, OUTPUT);
+    mcp.pinMode(PIN_FUELING_SLOT_6, OUTPUT);
+  } else {
+    pinMode(PIN_FUELING_SLOT_1, OUTPUT);
+    pinMode(PIN_FUELING_SLOT_2, OUTPUT);
+    pinMode(PIN_FUELING_SLOT_3, OUTPUT);
+    pinMode(PIN_FUELING_SLOT_4, OUTPUT);
+    pinMode(PIN_FUELING_SLOT_5, OUTPUT);
+    pinMode(PIN_FUELING_SLOT_6, OUTPUT);
+  }
 }
 
 void updateSlotIsRefueling(bool isRefueling, unsigned int pin) {
   if (OMIT_I2C_CONNECTION) {
     return;
   }
-  mcp.digitalWrite(pin, isRefueling ? HIGH : LOW);
+  if (FUELING_SLOT_VIA_I2C) {
+    mcp.digitalWrite(pin, isRefueling ? HIGH : LOW);
+  } else {
+    mcp.digitalWrite(pin, isRefueling ? HIGH : LOW);
+  }
 }
 
 void updateIsRefueling() {
@@ -518,7 +522,11 @@ void setupVirtualSafetyCar() {
   if (OMIT_I2C_CONNECTION) {
     return;
   }
-  mcp.pinMode(PIN_VIRTUAL_SAFETY_CAR, OUTPUT);
+  if (VIRTUAL_SAFETY_CAR_VIA_I2C) {
+    mcp.pinMode(PIN_VIRTUAL_SAFETY_CAR, OUTPUT);
+  } else {
+    pinMode(PIN_VIRTUAL_SAFETY_CAR, OUTPUT);
+  }
 }
 
 void toggleVirtualSafetyCar() {
@@ -534,7 +542,11 @@ void toggleVirtualSafetyCar() {
     return;
   }
 
-  mcp.digitalWrite(PIN_VIRTUAL_SAFETY_CAR, nextState ? HIGH : LOW);
+  if (VIRTUAL_SAFETY_CAR_VIA_I2C) {
+    mcp.digitalWrite(PIN_VIRTUAL_SAFETY_CAR, nextState ? HIGH : LOW);
+  } else {
+    digitalWrite(PIN_VIRTUAL_SAFETY_CAR, nextState ? HIGH : LOW);
+  }
   state.virtualSafetyCar.lastToggleState = nextState;
 }
 
@@ -866,12 +878,21 @@ void updateOnStatusChange() {
 
 // --- Input Handling ---
 void setupInputPins() {
-  mcp.pinMode(PIN_DATA_1, USE_PULLUP ? INPUT_PULLUP : INPUT);
-  mcp.digitalWrite(PIN_DATA_1, LOW);
-  mcp.pinMode(PIN_DATA_2, USE_PULLUP ? INPUT_PULLUP : INPUT);
-  mcp.digitalWrite(PIN_DATA_2, LOW);
-  mcp.pinMode(PIN_DATA_3, USE_PULLUP ? INPUT_PULLUP : INPUT);
-  mcp.digitalWrite(PIN_DATA_3, LOW);
+  if (DATA_VIA_I2C){
+    mcp.pinMode(PIN_DATA_1, USE_PULLUP ? INPUT_PULLUP : INPUT);
+    mcp.digitalWrite(PIN_DATA_1, LOW);
+    mcp.pinMode(PIN_DATA_2, USE_PULLUP ? INPUT_PULLUP : INPUT);
+    mcp.digitalWrite(PIN_DATA_2, LOW);
+    mcp.pinMode(PIN_DATA_3, USE_PULLUP ? INPUT_PULLUP : INPUT);
+    mcp.digitalWrite(PIN_DATA_3, LOW);
+  } else {
+    pinMode(PIN_DATA_1, USE_PULLUP ? INPUT_PULLUP : INPUT);
+    digitalWrite(PIN_DATA_1, LOW);
+    pinMode(PIN_DATA_2, USE_PULLUP ? INPUT_PULLUP : INPUT);
+    digitalWrite(PIN_DATA_2, LOW);
+    pinMode(PIN_DATA_3, USE_PULLUP ? INPUT_PULLUP : INPUT);
+    digitalWrite(PIN_DATA_3, LOW);
+  }
 
   pinMode(PIN_CLOCK, INPUT);
   attachInterrupt(digitalPinToInterrupt(PIN_CLOCK), readInput, RISING);
@@ -889,9 +910,9 @@ int calcRowValue(int val1, int val2, int val3) {
 void IRAM_ATTR
 
 readInput() {
-  int value1 = mcp.digitalRead(PIN_DATA_1) == !USE_PULLUP;
-  int value2 = mcp.digitalRead(PIN_DATA_2) == !USE_PULLUP;
-  int value3 = mcp.digitalRead(PIN_DATA_3) == !USE_PULLUP;
+  int value1 = (DATA_VIA_I2C ? mcp.digitalRead(PIN_DATA_1) : digitalRead(PIN_DATA_1)) == !USE_PULLUP;
+  int value2 = (DATA_VIA_I2C ? mcp.digitalRead(PIN_DATA_2) : digitalRead(PIN_DATA_2)) == !USE_PULLUP;
+  int value3 = (DATA_VIA_I2C ? mcp.digitalRead(PIN_DATA_3) : digitalRead(PIN_DATA_3)) == !USE_PULLUP;
 
   Serial.printf("Interrupt %d%d%d\n", value1, value2, value3);
   int value = calcRowValue(value1, value2, value3);
