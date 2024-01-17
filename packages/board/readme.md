@@ -7,14 +7,19 @@ Therefore, you need to have the cli installed (see [here](https://platformio.org
 
 ## Wiring Esp8266
 
-| Pin | GPIO   | Name            |
-|-----|--------|-----------------|
-| D4  | GPIO2  | Internal Led    |
-| D1  | GPIO5  | Clock           |
-| D6  | GPIO12 | Data 1          |
-| RX  | GPIO3  | Data 2          |
-| D2  | GPIO4  | Data 3          |
-| D8  | GPIO15 | Start Light CS  |
-| D7  | GPIO13 | Start Light DIN |
-| D5  | GPIO14 | Start Light CLK |
-| TX  | GPIO1  | Pitlane         |
+| Pin | GPIO   | Name                |
+|-----|--------|---------------------|
+| D4  | GPIO2  | Internal Led        |
+| D7  | GPIO5  | Clock               |
+| D6  | GPIO12 | Pitlane             |
+| D5  | GPIO14 | Race Progress       |
+| D1  | GPIO5  | SCL to MCP (Yellow) |
+| D2  | GPIO4  | SDA to MCP (Blue)   |
+
+# Wiring MCP23017
+
+| Pin | Nbr | Name   |
+|-----|-----|--------|
+| A7  | 7   | Data 1 |
+| A6  | 6   | Data 2 |
+| A5  | 7   | Data 3 |

@@ -11,16 +11,16 @@
 #   define OMIT_RACE_PROGRESS_CONNECTION false
 #endif
 
-#define PIN_CLOCK 5
-#define PIN_DATA_1 12
-#define PIN_DATA_2 3
-#define PIN_DATA_3 4
+#define PIN_CLOCK 13
+#define PIN_DATA_1 7 // VIA I2C
+#define PIN_DATA_2 6 // VIA I2C
+#define PIN_DATA_3 5 // VIA I2C
 #define PIN_LED 2
 #define PIN_START_LIGHT_CS 15
 #define PIN_START_LIGHT_HORIZONTAL 5
 #define PIN_START_LIGHT_VERTICAL 1
-#define PIN_PITLANE 1
-#define PIN_RACE_PROGRESS 9
+#define PIN_PITLANE 12
+#define PIN_RACE_PROGRESS 14
 #define PIN_FUELING_SLOT_1 10 // VIA I2C
 #define PIN_FUELING_SLOT_2 11 // VIA I2C
 #define PIN_FUELING_SLOT_3 12 // VIA I2C
@@ -85,8 +85,8 @@ struct VirtualSafetyCarState {
 struct State {
     struct SlotsState slots;
 
-    unsigned int pitlane1;
-    unsigned int pitlane2;
+    int pitlane1;
+    int pitlane2;
 
     struct StartLightState startLight;
 
@@ -163,8 +163,8 @@ void updateOnStatusChange();
 void setup() {
   Serial.begin(9600);
 
-  setupStartLight();
   setupI2C();
+  setupStartLight();
   setupPitlane();
   setupFueling();
   setupVirtualSafetyCar();
@@ -349,7 +349,8 @@ void setupPitlane() {
   }
 
   pitlane.begin();
-  pitlane.setBrightness(0);
+  pitlane.setBrightness(5);
+  pitlane.clear();
   pitlane.show();
 }
 
@@ -373,7 +374,11 @@ void updatePitlaneBar(int value, int firstIndex) {
     return;
   }
 
-  int index = firstIndex;
+  if (value <= 0)  {
+    return;
+  }
+
+  int index = firstIndex+ 2;
   pitlane.fill(pitlane.Color(255, 0, 0), index, std::min(3, value));
   if (value > 3) {
     pitlane.fill(pitlane.Color(255, 255, 0), index + 3, std::min(12, value) - 3);
@@ -399,6 +404,7 @@ void updatePitlanes() {
     return;
   }
 
+  Serial.println("Updating Pitlane");
   pitlane.clear();
   updatePitlane(
           state.pitlane1,
@@ -419,19 +425,23 @@ void setupRaceProgress() {
   }
 
   raceProgress.begin();
-  raceProgress.setBrightness(0);
+  raceProgress.setBrightness(5);
+  raceProgress.clear();
   raceProgress.show();
 }
 void updateRaceProgress() {
-  if (OMIT_PITLANE_CONNECTION) {
+  if (OMIT_RACE_PROGRESS_CONNECTION) {
     return;
   }
 
+  Serial.println("Updating Race Progress");
   raceProgress.clear();
 
-  raceProgress.fill(raceProgress.Color(255, 255, 255), 0, std::min(state.raceProgress, 8));
-  if (state.raceProgress > 8) {
-    raceProgress.fill(raceProgress.Color(255, 0, 0), 8, state.raceProgress - 8);
+  if (state.raceProgress > 0) {
+    raceProgress.fill(raceProgress.Color(255, 255, 255), 0, std::min(state.raceProgress, 8));
+    if (state.raceProgress > 8) {
+      raceProgress.fill(raceProgress.Color(255, 0, 0), 8, state.raceProgress - 8);
+    }
   }
 
   raceProgress.show();
@@ -562,8 +572,8 @@ void resetState() {
                   .slot6 = {.isRefueling = false, .needsRefueling = false},
                   .lastNeedsToRefuelToggleState = false
           },
-          .pitlane1 = 0,
-          .pitlane2 = 0,
+          .pitlane1 = -1,
+          .pitlane2 = -1,
           .startLight = {.falseStart = false, .falseStartToggle = false, .state = 0},
 
           .virtualSafetyCar = {.state = false, .lastToggleState = false},
@@ -854,13 +864,14 @@ void updateOnStatusChange() {
 
 // --- Input Handling ---
 void setupInputPins() {
-  pinMode(PIN_DATA_1, USE_PULLUP ? INPUT_PULLUP : INPUT);
-  digitalWrite(PIN_DATA_1, LOW);
-  pinMode(PIN_DATA_2, USE_PULLUP ? INPUT_PULLUP : INPUT);
-  digitalWrite(PIN_DATA_2, LOW);
-  pinMode(PIN_DATA_3, USE_PULLUP ? INPUT_PULLUP : INPUT);
-  digitalWrite(PIN_DATA_3, LOW);
-  pinMode(PIN_CLOCK, USE_PULLUP ? INPUT_PULLUP : INPUT);
+  mcp.pinMode(PIN_DATA_1, USE_PULLUP ? INPUT_PULLUP : INPUT);
+  mcp.digitalWrite(PIN_DATA_1, LOW);
+  mcp.pinMode(PIN_DATA_2, USE_PULLUP ? INPUT_PULLUP : INPUT);
+  mcp.digitalWrite(PIN_DATA_2, LOW);
+  mcp.pinMode(PIN_DATA_3, USE_PULLUP ? INPUT_PULLUP : INPUT);
+  mcp.digitalWrite(PIN_DATA_3, LOW);
+
+  pinMode(PIN_CLOCK, INPUT);
   attachInterrupt(digitalPinToInterrupt(PIN_CLOCK), readInput, RISING);
 }
 
@@ -876,9 +887,9 @@ int calcRowValue(int val1, int val2, int val3) {
 void IRAM_ATTR
 
 readInput() {
-  int value1 = digitalRead(PIN_DATA_1) == !USE_PULLUP;
-  int value2 = digitalRead(PIN_DATA_2) == !USE_PULLUP;
-  int value3 = digitalRead(PIN_DATA_3) == !USE_PULLUP;
+  int value1 = mcp.digitalRead(PIN_DATA_1) == !USE_PULLUP;
+  int value2 = mcp.digitalRead(PIN_DATA_2) == !USE_PULLUP;
+  int value3 = mcp.digitalRead(PIN_DATA_3) == !USE_PULLUP;
 
   Serial.printf("Interrupt %d%d%d\n", value1, value2, value3);
   int value = calcRowValue(value1, value2, value3);
