@@ -91,6 +91,7 @@ struct State {
     struct StartLightState startLight;
 
     struct VirtualSafetyCarState virtualSafetyCar;
+    bool chaos;
     bool newTrackRecord;
     bool newSessionRecord;
     bool raceIsInProgress;
@@ -577,6 +578,7 @@ void resetState() {
           .startLight = {.falseStart = false, .falseStartToggle = false, .state = 0},
 
           .virtualSafetyCar = {.state = false, .lastToggleState = false},
+          .chaos = false,
           .newTrackRecord = false,
           .newSessionRecord = false,
           .raceIsInProgress = false,

@@ -220,3 +220,16 @@ begin
     12: EnqueueEvent('Race Progress 100%', 126, 'RaceProgress');
   end;
 end;
+
+procedure EnqueueChaosChange(value: Boolean);
+begin
+  if (value) then
+  begin
+    EnqueueEvent('Chaos on', 108, 'Chaos');
+  end
+  else
+  begin
+    EnqueueEvent('Chaos off', 109, 'Chaos');
+  end;
+end;
+

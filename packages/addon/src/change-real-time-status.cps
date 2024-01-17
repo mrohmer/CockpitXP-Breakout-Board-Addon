@@ -4,9 +4,11 @@
 
 {%%PROCEDURE.EnqueueEvent%%}
 {%%PROCEDURE.CheckRaceStatus%%}
+{%%PROCEDURE.CheckChaos%%}
 {%%FUNCTION.IsEventInactive%%}
 {%%FUNCTION.BoolToInt%%}
 
 begin
   checkRaceStatus;
+  checkChaos;
 end.
