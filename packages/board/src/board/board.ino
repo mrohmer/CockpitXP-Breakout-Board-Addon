@@ -85,8 +85,8 @@ struct VirtualSafetyCarState {
 struct State {
     struct SlotsState slots;
 
-    unsigned int pitlane1;
-    unsigned int pitlane2;
+    int pitlane1;
+    int pitlane2;
 
     struct StartLightState startLight;
 
@@ -349,7 +349,8 @@ void setupPitlane() {
   }
 
   pitlane.begin();
-  pitlane.setBrightness(0);
+  pitlane.setBrightness(5);
+  pitlane.clear();
   pitlane.show();
 }
 
@@ -373,7 +374,11 @@ void updatePitlaneBar(int value, int firstIndex) {
     return;
   }
 
-  int index = firstIndex;
+  if (value <= 0)  {
+    return;
+  }
+
+  int index = firstIndex+ 2;
   pitlane.fill(pitlane.Color(255, 0, 0), index, std::min(3, value));
   if (value > 3) {
     pitlane.fill(pitlane.Color(255, 255, 0), index + 3, std::min(12, value) - 3);
@@ -399,6 +404,7 @@ void updatePitlanes() {
     return;
   }
 
+  Serial.println("Updating Pitlane");
   pitlane.clear();
   updatePitlane(
           state.pitlane1,
@@ -419,19 +425,23 @@ void setupRaceProgress() {
   }
 
   raceProgress.begin();
-  raceProgress.setBrightness(0);
+  raceProgress.setBrightness(5);
+  raceProgress.clear();
   raceProgress.show();
 }
 void updateRaceProgress() {
-  if (OMIT_PITLANE_CONNECTION) {
+  if (OMIT_RACE_PROGRESS_CONNECTION) {
     return;
   }
 
+  Serial.println("Updating Race Progress");
   raceProgress.clear();
 
-  raceProgress.fill(raceProgress.Color(255, 255, 255), 0, std::min(state.raceProgress, 8));
-  if (state.raceProgress > 8) {
-    raceProgress.fill(raceProgress.Color(255, 0, 0), 8, state.raceProgress - 8);
+  if (state.raceProgress > 0) {
+    raceProgress.fill(raceProgress.Color(255, 255, 255), 0, std::min(state.raceProgress, 8));
+    if (state.raceProgress > 8) {
+      raceProgress.fill(raceProgress.Color(255, 0, 0), 8, state.raceProgress - 8);
+    }
   }
 
   raceProgress.show();
@@ -562,8 +572,8 @@ void resetState() {
                   .slot6 = {.isRefueling = false, .needsRefueling = false},
                   .lastNeedsToRefuelToggleState = false
           },
-          .pitlane1 = 0,
-          .pitlane2 = 0,
+          .pitlane1 = -1,
+          .pitlane2 = -1,
           .startLight = {.falseStart = false, .falseStartToggle = false, .state = 0},
 
           .virtualSafetyCar = {.state = false, .lastToggleState = false},
