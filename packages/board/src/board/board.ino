@@ -346,7 +346,7 @@ void setupPitlane() {
   }
 
   pitlane.begin();
-  pitlane.setBrightness(5);
+  pitlane.setBrightness(15);
   pitlane.clear();
   pitlane.show();
 }
@@ -422,7 +422,7 @@ void setupRaceProgress() {
   }
 
   raceProgress.begin();
-  raceProgress.setBrightness(5);
+  raceProgress.setBrightness(15);
   raceProgress.clear();
   raceProgress.show();
 }
