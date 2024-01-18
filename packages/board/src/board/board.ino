@@ -108,9 +108,11 @@ Adafruit_NeoPixel pitlane = Adafruit_NeoPixel(PITLANE_NUMPIXELS, PIN_PITLANE, NE
 Adafruit_NeoPixel raceProgress = Adafruit_NeoPixel(RACE_PROGRESS_NUMPIXELS, PIN_RACE_PROGRESS, NEO_GRB + NEO_KHZ800);
 
 // --- Declarations ---
-void IRAM_ATTR
-
-readInput();
+#if ESP
+void IRAM_ATTR readInput();
+#else
+void readInput();
+#endif
 
 void setupInputPins();
 
@@ -250,6 +252,9 @@ bool hasEvenParity(unsigned int n) {
 unsigned int clearBit(unsigned int number, unsigned int n) {
   return number & ~((unsigned int) 1 << n);
 }
+int min(int a, int b) {
+  return a < b ? a : b;
+}
 
 // --- I2C ---
 void setupI2C() {
@@ -311,7 +316,8 @@ void clearStartLightFields() {
 
 void updateStartLight() {
   if (state.startLight.state > 0 && state.startLight.state <= 5) {
-    Serial.printf(" Display Start Light %d\n", state.startLight.state);
+    Serial.print(" Display Start Light ");
+    Serial.println(state.startLight.state);
     fillStartLightFields(state.startLight.state);
   } else {
     Serial.println(" Clearing Start Light");
@@ -370,9 +376,9 @@ void updatePitlaneBar(int value, int firstIndex) {
   }
 
   int index = firstIndex+ 2;
-  pitlane.fill(pitlane.Color(255, 0, 0), index, std::min(3, value));
+  pitlane.fill(pitlane.Color(255, 0, 0), index, min(3, value));
   if (value > 3) {
-    pitlane.fill(pitlane.Color(255, 255, 0), index + 3, std::min(12, value) - 3);
+    pitlane.fill(pitlane.Color(255, 255, 0), index + 3, min(12, value) - 3);
   }
   if (value > 12) {
     pitlane.fill(pitlane.Color(0, 255, 0), index + 12, value - 12);
@@ -429,7 +435,7 @@ void updateRaceProgress() {
   raceProgress.clear();
 
   if (state.raceProgress > 0) {
-    raceProgress.fill(raceProgress.Color(255, 255, 255), 0, std::min(state.raceProgress, 8));
+    raceProgress.fill(raceProgress.Color(255, 255, 255), 0, min(state.raceProgress, 8));
     if (state.raceProgress > 8) {
       raceProgress.fill(raceProgress.Color(255, 0, 0), 8, state.raceProgress - 8);
     }
@@ -553,25 +559,60 @@ void toggleVirtualSafetyCar() {
 // --- State Update ---
 void printState() {
   Serial.println("State:");
-  Serial.printf("Pitlane 1: %d | Pitlane 2: %d\n", state.pitlane1, state.pitlane2);
-  Serial.printf("Slot1: %s | %s\n", state.slots.slot1.isRefueling ? "isRefueling" : "-",
-                state.slots.slot1.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot2: %s | %s\n", state.slots.slot2.isRefueling ? "isRefueling" : "-",
-                state.slots.slot2.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot3: %s | %s\n", state.slots.slot3.isRefueling ? "isRefueling" : "-",
-                state.slots.slot3.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot4: %s | %s\n", state.slots.slot4.isRefueling ? "isRefueling" : "-",
-                state.slots.slot4.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot5: %s | %s\n", state.slots.slot5.isRefueling ? "isRefueling" : "-",
-                state.slots.slot5.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Slot6: %s | %s\n", state.slots.slot6.isRefueling ? "isRefueling" : "-",
-                state.slots.slot6.needsRefueling ? "needs to refuel" : "-");
-  Serial.printf("Start light: %d | %s\n", state.startLight.state, state.startLight.falseStart ? "false start" : "-");
-  Serial.printf("Virtual Safety Car: %s\n", state.virtualSafetyCar.state ? "on" : "off");
-  Serial.printf("Track Record: %s\n", state.newTrackRecord ? "on" : "off");
-  Serial.printf("Session Record: %s\n", state.newSessionRecord ? "on" : "off");
-  Serial.printf("Race State: %s\n", state.raceIsInProgress ? "Running" : "Stopped");
-  Serial.printf("Race Progress: %d\n", state.raceProgress);
+  Serial.print("Pitlane 1: ");
+  Serial.print(state.pitlane1);
+  Serial.print(" | Pitlane 2: ");
+  Serial.println(state.pitlane2);
+
+  Serial.print("Slot1: ");
+  Serial.print(state.slots.slot1.isRefueling ? "isRefueling" : "-");
+  Serial.print(" | ");
+  Serial.println(state.slots.slot1.needsRefueling ? "needs to refuel" : "-");
+
+  Serial.print("Slot2: ");
+  Serial.print(state.slots.slot2.isRefueling ? "isRefueling" : "-");
+  Serial.print(" | ");
+  Serial.println(state.slots.slot2.needsRefueling ? "needs to refuel" : "-");
+
+  Serial.print("Slot3: ");
+  Serial.print(state.slots.slot3.isRefueling ? "isRefueling" : "-");
+  Serial.print(" | ");
+  Serial.println(state.slots.slot3.needsRefueling ? "needs to refuel" : "-");
+
+  Serial.print("Slot4: ");
+  Serial.print(state.slots.slot4.isRefueling ? "isRefueling" : "-");
+  Serial.print(" | ");
+  Serial.println(state.slots.slot4.needsRefueling ? "needs to refuel" : "-");
+
+  Serial.print("Slot5: ");
+  Serial.print(state.slots.slot5.isRefueling ? "isRefueling" : "-");
+  Serial.print(" | ");
+  Serial.println(state.slots.slot5.needsRefueling ? "needs to refuel" : "-");
+
+  Serial.print("Slot6: ");
+  Serial.print(state.slots.slot6.isRefueling ? "isRefueling" : "-");
+  Serial.print(" | ");
+  Serial.println(state.slots.slot6.needsRefueling ? "needs to refuel" : "-");
+
+  Serial.print("Start light: ");
+  Serial.print(state.startLight.state);
+  Serial.print(" | ");
+  Serial.println(state.startLight.falseStart ? "false start" : "-");
+
+  Serial.print("Virtual Safety Car: ");
+  Serial.println(state.virtualSafetyCar.state ? "on" : "off");
+
+  Serial.print("Track Record: ");
+  Serial.println(state.newTrackRecord ? "on" : "off");
+
+  Serial.print("Session Record: ");
+  Serial.println(state.newSessionRecord ? "on" : "off");
+
+  Serial.print("Race State: ");
+  Serial.println(state.raceIsInProgress ? "Running" : "Stopped");
+
+  Serial.print("Race Progress: ");
+  Serial.print(state.raceProgress);
 }
 
 void resetState() {
@@ -907,30 +948,42 @@ int calcRowValue(int val1, int val2, int val3) {
   return (val1 << 2) + (val2 << 1) + val3;
 }
 
-void IRAM_ATTR
-
-readInput() {
+void execReadInput() {
   int value1 = (DATA_VIA_I2C ? mcp.digitalRead(PIN_DATA_1) : digitalRead(PIN_DATA_1)) == !USE_PULLUP;
   int value2 = (DATA_VIA_I2C ? mcp.digitalRead(PIN_DATA_2) : digitalRead(PIN_DATA_2)) == !USE_PULLUP;
   int value3 = (DATA_VIA_I2C ? mcp.digitalRead(PIN_DATA_3) : digitalRead(PIN_DATA_3)) == !USE_PULLUP;
 
-  Serial.printf("Interrupt %d%d%d\n", value1, value2, value3);
+  Serial.print("Interrupt ");
+  Serial.print(value1);
+  Serial.print(value2);
+  Serial.println(value3);
+
   int value = calcRowValue(value1, value2, value3);
 
   if (value == 0) {
-    Serial.printf("Received reset signal\n");
+    Serial.println("Received reset signal");
     return resetInputData();
   }
 
   if (input.chunks >= 3) {
     //what?
-    Serial.printf("Error chunks int too big (%d). Missing reset?\n", input.chunks);
+    Serial.print("Error chunks int too big (");
+    Serial.print(input.chunks);
+    Serial.println("). Missing reset?");
     return resetInputData();
   }
 
   input.data += value << ((2 - input.chunks) * 3);
-  Serial.printf("received chunk %d, value (%d %x %s), data (%d %x %s)\n", input.chunks, value, value,
-                toBinaryString(value, 3), input.data, input.data, toBinaryString(input.data, 9));
+  Serial.print("received chunk ");
+  Serial.print(input.chunks);
+  Serial.print(", value (");
+  Serial.print(value);
+  Serial.print(" ");
+  Serial.print(toBinaryString(value, 3));
+  Serial.print("), data (");
+  Serial.print(input.data);
+  Serial.print(toBinaryString(input.data, 9));
+  Serial.println(")");
   input.chunks++;
 
   if (input.chunks != 3) {
@@ -939,13 +992,20 @@ readInput() {
   }
 
   if (!hasEvenParity(input.data) || input.data >= 512) {
-    Serial.printf("Received data is invalid (%x %d %s)\n", input.data, input.data, toBinaryString(input.data, 9));
+    Serial.print("Received data is invalid (");
+    Serial.print(input.data);
+    Serial.print(" ");
+    Serial.print(toBinaryString(input.data, 9));
+    Serial.println(")");
     // oooh something was wrong. better luck next time...
     return resetInputData();
   }
 
   unsigned int dataWithoutParityBit = clearBit(input.data, 8);
-  Serial.printf("Received data %d %s\n", dataWithoutParityBit, toBinaryString(dataWithoutParityBit, 8));
+  Serial.print("Received data ");
+  Serial.print(dataWithoutParityBit);
+  Serial.print(" ");
+  Serial.println(toBinaryString(dataWithoutParityBit, 8));
   bool updated = updateState(dataWithoutParityBit);
   printState();
 
@@ -953,6 +1013,16 @@ readInput() {
     state.needsUpdate = true;
   }
 }
+
+#if ESP
+void IRAM_ATTR readInput() {
+  execReadInput();
+}
+#else
+void readInput() {
+  execReadInput();
+}
+#endif
 
 void restoreState() {
   // todo: restore in case of power outage
