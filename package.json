@@ -2,9 +2,10 @@
   "name": "@rohmer/cockpit-xp-breakout-board-root",
   "scripts": {
     "build": "turbo run build",
-    "build:test": "turbo run build:test",
-    "board:test": "turbo run upload:test --filter @rohmer/cockpit-xp-breakout-board-board",
-    "board:upload": "turbo run upload --filter @rohmer/cockpit-xp-breakout-board-board",
+    "board:esp:test": "pnpm --filter @rohmer/cockpit-xp-breakout-board-board upload:esp:test",
+    "board:esp:upload": "pnpm --filter @rohmer/cockpit-xp-breakout-board-board upload:esp",
+    "board:arduino:test": "pnpm --filter @rohmer/cockpit-xp-breakout-board-board upload:arduino:test",
+    "board:arduino:upload": "pnpm --filter @rohmer/cockpit-xp-breakout-board-board upload:arduino",
     "board:monitor": "turbo run monitor --filter @rohmer/cockpit-xp-breakout-board-board",
     "values": "node scripts/calc-possible-values",
     "prepare": "husky install",
