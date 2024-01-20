@@ -255,6 +255,9 @@ unsigned int clearBit(unsigned int number, unsigned int n) {
 int min(int a, int b) {
   return a < b ? a : b;
 }
+int max(int a, int b) {
+  return a > b ? a : b;
+}
 
 // --- I2C ---
 void setupI2C() {
@@ -352,9 +355,14 @@ void setupPitlane() {
 }
 
 
-void setPitlaneActiveIndicatorPixel(int value, int firstIndex) {
+void setPitlaneActiveIndicatorPixel(int value, int firstIndex, bool inverted) {
   if (OMIT_PITLANE_CONNECTION) {
     return;
+  }
+
+  int index = firstIndex;
+  if (inverted) {
+    index = PITLANE_NUMPIXELS / 2 - 1 + firstIndex;
   }
 
   if (value < 0) {
@@ -366,7 +374,25 @@ void setPitlaneActiveIndicatorPixel(int value, int firstIndex) {
   pitlane.setPixelColor(firstIndex, pitlane.Color(255, 255, 255));
 }
 
-void updatePitlaneBar(int value, int firstIndex) {
+void setPitlaneBarRedPixels(int index, int amount) {
+  if (amount <= 0) {
+    return;
+  }
+  pitlane.fill(pitlane.Color(255, 0, 0), index, amount);
+}
+void setPitlaneBarYellowPixels(int index, int amount) {
+  if (amount <= 0) {
+    return;
+  }
+  pitlane.fill(pitlane.Color(255, 255, 0), index, amount);
+}
+void setPitlaneBarGreenPixels(int index, int amount) {
+  if (amount <= 0) {
+    return;
+  }
+  pitlane.fill(pitlane.Color(0, 255, 0), index, amount);
+}
+void updatePitlaneBar(int value, int firstIndex, bool inverted) {
   if (OMIT_PITLANE_CONNECTION) {
     return;
   }
@@ -375,24 +401,36 @@ void updatePitlaneBar(int value, int firstIndex) {
     return;
   }
 
-  int index = firstIndex+ 2;
-  pitlane.fill(pitlane.Color(255, 0, 0), index, min(3, value));
-  if (value > 3) {
-    pitlane.fill(pitlane.Color(255, 255, 0), index + 3, min(12, value) - 3);
-  }
-  if (value > 12) {
-    pitlane.fill(pitlane.Color(0, 255, 0), index + 12, value - 12);
+  int redPixels = min(3, value);
+  int yellowPixels = max(min(12, value) - 3, 0);
+  int greenPixels = max(value - 12, 0);
+
+  if (!inverted) {
+    int index = firstIndex + 2;
+
+    setPitlaneBarRedPixels(index, redPixels);
+    setPitlaneBarYellowPixels(index + 3, yellowPixels);
+    setPitlaneBarGreenPixels(index + 12, greenPixels);
+  } else {
+    int lastIndex = PITLANE_NUMPIXELS / 2 - 1 + firstIndex;
+    int index = lastIndex - 2;
+
+    setPitlaneBarRedPixels(index - 3, redPixels);
+    setPitlaneBarYellowPixels(index - 12, yellowPixels);
+    setPitlaneBarGreenPixels(index - 14, greenPixels);
   }
 }
 
-void updatePitlane(int value, int firstIndex) {
+void updatePitlane(int value, int firstIndex, bool inverted) {
   setPitlaneActiveIndicatorPixel(
           value,
-          firstIndex
+          firstIndex,
+          inverted
   );
   updatePitlaneBar(
           value,
-          firstIndex
+          firstIndex,
+          inverted
   );
 }
 
@@ -405,11 +443,13 @@ void updatePitlanes() {
   pitlane.clear();
   updatePitlane(
           state.pitlane1,
-          PITLANE_1_FIRST_INDEX
+          PITLANE_1_FIRST_INDEX,
+          false
   );
   updatePitlane(
           state.pitlane2,
-          PITLANE_2_FIRST_INDEX
+          PITLANE_2_FIRST_INDEX,
+          true
   );
 
   pitlane.show();
