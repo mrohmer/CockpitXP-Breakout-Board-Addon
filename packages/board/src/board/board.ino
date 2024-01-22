@@ -437,7 +437,6 @@ void updatePitlanes() {
     return;
   }
 
-  Serial.println("Updating Pitlane");
   pitlane.clear();
   updatePitlane(
           state.pitlane1,
@@ -469,7 +468,6 @@ void updateRaceProgress() {
     return;
   }
 
-  Serial.println("Updating Race Progress");
   raceProgress.clear();
 
   if (state.raceProgress > 0) {
