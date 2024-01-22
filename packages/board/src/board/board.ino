@@ -366,12 +366,12 @@ void setPitlaneActiveIndicatorPixel(int value, int firstIndex, bool inverted) {
   }
 
   if (value < 0) {
-    pitlane.setPixelColor(firstIndex, pitlane.Color(0, 0, 0));
+    pitlane.setPixelColor(index, pitlane.Color(0, 0, 0));
     return;
   }
 
 
-  pitlane.setPixelColor(firstIndex, pitlane.Color(255, 255, 255));
+  pitlane.setPixelColor(index, pitlane.Color(255, 255, 255));
 }
 
 void setPitlaneBarRedPixels(int index, int amount) {
@@ -412,12 +412,12 @@ void updatePitlaneBar(int value, int firstIndex, bool inverted) {
     setPitlaneBarYellowPixels(index + 3, yellowPixels);
     setPitlaneBarGreenPixels(index + 12, greenPixels);
   } else {
-    int lastIndex = PITLANE_NUMPIXELS / 2 - 1 + firstIndex;
+    int lastIndex = PITLANE_NUMPIXELS / 2 + firstIndex;
     int index = lastIndex - 2;
 
-    setPitlaneBarRedPixels(index - 3, redPixels);
-    setPitlaneBarYellowPixels(index - 12, yellowPixels);
-    setPitlaneBarGreenPixels(index - 14, greenPixels);
+    setPitlaneBarRedPixels(index - redPixels, redPixels);
+    setPitlaneBarYellowPixels(index - redPixels - yellowPixels, yellowPixels);
+    setPitlaneBarGreenPixels(index - redPixels - yellowPixels - greenPixels, greenPixels);
   }
 }
 
