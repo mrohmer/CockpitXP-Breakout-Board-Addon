@@ -319,11 +319,9 @@ void clearStartLightFields() {
 
 void updateStartLight() {
   if (state.startLight.state > 0 && state.startLight.state <= 5) {
-    Serial.print(" Display Start Light ");
     Serial.println(state.startLight.state);
     fillStartLightFields(state.startLight.state);
   } else {
-    Serial.println(" Clearing Start Light");
     matrix.fillScreen(LOW);
     matrix.write();
   }
