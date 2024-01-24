@@ -31,13 +31,15 @@
 #define MS_BETWEEN_LED_TOGGLE 1000
 #define MS_BETWEEN_FALSE_START_TOGGLE 200
 #define MS_BETWEEN_NEEDS_TO_REFUEL_TOGGLE 200
-#define MS_BETWEEN_VIRTUAL_SAFETY_CAR_TOGGLE 150
+#define MS_BETWEEN_RACE_CIRCLE_UPDATE 50
+#define MS_VIRTUAL_SAFETY_CAR_PULSE_TIME 3000
 
 #include <Arduino.h>
 #include <Adafruit_I2CDevice.h>
 #include <Adafruit_GFX.h>
 #include <Max72xxPanel.h>
 #include <string.h>
+#include <math.h>
 #include <Adafruit_MCP23X17.h>
 #include <Adafruit_NeoPixel.h>
 
@@ -67,10 +69,11 @@ struct StartLightState {
 
     unsigned int state;
 };
-struct VirtualSafetyCarState {
-    bool state;
-
-    bool lastToggleState;
+struct RaceState {
+    bool chaos;
+    bool isInProgress;
+    bool virtualSafetyCar;
+    int progress;
 };
 struct State {
     struct SlotsState slots;
@@ -80,12 +83,10 @@ struct State {
 
     struct StartLightState startLight;
 
-    struct VirtualSafetyCarState virtualSafetyCar;
-    bool chaos;
+    struct RaceState race;
+
     bool newTrackRecord;
     bool newSessionRecord;
-    bool raceIsInProgress;
-    int raceProgress;
 
     bool needsUpdate;
 };
@@ -94,12 +95,13 @@ struct LastExecutionState {
     unsigned long ledToggle;
     unsigned long falseStartToggle;
     unsigned long needsToRefuelToggle;
-    unsigned long virtualSafetyCarToggle;
+    unsigned long raceProgressCircleUpdate;
 };
 
 // --- Variables ---
 struct Input input;
 struct State state;
+struct RaceState propagatedRaceState;
 struct LastExecutionState lastExecution;
 Max72xxPanel matrix = Max72xxPanel(PIN_START_LIGHT_CS, PIN_START_LIGHT_HORIZONTAL, PIN_START_LIGHT_VERTICAL);
 Adafruit_MCP23X17 mcp;
@@ -111,7 +113,9 @@ Adafruit_NeoPixel raceProgress = Adafruit_NeoPixel(RACE_PROGRESS_NUMPIXELS, PIN_
 #if ESP
 void IRAM_ATTR readInput();
 #else
+
 void readInput();
+
 #endif
 
 void setupInputPins();
@@ -124,9 +128,9 @@ void setupPitlane();
 
 void setupFueling();
 
-void setupVirtualSafetyCar();
+void setupRaceProgressCircle();
 
-void setupRaceProgress();
+void updateRaceProgressCircle();
 
 void cyclePrintStatusLog();
 
@@ -136,7 +140,7 @@ void cycleToggleStartLightFalseStart();
 
 void cycleToggleNeedsToRefuel();
 
-void cycleToggleVirtualSafetyCar();
+void cycleUpdateRaceProgressCircle();
 
 void toggleStatusLed();
 
@@ -145,8 +149,6 @@ void flashStatusLed(int n);
 void toggleStartLightFalseStart();
 
 void toggleNeedsToRefuel();
-
-void toggleVirtualSafetyCar();
 
 void restoreState();
 
@@ -160,8 +162,7 @@ void setup() {
   setupStartLight();
   setupPitlane();
   setupFueling();
-  setupVirtualSafetyCar();
-  setupRaceProgress();
+  setupRaceProgressCircle();
   setupStatusLed();
   setupInputPins();
 
@@ -179,7 +180,7 @@ void loop() {
   cycleToggleStatusLed();
   cycleToggleStartLightFalseStart();
   cycleToggleNeedsToRefuel();
-  cycleToggleVirtualSafetyCar();
+  cycleUpdateRaceProgressCircle();
   delay(MS_CYCLE);
 }
 
@@ -216,10 +217,10 @@ void cycleToggleNeedsToRefuel() {
   }
 }
 
-void cycleToggleVirtualSafetyCar() {
-  if (shouldExecuteInThisCycle(MS_BETWEEN_VIRTUAL_SAFETY_CAR_TOGGLE, lastExecution.virtualSafetyCarToggle)) {
-    toggleVirtualSafetyCar();
-    lastExecution.virtualSafetyCarToggle = millis();
+void cycleUpdateRaceProgressCircle() {
+  if (shouldExecuteInThisCycle(MS_BETWEEN_RACE_CIRCLE_UPDATE, lastExecution.raceProgressCircleUpdate)) {
+    updateRaceProgressCircle();
+    lastExecution.raceProgressCircleUpdate = millis();
   }
 }
 
@@ -252,9 +253,11 @@ bool hasEvenParity(unsigned int n) {
 unsigned int clearBit(unsigned int number, unsigned int n) {
   return number & ~((unsigned int) 1 << n);
 }
+
 int min(int a, int b) {
   return a < b ? a : b;
 }
+
 int max(int a, int b) {
   return a > b ? a : b;
 }
@@ -378,24 +381,27 @@ void setPitlaneBarRedPixels(int index, int amount) {
   }
   pitlane.fill(pitlane.Color(255, 0, 0), index, amount);
 }
+
 void setPitlaneBarYellowPixels(int index, int amount) {
   if (amount <= 0) {
     return;
   }
   pitlane.fill(pitlane.Color(255, 255, 0), index, amount);
 }
+
 void setPitlaneBarGreenPixels(int index, int amount) {
   if (amount <= 0) {
     return;
   }
   pitlane.fill(pitlane.Color(0, 255, 0), index, amount);
 }
+
 void updatePitlaneBar(int value, int firstIndex, bool inverted) {
   if (OMIT_PITLANE_CONNECTION) {
     return;
   }
 
-  if (value <= 0)  {
+  if (value <= 0) {
     return;
   }
 
@@ -452,8 +458,8 @@ void updatePitlanes() {
   pitlane.show();
 }
 
-// --- Race Progress ---
-void setupRaceProgress() {
+// --- Race Progress Circle ---
+void setupRaceProgressCircle() {
   if (OMIT_RACE_PROGRESS_CONNECTION) {
     return;
   }
@@ -463,21 +469,59 @@ void setupRaceProgress() {
   raceProgress.clear();
   raceProgress.show();
 }
-void updateRaceProgress() {
+
+bool needsRaceProgressCircleUpdate() {
+  return state.race.virtualSafetyCar ||
+         propagatedRaceState.progress != state.race.progress ||
+         propagatedRaceState.chaos != state.race.chaos;
+}
+
+void setRaceProgressCircleToProgress() {
+  raceProgress.setBrightness(15);
+  if (state.race.progress > 0) {
+    raceProgress.fill(raceProgress.Color(255, 255, 255), 0, min(state.race.progress, 8));
+    if (state.race.progress > 8) {
+      raceProgress.fill(raceProgress.Color(255, 0, 0), 8, state.race.progress - 8);
+    }
+  }
+}
+
+void setRaceProgressCircleToChaos() {
+  raceProgress.setBrightness(15);
+  raceProgress.fill(raceProgress.Color(255, 255, 0), 0, RACE_PROGRESS_NUMPIXELS);
+}
+
+void setRaceProgressCircleToVirtualSafetyCar() {
+  int maxBrightness = 255;
+  int amplitude = 220;
+  float cycle = (static_cast< float >(millis()) / static_cast< float >(MS_VIRTUAL_SAFETY_CAR_PULSE_TIME)) - (millis() / MS_VIRTUAL_SAFETY_CAR_PULSE_TIME);
+  float angle = (cycle * 2) * M_PI ;
+  int brightness = static_cast< float >(amplitude) / 2 * sin(angle) + static_cast< float >(amplitude) / 2 + maxBrightness - amplitude;
+  raceProgress.setBrightness(15);
+  raceProgress.fill(raceProgress.Color(brightness, brightness, 0), 0, RACE_PROGRESS_NUMPIXELS);
+}
+
+void updateRaceProgressCircle() {
   if (OMIT_RACE_PROGRESS_CONNECTION) {
+    return;
+  }
+
+  if (!needsRaceProgressCircleUpdate()) {
     return;
   }
 
   raceProgress.clear();
 
-  if (state.raceProgress > 0) {
-    raceProgress.fill(raceProgress.Color(255, 255, 255), 0, min(state.raceProgress, 8));
-    if (state.raceProgress > 8) {
-      raceProgress.fill(raceProgress.Color(255, 0, 0), 8, state.raceProgress - 8);
-    }
+  if (state.race.chaos) {
+    setRaceProgressCircleToChaos();
+  } else if (state.race.virtualSafetyCar) {
+    setRaceProgressCircleToVirtualSafetyCar();
+  } else {
+    setRaceProgressCircleToProgress();
   }
 
   raceProgress.show();
+  propagatedRaceState = state.race;
 }
 
 // --- Fueling ---
@@ -533,7 +577,7 @@ void toggleSlotNeedsToRefuel(bool needsToRefuel, bool isRefueling, bool prevStat
     return;
   }
 
-  bool nextState = state.slots.lastNeedsToRefuelToggleState && needsToRefuel && state.raceIsInProgress;
+  bool nextState = state.slots.lastNeedsToRefuelToggleState && needsToRefuel && state.race.isInProgress;
 
   if (prevState == nextState) {
     return;
@@ -557,39 +601,6 @@ void toggleNeedsToRefuel() {
                           PIN_FUELING_SLOT_5);
   toggleSlotNeedsToRefuel(state.slots.slot6.needsRefueling, state.slots.slot6.isRefueling, prevState,
                           PIN_FUELING_SLOT_6);
-}
-
-// --- Virtual Safety Car
-void setupVirtualSafetyCar() {
-  if (OMIT_I2C_CONNECTION) {
-    return;
-  }
-  if (VIRTUAL_SAFETY_CAR_VIA_I2C) {
-    mcp.pinMode(PIN_VIRTUAL_SAFETY_CAR, OUTPUT);
-  } else {
-    pinMode(PIN_VIRTUAL_SAFETY_CAR, OUTPUT);
-  }
-}
-
-void toggleVirtualSafetyCar() {
-  if (OMIT_I2C_CONNECTION) {
-    return;
-  }
-
-  bool prevState = state.virtualSafetyCar.lastToggleState;
-  state.virtualSafetyCar.lastToggleState = !state.virtualSafetyCar.lastToggleState;
-  bool nextState = state.virtualSafetyCar.state && state.virtualSafetyCar.lastToggleState && state.raceIsInProgress;
-
-  if (nextState == prevState) {
-    return;
-  }
-
-  if (VIRTUAL_SAFETY_CAR_VIA_I2C) {
-    mcp.digitalWrite(PIN_VIRTUAL_SAFETY_CAR, nextState ? HIGH : LOW);
-  } else {
-    digitalWrite(PIN_VIRTUAL_SAFETY_CAR, nextState ? HIGH : LOW);
-  }
-  state.virtualSafetyCar.lastToggleState = nextState;
 }
 
 // --- State Update ---
@@ -635,9 +646,6 @@ void printState() {
   Serial.print(" | ");
   Serial.println(state.startLight.falseStart ? "false start" : "-");
 
-  Serial.print("Virtual Safety Car: ");
-  Serial.println(state.virtualSafetyCar.state ? "on" : "off");
-
   Serial.print("Track Record: ");
   Serial.println(state.newTrackRecord ? "on" : "off");
 
@@ -645,10 +653,14 @@ void printState() {
   Serial.println(state.newSessionRecord ? "on" : "off");
 
   Serial.print("Race State: ");
-  Serial.println(state.raceIsInProgress ? "Running" : "Stopped");
+  Serial.println(state.race.isInProgress ? "Running" : "Stopped");
+  Serial.print("Chaos: ");
+  Serial.println(state.race.chaos ? "On" : "Off");
+  Serial.print("VSC: ");
+  Serial.println(state.race.virtualSafetyCar ? "On" : "Off");
 
   Serial.print("Race Progress: ");
-  Serial.print(state.raceProgress);
+  Serial.println(state.race.progress);
 }
 
 void resetState() {
@@ -666,12 +678,15 @@ void resetState() {
           .pitlane2 = -1,
           .startLight = {.falseStart = false, .falseStartToggle = false, .state = 0},
 
-          .virtualSafetyCar = {.state = false, .lastToggleState = false},
-          .chaos = false,
+          .race = {
+                  .chaos = false,
+                  .isInProgress = false,
+                  .virtualSafetyCar = false,
+                  .progress = 0,
+          },
+
           .newTrackRecord = false,
           .newSessionRecord = false,
-          .raceIsInProgress = false,
-          .raceProgress = 0,
           .needsUpdate = true,
   };
 }
@@ -682,10 +697,10 @@ bool updateState(unsigned int event) {
       resetState();
       break;
     case 21:  // virtual safety car on
-      state.virtualSafetyCar.state = true;
+      state.race.virtualSafetyCar = true;
       break;
     case 22:  // virtual safety car off
-      state.virtualSafetyCar.state = false;
+      state.race.virtualSafetyCar = false;
       break;
     case 28:  // starting light off
       state.startLight.state = 0;
@@ -820,50 +835,56 @@ bool updateState(unsigned int event) {
     case 106:  // pit lane 2 100%
       state.pitlane2 = 14;
       break;
+    case 108: // chaos on
+      state.race.chaos = true;
+      break;
+    case 109: // chaos off
+      state.race.chaos = false;
+      break;
     case 110:  // race state set to running
-      state.raceIsInProgress = true;
+      state.race.isInProgress = true;
       break;
     case 111:  // race state set to not running
-      state.raceIsInProgress = false;
+      state.race.isInProgress = false;
       break;
     case 113:  // race progress 0%
-      state.raceProgress = 0;
+      state.race.progress = 0;
       break;
     case 114:  // race progress 8%
-      state.raceProgress = 1;
+      state.race.progress = 1;
       break;
     case 115:  // race progress 17%
-      state.raceProgress = 2;
+      state.race.progress = 2;
       break;
     case 116:  // race progress 25%
-      state.raceProgress = 3;
+      state.race.progress = 3;
       break;
     case 117:  // race progress 33%
-      state.raceProgress = 4;
+      state.race.progress = 4;
       break;
     case 118:  // race progress 42%
-      state.raceProgress = 5;
+      state.race.progress = 5;
       break;
     case 119:  // race progress 50%
-      state.raceProgress = 6;
+      state.race.progress = 6;
       break;
     case 121:  // race progress 58%
-      state.raceProgress = 7;
+      state.race.progress = 7;
       break;
     case 122:  // race progress 67%
-      state.raceProgress = 8;
+      state.race.progress = 8;
       break;
     case 123:  // race progress 75%
-      state.raceProgress = 9;
+      state.race.progress = 9;
       break;
     case 124:  // race progress 83%
-      state.raceProgress = 10;
+      state.race.progress = 10;
       break;
     case 125:  // race progress 92%
-      state.raceProgress = 11;
+      state.race.progress = 11;
       break;
     case 126:  // race progress 100%
-      state.raceProgress = 12;
+      state.race.progress = 12;
       break;
     case 137:  // slot 1 needs to refuel
       state.slots.slot1.needsRefueling = true;
@@ -949,13 +970,12 @@ void updateOnStatusChange() {
 
   updateStartLight();
   updatePitlanes();
-  updateRaceProgress();
   updateIsRefueling();
 }
 
 // --- Input Handling ---
 void setupInputPins() {
-  if (DATA_VIA_I2C){
+  if (DATA_VIA_I2C) {
     mcp.pinMode(PIN_DATA_1, USE_PULLUP ? INPUT_PULLUP : INPUT);
     mcp.digitalWrite(PIN_DATA_1, LOW);
     mcp.pinMode(PIN_DATA_2, USE_PULLUP ? INPUT_PULLUP : INPUT);
@@ -1055,13 +1075,17 @@ void IRAM_ATTR readInput() {
   execReadInput();
 }
 #else
+
 void readInput() {
   execReadInput();
 }
+
 #endif
 
 void restoreState() {
   // todo: restore in case of power outage
   resetState();
+  state.race.virtualSafetyCar = true;
+
   updateOnStatusChange();
 }
