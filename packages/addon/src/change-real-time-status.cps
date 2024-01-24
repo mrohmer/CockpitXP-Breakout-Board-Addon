@@ -10,5 +10,5 @@
 
 begin
   checkRaceStatus;
-  checkChaos;
+  checkChaos(Cockpit.Parameter);
 end.
