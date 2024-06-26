@@ -3,12 +3,27 @@
 { Parameter: Cockpit.Parameter = <RennStatus> }
 
 {%%PROCEDURE.EnqueueEvent%%}
-{%%PROCEDURE.CheckRaceStatus%%}
-{%%PROCEDURE.CheckChaos%%}
-{%%FUNCTION.IsEventInactive%%}
-{%%FUNCTION.BoolToInt%%}
+{%%PROCEDURE.GetRaceStatus%%}
+{%%FUNCTION.GetChaosStatus%%}
 
+var
+  raceStatus, chaosStatus: Boolean;
 begin
-  checkRaceStatus;
-  checkChaos(Cockpit.Parameter);
+  raceStatus := getRaceStatus();
+  chaosStatus := getChaosValue(Cockpit.Parameter);
+
+  if (chaosStatus) then
+  begin
+    cpSetOutput('Flags1', 1);
+    cpSetOutput('Flags2', 1);
+  end
+  else if (raceStatus) then
+  begin
+    cpSetOutput('Flags1', 1);
+    cpSetOutput('Flags2', 0);
+  else
+  begin
+    cpSetOutput('Flags1', 0);
+    cpSetOutput('Flags2', 0);
+  end;
 end.
