@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <ConfigPackage>
     <Variables>
-
+        <Variable xmlindex="1" beschreibung="*** 'Pitlane'-Event ***" name="xxx5" datatyp="Text" value=" "></Variable>
+        <Variable xmlindex="2" beschreibung="Pit 1 Startsensornummer" name="Pitlane1StartSensor" datatyp="Integer" value="6"></Variable>
+        <Variable xmlindex="3" beschreibung="Pit 1 Endsensornummer" name="Pitlane1EndSensor" datatyp="Integer" value="7"></Variable>
+        <Variable xmlindex="4" beschreibung="Pit 2 Startsensornummer" name="Pitlane2StartSensor" datatyp="Integer" value="8"></Variable>
+        <Variable xmlindex="5" beschreibung="Pit 2 Endsensornummer" name="Pitlane2EndSensor" datatyp="Integer" value="9"></Variable>
+        <Variable xmlindex="6" beschreibung="Pit Sicherheitszeit in Sekunden" name="PitlaneSecurityTime" datatyp="Integer" value="30"></Variable>
     </Variables>
     <IOConfig>
-        <DigOutput name="Clock" devicenumber="1" number="3"></DigOutput>
-        <DigOutput name="Data1" devicenumber="1" number="4"></DigOutput>
-        <DigOutput name="Data2" devicenumber="1" number="5"></DigOutput>
-        <DigOutput name="Data3" devicenumber="1" number="6"></DigOutput>
+        <DigOutput name="Flags1" devicenumber="1" number="3"></DigOutput>
+        <DigOutput name="Flags2" devicenumber="1" number="4"></DigOutput>
+        <DigOutput name="Pitlane1" devicenumber="1" number="5"></DigOutput>
+        <DigOutput name="Pitlane2" devicenumber="1" number="6"></DigOutput>
     </IOConfig>
 </ConfigPackage>
