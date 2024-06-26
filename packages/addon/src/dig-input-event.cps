@@ -15,23 +15,19 @@ begin
 
   if (Cockpit.Station = cpGetIntegerVar('Pitlane1StartSensor')) then
   begin
-    cpSetIntegerVar('Pitlane:1:Slot:Nbr', Cockpit.Slot);
-    cpSetFloatVar('Pitlane:1:Slot:Time', cpGetSystemTimeMs);
+    cpSetIntegerVar('Pitlane:1:Slot', Cockpit.Slot);
   end
   else if (Cockpit.Station = cpGetIntegerVar('Pitlane1EndSensor')) then
   begin
-    cpSetIntegerVar('Pitlane:1:Slot:Nbr', 0);
-    cpSetFloatVar('Pitlane:1:Slot:Time', cpGetSystemTimeMs);
+    cpSetIntegerVar('Pitlane:1:Slot', 0);
   end
   else if (Cockpit.Station = cpGetIntegerVar('Pitlane2StartSensor')) then
   begin
-    cpSetIntegerVar('Pitlane:2:Slot:Nbr', Cockpit.Slot);
-    cpSetFloatVar('Pitlane:2:Slot:Time', cpGetSystemTimeMs);
+    cpSetIntegerVar('Pitlane:2:Slot', Cockpit.Slot);
   end
   else if (Cockpit.Station = cpGetIntegerVar('Pitlane2EndSensor')) then
   begin
-    cpSetIntegerVar('Pitlane:2:Slot:Nbr', 0);
-    cpSetFloatVar('Pitlane:2:Slot:Time', cpGetSystemTimeMs);
+    cpSetIntegerVar('Pitlane:2:Slot', 0);
   end;
 
   cpSetOutput('Pitlane1', getPitlaneStatus(1));
