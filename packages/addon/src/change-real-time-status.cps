@@ -2,8 +2,7 @@
 { Event: ChangeRealTimeStatus }
 { Parameter: Cockpit.Parameter = <RennStatus> }
 
-{%%PROCEDURE.EnqueueEvent%%}
-{%%PROCEDURE.GetRaceStatus%%}
+{%%FUNCTION.GetRaceStatus%%}
 {%%FUNCTION.GetChaosStatus%%}
 
 var
