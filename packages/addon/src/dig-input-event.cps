@@ -5,7 +5,7 @@
              Cockpit.Parameter=<DeviceNummer>
 }
 
-{%%FUNCTION.GetPitlaneStatus%%}
+{%%PROCEDURE.CheckPitlaneStatus%%}
 
 begin
   if (Cockpit.Parameter <> 2) then
@@ -30,6 +30,4 @@ begin
     cpSetIntegerVar('Pitlane:2:Slot', 0);
   end;
 
-  cpSetOutput('Pitlane1', getPitlaneStatus(1));
-  cpSetOutput('Pitlane2', getPitlaneStatus(2));
 end.
