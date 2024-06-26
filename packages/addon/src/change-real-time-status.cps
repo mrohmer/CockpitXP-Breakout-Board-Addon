@@ -14,7 +14,7 @@ begin
 
   if (chaosStatus) then
   begin
-    cpSetOutput('Flags1', 1);
+    cpSetOutput('Flags1', 0);
     cpSetOutput('Flags2', 1);
   end
   else if (raceStatus) then

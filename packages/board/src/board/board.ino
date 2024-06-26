@@ -183,7 +183,7 @@ void execReadFlagPins() {
   int value1 = digitalRead(PIN_FLAG1);
   int value2 = digitalRead(PIN_FLAG2);
 
-  switch(value1 + value2) {
+  switch(value1 + value2 * 2) {
     case 0:
       setFlagsRed();
       break;
