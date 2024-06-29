@@ -195,8 +195,8 @@ void updatePitlanes(bool lane1, bool lane2) {
 // --- FLAGS ---
 void setupFlags() {
   flagsState = {
-          state = FLAGS_STATE_RED,
-          toggles = 0
+          .state = FLAGS_STATE_RED,
+          .toggles = 0
   }
   flags.begin();
   flags.setBrightness(15);
@@ -206,22 +206,22 @@ void setupFlags() {
 
 void setFlagsChaos() {
   flagsState = {
-          state = FLAGS_STATE_CHAOS,
-          toggles = 0
+          .state = FLAGS_STATE_CHAOS,
+          .toggles = 0
   }
 }
 
 void setFlagsRed() {
   flagsState = {
-          state = FLAGS_STATE_RED,
-          toggles = 0
+          .state = FLAGS_STATE_RED,
+          .toggles = 0
   }
 }
 
 void setFlagsGreen() {
   flagsState = {
-          state = FLAGS_STATE_GREEN,
-          toggles = 0
+          .state = FLAGS_STATE_GREEN,
+          .toggles = 0
   }
 }
 
@@ -338,7 +338,7 @@ struct DemoState demoState;
 
 void setupDemo() {
   demoState = {
-          magicNumber = -1;
+          .magicNumber = -1;
   }
 }
 void updateDemoFlags() {
