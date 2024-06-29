@@ -35,7 +35,7 @@ struct FlagsState {
     int toggles;
 };
 
-Adafruit_NeoPixel pitlane = Adafruit_NeoPixel(PITLANE_NUMPIXELS, PIN_FLAGS, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pitlane = Adafruit_NeoPixel(PITLANE_NUMPIXELS, PIN_PITLANE, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel flags = Adafruit_NeoPixel(FLAGS_NUMPIXELS, PIN_FLAGS, NEO_GRB + NEO_KHZ800);
 
 struct LastExecutionState lastExecution;
@@ -105,6 +105,7 @@ void loop() {
   cycleToggleStatusLed();
   cycleUpdateFlagsGreen();
   cycleUpdateFlagsChaos();
+  cycleUpdateFlagsRed();
 
 #if DEMO
   cycleDemo();
@@ -114,8 +115,8 @@ void loop() {
 }
 
 // --- Cycle ---
-bool shouldExecuteInThisCycle(int difference, unsigned long lastExecution) {
-  return ((millis() - lastExecution) % difference) <= MS_CYCLE;
+bool shouldExecuteInThisCycle(int difference, unsigned long lastExecutionMillis) {
+  return ((millis() - lastExecutionMillis) % difference) < MS_CYCLE;
 }
 
 void cycleToggleStatusLed() {
@@ -135,6 +136,13 @@ void cycleUpdateFlagsGreen() {
 void cycleUpdateFlagsChaos() {
   if (shouldExecuteInThisCycle(MS_BETWEEN_FLAGS_CHAOS, lastExecution.flagsChaos)) {
     updateFlagsChaos();
+    lastExecution.flagsChaos = millis();
+  }
+}
+
+void cycleUpdateFlagsRed() {
+  if (shouldExecuteInThisCycle(MS_BETWEEN_FLAGS_CHAOS, lastExecution.flagsChaos)) {
+    updateFlagsRed();
     lastExecution.flagsChaos = millis();
   }
 }
@@ -343,7 +351,7 @@ void setupDemo() {
   };
 }
 void updateDemoFlags() {
-  switch(demoState.magicNumber % 7) {
+  switch(demoState.magicNumber % 9) {
     case 0:
       Serial.println("Red Flags.");
       setFlagsRed();
@@ -352,11 +360,11 @@ void updateDemoFlags() {
       Serial.println("Green Flags.");
       setFlagsGreen();
       break;
-    case 3:
+    case 4:
       Serial.println("Chaos Flags.");
       setFlagsChaos();
       break;
-    case 5:
+    case 7:
       Serial.println("Green Flags.");
       setFlagsGreen();
       break;
@@ -368,60 +376,60 @@ void updateDemoPitlanes() {
       Serial.println("Pitlane [false, false].");
       updatePitlanes(false, false);
       break;
-    case 2:
+    case 1:
       Serial.println("Pitlane [true, false].");
       updatePitlanes(true, false);
+      break;
+    case 2:
+      Serial.println("Pitlane [false, false].");
+      updatePitlanes(false, false);
       break;
     case 3:
-      Serial.println("Pitlane [false, false].");
-      updatePitlanes(false, false);
+      Serial.println("Pitlane [false, true].");
+      updatePitlanes(false, true);
       break;
     case 4:
-      Serial.println("Pitlane [false, true].");
-      updatePitlanes(false, true);
+      Serial.println("Pitlane [false, false].");
+      updatePitlanes(false, false);
       break;
     case 5:
-      Serial.println("Pitlane [false, false].");
-      updatePitlanes(false, false);
-      break;
-    case 6:
       Serial.println("Pitlane [false, true].");
       updatePitlanes(false, true);
       break;
-    case 7:
+    case 6:
       Serial.println("Pitlane [true, true].");
       updatePitlanes(true, true);
       break;
-    case 8:
+    case 7:
       Serial.println("Pitlane [true, false].");
       updatePitlanes(true, false);
       break;
-    case 9:
+    case 8:
       Serial.println("Pitlane [false, false].");
       updatePitlanes(false, false);
       break;
-    case 10:
+    case 9:
       Serial.println("Pitlane [true, false].");
       updatePitlanes(true, false);
       break;
-    case 11:
+    case 10:
       Serial.println("Pitlane [true, true].");
       updatePitlanes(true, true);
       break;
-    case 12:
+    case 11:
       Serial.println("Pitlane [false, true].");
       updatePitlanes(false, true);
       break;
   }
 }
 void updateDemo() {
-  demoState.magicNumber = (demoState.magicNumber + 1) % (13 * 7);
+  demoState.magicNumber = (demoState.magicNumber + 1) % 10000;
 
   updateDemoFlags();
   updateDemoPitlanes();
 }
 void cycleDemo() {
-  if (shouldExecuteInThisCycle(5000, lastExecution.demo)) {
+  if (shouldExecuteInThisCycle(2500, lastExecution.demo)) {
     updateDemo();
     lastExecution.demo = millis();
   }
