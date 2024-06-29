@@ -27,6 +27,9 @@ struct LastExecutionState {
     unsigned long ledToggle;
     unsigned long flagsStart;
     unsigned long flagsChaos;
+#if DEMO
+    unsigned long demo;
+#endif
 };
 struct FlagsState {
     int state;
@@ -77,6 +80,11 @@ void updateFlagsChaos();
 
 void updateFlagsRed();
 
+#if DEMO
+void setupDemo();
+void cylcleDemo();
+#endif
+
 // --- Arduino Loop ---
 void setup() {
   Serial.begin(9600);
@@ -85,6 +93,10 @@ void setup() {
   setupInputPins();
   setupPitlane();
   setupFlags();
+
+#if DEMO
+  setupDemo();
+#endif
 
   Serial.println("Setup Done.");
   flashStatusLed(10);
@@ -95,6 +107,10 @@ void loop() {
   cycleUpdateFlagsGreen();
   cycleUpdateFlagsChaos();
   cycleUpdateFlagsRed();
+
+#if DEMO
+  cylcleDemo();
+#endif
 
   delay(MS_CYCLE);
 }
@@ -311,4 +327,85 @@ void readFlagPins() {
   execReadFlagPins();
 }
 
+#endif
+
+
+#if DEMO
+struct DemoState {
+    int magicNumber;
+}
+struct DemoState demoState;
+
+void setupDemo() {
+  demoState = {
+          magicNumber = -1;
+  }
+}
+void updateDemoFlags() {
+  switch(demoState.type % 7) {
+    case 0:
+      setFlagsRed();
+      break;
+    case 1:
+      setFlagsGreen();
+      break;
+    case 3:
+      setFlagsYellow();
+      break;
+    case 5:
+      setFlagsGreen();
+      break;
+  }
+}
+void updateDemoPitlanes() {
+  switch(demoState.type % 13) {
+    case 0:
+      updatePitlanes(false, false);
+      break;
+    case 2:
+      updatePitlanes(true, false);
+      break;
+    case 3:
+      updatePitlanes(false, false);
+      break;
+    case 4:
+      updatePitlanes(false, true);
+      break;
+    case 5:
+      updatePitlanes(false, false);
+      break;
+    case 6:
+      updatePitlanes(false, true);
+      break;
+    case 7:
+      updatePitlanes(true, true);
+      break;
+    case 8:
+      updatePitlanes(true, false);
+      break;
+    case 9:
+      updatePitlanes(false, false);
+      break;
+    case 10:
+      updatePitlanes(true, false);
+      break;
+    case 11:
+      updatePitlanes(true, true);
+      break;
+    case 12:
+      updatePitlanes(true, true);
+      break;
+  }
+}
+void updateDemo() {
+  demoState.magicNumber = (demoState.magicNumber + 1) % (13 * 7);
+
+  updateDemoFlags();
+}
+void cycleDemo() {
+  if (shouldExecuteInThisCycle(5000, lastExecution.demo)) {
+    updateDemo();
+    lastExecution.demo = millis();
+  }
+}
 #endif
