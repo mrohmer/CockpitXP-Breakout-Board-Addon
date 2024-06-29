@@ -342,7 +342,7 @@ void setupDemo() {
   }
 }
 void updateDemoFlags() {
-  switch(demoState.type % 7) {
+  switch(demoState.magicNumber % 7) {
     case 0:
       setFlagsRed();
       break;
@@ -358,7 +358,7 @@ void updateDemoFlags() {
   }
 }
 void updateDemoPitlanes() {
-  switch(demoState.type % 13) {
+  switch(demoState.magicNumber % 13) {
     case 0:
       updatePitlanes(false, false);
       break;
