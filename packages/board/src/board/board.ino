@@ -273,6 +273,9 @@ void updateFlagsChaos() {
 
 // --- inputs ---
 void setupInputPins() {
+#if DEMO
+  return;
+#endif
   pinMode(PIN_PITLANE1, INPUT);
   attachInterrupt(digitalPinToInterrupt(PIN_PITLANE1), readPitlanePins, CHANGE);
   pinMode(PIN_PITLANE2, INPUT);
@@ -342,15 +345,19 @@ void setupDemo() {
 void updateDemoFlags() {
   switch(demoState.magicNumber % 7) {
     case 0:
+      Serial.println("Red Flags.");
       setFlagsRed();
       break;
     case 1:
+      Serial.println("Green Flags.");
       setFlagsGreen();
       break;
     case 3:
+      Serial.println("Chaos Flags.");
       setFlagsChaos();
       break;
     case 5:
+      Serial.println("Green Flags.");
       setFlagsGreen();
       break;
   }
@@ -358,40 +365,52 @@ void updateDemoFlags() {
 void updateDemoPitlanes() {
   switch(demoState.magicNumber % 13) {
     case 0:
+      Serial.println("Pitlane [false, false].");
       updatePitlanes(false, false);
       break;
     case 2:
+      Serial.println("Pitlane [true, false].");
       updatePitlanes(true, false);
       break;
     case 3:
+      Serial.println("Pitlane [false, false].");
       updatePitlanes(false, false);
       break;
     case 4:
+      Serial.println("Pitlane [false, true].");
       updatePitlanes(false, true);
       break;
     case 5:
+      Serial.println("Pitlane [false, false].");
       updatePitlanes(false, false);
       break;
     case 6:
+      Serial.println("Pitlane [false, true].");
       updatePitlanes(false, true);
       break;
     case 7:
+      Serial.println("Pitlane [true, true].");
       updatePitlanes(true, true);
       break;
     case 8:
+      Serial.println("Pitlane [true, false].");
       updatePitlanes(true, false);
       break;
     case 9:
+      Serial.println("Pitlane [false, false].");
       updatePitlanes(false, false);
       break;
     case 10:
+      Serial.println("Pitlane [true, false].");
       updatePitlanes(true, false);
       break;
     case 11:
+      Serial.println("Pitlane [true, true].");
       updatePitlanes(true, true);
       break;
     case 12:
-      updatePitlanes(true, true);
+      Serial.println("Pitlane [false, true].");
+      updatePitlanes(false, true);
       break;
   }
 }
@@ -399,6 +418,7 @@ void updateDemo() {
   demoState.magicNumber = (demoState.magicNumber + 1) % (13 * 7);
 
   updateDemoFlags();
+  updateDemoPitlanes();
 }
 void cycleDemo() {
   if (shouldExecuteInThisCycle(5000, lastExecution.demo)) {
