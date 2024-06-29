@@ -1,4 +1,3 @@
-
 #define PITLANE_NUMPIXELS_PER_PITLANE 16
 #define PITLANE_NUMPIXELS PITLANE_NUMPIXELS_PER_PITLANE * 2
 #define PITLANE_1_FIRST_INDEX 0
@@ -25,7 +24,7 @@
 
 struct LastExecutionState {
     unsigned long ledToggle;
-    unsigned long flagsStart;
+    unsigned long flagsGreen;
     unsigned long flagsChaos;
 #if DEMO
     unsigned long demo;
@@ -37,13 +36,13 @@ struct FlagsState {
 };
 
 Adafruit_NeoPixel pitlane = Adafruit_NeoPixel(PITLANE_NUMPIXELS, PIN_FLAGS, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel falgs = Adafruit_NeoPixel(FLAGS_NUMPIXELS, PIN_FLAGS, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel flags = Adafruit_NeoPixel(FLAGS_NUMPIXELS, PIN_FLAGS, NEO_GRB + NEO_KHZ800);
 
 struct LastExecutionState lastExecution;
 struct FlagsState flagsState;
 
 // --- Declarations ---
-#if ESP
+#if IS_ESP
 void IRAM_ATTR readPitlanePins();
 void IRAM_ATTR readFlagPins();
 #else
@@ -82,7 +81,7 @@ void updateFlagsRed();
 
 #if DEMO
 void setupDemo();
-void cylcleDemo();
+void cycleDemo();
 #endif
 
 // --- Arduino Loop ---
@@ -106,10 +105,9 @@ void loop() {
   cycleToggleStatusLed();
   cycleUpdateFlagsGreen();
   cycleUpdateFlagsChaos();
-  cycleUpdateFlagsRed();
 
 #if DEMO
-  cylcleDemo();
+  cycleDemo();
 #endif
 
   delay(MS_CYCLE);
@@ -197,7 +195,7 @@ void setupFlags() {
   flagsState = {
           .state = FLAGS_STATE_RED,
           .toggles = 0
-  }
+  };
   flags.begin();
   flags.setBrightness(15);
   flags.clear();
@@ -208,21 +206,21 @@ void setFlagsChaos() {
   flagsState = {
           .state = FLAGS_STATE_CHAOS,
           .toggles = 0
-  }
+  };
 }
 
 void setFlagsRed() {
   flagsState = {
           .state = FLAGS_STATE_RED,
           .toggles = 0
-  }
+  };
 }
 
 void setFlagsGreen() {
   flagsState = {
           .state = FLAGS_STATE_GREEN,
           .toggles = 0
-  }
+  };
 }
 
 void updateFlagsGreen() {
@@ -241,7 +239,7 @@ void updateFlagsGreen() {
 }
 
 void updateFlagsRed() {
-  if (flagsState.state != FLAGS_STATE_RED || flags.flagsState.toggles > 0) {
+  if (flagsState.state != FLAGS_STATE_RED || flagsState.toggles > 0) {
     return;
   }
 
@@ -310,7 +308,7 @@ void execReadFlagPins() {
   }
 }
 
-#if ESP
+#if IS_ESP
 void IRAM_ATTR readPitlanePins(){
   execReadPitlanePins();
 }
@@ -333,13 +331,13 @@ void readFlagPins() {
 #if DEMO
 struct DemoState {
     int magicNumber;
-}
+};
 struct DemoState demoState;
 
 void setupDemo() {
   demoState = {
-          .magicNumber = -1;
-  }
+          .magicNumber = -1
+  };
 }
 void updateDemoFlags() {
   switch(demoState.magicNumber % 7) {
@@ -350,7 +348,7 @@ void updateDemoFlags() {
       setFlagsGreen();
       break;
     case 3:
-      setFlagsYellow();
+      setFlagsChaos();
       break;
     case 5:
       setFlagsGreen();
