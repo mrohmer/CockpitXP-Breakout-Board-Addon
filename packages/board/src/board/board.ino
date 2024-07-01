@@ -33,7 +33,7 @@ struct LastExecutionState {
     unsigned long ledToggle;
     unsigned long flagsGreen;
     unsigned long flagsChaos;
-#if DEMO
+#if IS_ESP
     unsigned long demo;
 #endif
 };
@@ -41,6 +41,13 @@ struct FlagsState {
     int state;
     int toggles;
 };
+#if IS_ESP
+struct DemoState {
+    bool active;
+    int magicNumber;
+};
+struct DemoState demoState;
+#endif
 
 Adafruit_NeoPixel pitlane = Adafruit_NeoPixel(PITLANE_NUMPIXELS, PIN_PITLANE, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel flags = Adafruit_NeoPixel(FLAGS_NUMPIXELS, PIN_FLAGS, NEO_GRB + NEO_KHZ800);
@@ -53,6 +60,8 @@ struct FlagsState flagsState;
 void IRAM_ATTR readPitlanePins();
 void IRAM_ATTR readFlagPins();
 void setupServer();
+void setupDemo();
+void cycleDemo();
 #else
 
 void readPitlanePins();
@@ -87,11 +96,6 @@ void updateFlagsChaos();
 
 void updateFlagsRed();
 
-#if DEMO
-void setupDemo();
-void cycleDemo();
-#endif
-
 // --- Arduino Loop ---
 void setup() {
   Serial.begin(9600);
@@ -101,10 +105,8 @@ void setup() {
   setupPitlane();
   setupFlags();
 
-#if DEMO
-  setupDemo();
-#endif
 #if IS_ESP
+  setupDemo();
   setupServer();
 #endif
 
@@ -118,7 +120,7 @@ void loop() {
   cycleUpdateFlagsChaos();
   cycleUpdateFlagsRed();
 
-#if DEMO
+#if IS_ESP
   cycleDemo();
 #endif
 
@@ -292,9 +294,7 @@ void updateFlagsChaos() {
 
 // --- inputs ---
 void setupInputPins() {
-#if DEMO
-  return;
-#endif
+  return; // todo fix
   pinMode(PIN_PITLANE1, INPUT);
   attachInterrupt(digitalPinToInterrupt(PIN_PITLANE1), readPitlanePins, CHANGE);
   pinMode(PIN_PITLANE2, INPUT);
@@ -350,18 +350,30 @@ void readFlagPins() {
 #endif
 
 
-#if DEMO
-struct DemoState {
-    bool active;
-    int magicNumber;
-};
-struct DemoState demoState;
-
+#if IS_ESP
 void setupDemo() {
+  demoState = {
+          .active = true,
+          .magicNumber = -1
+  };
+}
+void startDemo() {
+  demoState = {
+          .active = true,
+          .magicNumber = -1
+  };
+}
+void stopDemo() {
   demoState = {
           .active = false,
           .magicNumber = -1
   };
+
+  setFlagsRed();
+  updatePitlanes(false, false);
+
+  execReadPitlanePins();
+  execReadFlagPins();
 }
 void updateDemoFlags() {
   switch(demoState.magicNumber % 9) {
@@ -436,6 +448,9 @@ void updateDemoPitlanes() {
   }
 }
 void updateDemo() {
+  if (!demoState.active) {
+    return;
+  }
   demoState.magicNumber = (demoState.magicNumber + 1) % 10000;
 
   updateDemoFlags();
@@ -452,14 +467,11 @@ void cycleDemo() {
     lastExecution.demo = millis();
   }
 }
-#endif
-#if IS_ESP
+
 AsyncWebServer server(80);
 
 const char* hostname = "cma";
 const char* password = "cmacmacma";
-
-const char* PARAM_MESSAGE = "message";
 
 class StaticAppRewrite : public AsyncWebRewrite
 {
@@ -506,7 +518,7 @@ void setupServer() {
     request->send(200, "application/json", response);
   });
   server.on("/api/demo/activate", HTTP_POST, [](AsyncWebServerRequest *request) {
-    demoState.active = true;
+    startDemo();
 
     StaticJsonDocument<100> data;
 
@@ -517,7 +529,7 @@ void setupServer() {
     request->send(200, "application/json", response);
   });
   server.on("/api/demo/deactivate", HTTP_POST, [](AsyncWebServerRequest *request) {
-    demoState.active = false;
+    stopDemo();
 
     StaticJsonDocument<100> data;
 
