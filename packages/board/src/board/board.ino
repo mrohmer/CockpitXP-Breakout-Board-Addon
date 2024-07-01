@@ -22,6 +22,13 @@
 #include <math.h>
 #include <Adafruit_NeoPixel.h>
 
+#if IS_ESP
+#include <ESP8266WiFi.h>
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include "ArduinoJson.h"
+#endif
+
 struct LastExecutionState {
     unsigned long ledToggle;
     unsigned long flagsGreen;
@@ -45,6 +52,7 @@ struct FlagsState flagsState;
 #if IS_ESP
 void IRAM_ATTR readPitlanePins();
 void IRAM_ATTR readFlagPins();
+void setupServer();
 #else
 
 void readPitlanePins();
@@ -95,6 +103,9 @@ void setup() {
 
 #if DEMO
   setupDemo();
+#endif
+#if IS_ESP
+  setupServer();
 #endif
 
   Serial.println("Setup Done.");
@@ -341,12 +352,14 @@ void readFlagPins() {
 
 #if DEMO
 struct DemoState {
+    bool active;
     int magicNumber;
 };
 struct DemoState demoState;
 
 void setupDemo() {
   demoState = {
+          .active = false,
           .magicNumber = -1
   };
 }
@@ -431,7 +444,95 @@ void updateDemo() {
 void cycleDemo() {
   if (shouldExecuteInThisCycle(2500, lastExecution.demo)) {
     updateDemo();
+
+    IPAddress ip = WiFi.softAPIP();
+    Serial.print("IP address: ");
+    Serial.println(ip);
+
     lastExecution.demo = millis();
   }
+}
+#endif
+#if IS_ESP
+AsyncWebServer server(80);
+
+const char* hostname = "cma";
+const char* password = "cmacmacma";
+
+const char* PARAM_MESSAGE = "message";
+
+class StaticAppRewrite : public AsyncWebRewrite
+{
+  public:
+  StaticAppRewrite(const char* from)
+    : AsyncWebRewrite(from, "/") {
+  }
+
+  bool match(AsyncWebServerRequest *request) override {
+    if (!request->url().startsWith(from())) {
+      return false;
+    }
+
+    _toUrl = request->url();
+    _toUrl.replace(from(), "");
+    return true;
+  }
+};
+
+void notFound(AsyncWebServerRequest *request) {
+  request->send(404, "text/plain", "Not found");
+}
+void setupServer() {
+  Serial.setDebugOutput(true);
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAP(hostname, password);
+
+  IPAddress ip = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(ip);
+
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  SPIFFS.begin();
+
+  server.on("/api/demo", HTTP_GET, [](AsyncWebServerRequest *request) {
+    StaticJsonDocument<100> data;
+
+    data["active"] = demoState.active;
+
+    String response;
+    serializeJson(data, response);
+    request->send(200, "application/json", response);
+  });
+  server.on("/api/demo/activate", HTTP_POST, [](AsyncWebServerRequest *request) {
+    demoState.active = true;
+
+    StaticJsonDocument<100> data;
+
+    data["active"] = demoState.active;
+
+    String response;
+    serializeJson(data, response);
+    request->send(200, "application/json", response);
+  });
+  server.on("/api/demo/deactivate", HTTP_POST, [](AsyncWebServerRequest *request) {
+    demoState.active = false;
+
+    StaticJsonDocument<100> data;
+
+    data["active"] = demoState.active;
+
+    String response;
+    serializeJson(data, response);
+    request->send(200, "application/json", response);
+  });
+
+  server.addRewrite( new StaticAppRewrite("/_app/immutable") );
+  server.addRewrite( new StaticAppRewrite("/_app") );
+
+  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+
+  server.begin();
 }
 #endif
