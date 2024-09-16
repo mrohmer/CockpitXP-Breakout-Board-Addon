@@ -3,12 +3,12 @@ import { api } from "$lib/api";
 
 export const load: PageLoad = async ({depends}) => {
   const [d] = await Promise.all([
-    api.demo.get(),
+    api.state.get(),
   ]);
 
-  depends('index:demo');
+  depends('index:data');
 
   return {
-    demo: d,
+    ...d,
   }
 }

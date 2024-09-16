@@ -43,6 +43,10 @@ struct FlagsState {
     int state;
     int toggles;
 };
+struct PitlaneState {
+    bool lane1;
+    bool lane2;
+};
 #if IS_ESP
 struct DemoState {
     bool active;
@@ -56,6 +60,7 @@ Adafruit_NeoPixel flags = Adafruit_NeoPixel(FLAGS_NUMPIXELS, PIN_FLAGS, NEO_GRB 
 
 struct LastExecutionState lastExecution;
 struct FlagsState flagsState;
+struct PitlaneState pitlaneState;
 
 // --- Declarations ---
 #if IS_ESP
@@ -185,6 +190,10 @@ void flashStatusLed(int n) {
 
 // --- Pitlane ---
 void setupPitlane() {
+  pitlaneState = {
+          .lane1 = false,
+          .lane2 = false
+  };
   pitlane.begin();
   pitlane.setBrightness(15);
   pitlane.clear();
@@ -200,6 +209,9 @@ void updatePitlane(bool value, int firstIndex) {
 }
 
 void updatePitlanes(bool lane1, bool lane2) {
+  pitlaneState.lane1 = lane1;
+  pitlaneState.lane2 = lane2;
+
   pitlane.clear();
   updatePitlane(
           lane1,
@@ -506,16 +518,22 @@ void setupServer() {
 
   SPIFFS.begin();
 
-  server.on("/api/demo", HTTP_GET, [](AsyncWebServerRequest *request) {
-    Serial.print("Get Demo State: ");
-    Serial.println(demoState.active);
-
+  server.on("/api/state", HTTP_GET, [](AsyncWebServerRequest *request) {
+    Serial.print("Get State: ");
     StaticJsonDocument<100> data;
 
-    data["state"] = demoState.active;
+    data["demo"] = demoState.active == 1;
+    data["flags"] = flagsState.state;
+
+    JsonObject pitlanes = data.createNestedObject("pitlanes");
+    pitlanes["lane1"] = pitlaneState.lane1;
+    pitlanes["lane2"] = pitlaneState.lane2;
 
     String response;
     serializeJson(data, response);
+
+    Serial.println(response);
+
     request->send(200, "application/json", response);
   });
   server.on("/api/demo", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
