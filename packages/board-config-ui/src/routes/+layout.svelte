@@ -41,9 +41,9 @@
     }
 
     .letter {
-        @apply text-[140px] leading-[120px] font-bold;
+        @apply text-[100px] leading-[85px] font-bold;
     }
     .complete {
-        @apply text-[30px] leading-[30px] font-light;
+        @apply text-[25px] leading-[30px] font-light;
     }
 </style>

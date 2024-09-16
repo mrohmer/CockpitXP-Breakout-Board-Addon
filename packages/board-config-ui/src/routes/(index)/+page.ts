@@ -1,9 +1,9 @@
 import type {PageLoad} from "./$types";
-import {demo} from '$lib/api/demo';
+import { api } from "$lib/api";
 
 export const load: PageLoad = async ({depends}) => {
   const [d] = await Promise.all([
-    demo.get(),
+    api.demo.get(),
   ]);
 
   depends('index:demo');

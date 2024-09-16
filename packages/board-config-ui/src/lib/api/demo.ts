@@ -5,13 +5,10 @@ export const demo = {
         try {
             return await request('/api/demo');
         } catch (e) {
-            return {active: false};
+            return {state: false};
         }
     },
     put: (state: boolean) => {
-        if (state) {
-            return request('/api/demo/activate', {method: 'POST', body: JSON.stringify({state})})
-        }
-        return request('/api/demo/deactivate', {method: 'POST', body: JSON.stringify({state})})
+        return request('/api/demo', {method: 'POST', body: JSON.stringify({state})})
     },
 }

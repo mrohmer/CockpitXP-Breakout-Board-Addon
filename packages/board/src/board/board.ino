@@ -26,6 +26,7 @@
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include "AsyncJson.h"
 #include "ArduinoJson.h"
 #endif
 
@@ -33,6 +34,7 @@ struct LastExecutionState {
     unsigned long ledToggle;
     unsigned long flagsGreen;
     unsigned long flagsChaos;
+    unsigned long flagsRed;
 #if IS_ESP
     unsigned long demo;
 #endif
@@ -154,9 +156,9 @@ void cycleUpdateFlagsChaos() {
 }
 
 void cycleUpdateFlagsRed() {
-  if (shouldExecuteInThisCycle(MS_BETWEEN_FLAGS_CHAOS, lastExecution.flagsChaos)) {
+  if (shouldExecuteInThisCycle(MS_BETWEEN_FLAGS_CHAOS, lastExecution.flagsRed)) {
     updateFlagsRed();
-    lastExecution.flagsChaos = millis();
+    lastExecution.flagsRed = millis();
   }
 }
 
@@ -302,7 +304,7 @@ void setupInputPins() {
   pinMode(PIN_FLAG1, INPUT);
   attachInterrupt(digitalPinToInterrupt(PIN_FLAG1), readFlagPins, CHANGE);
   pinMode(PIN_FLAG2, INPUT);
-  attachInterrupt(digitalPinToInterrupt(PIN_FLAG1), readFlagPins, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(PIN_FLAG2), readFlagPins, CHANGE);
 }
 
 // --- interrupts ---
@@ -353,7 +355,7 @@ void readFlagPins() {
 #if IS_ESP
 void setupDemo() {
   demoState = {
-          .active = true,
+          .active = false,
           .magicNumber = -1
   };
 }
@@ -460,10 +462,6 @@ void cycleDemo() {
   if (shouldExecuteInThisCycle(2500, lastExecution.demo)) {
     updateDemo();
 
-    IPAddress ip = WiFi.softAPIP();
-    Serial.print("IP address: ");
-    Serial.println(ip);
-
     lastExecution.demo = millis();
   }
 }
@@ -509,34 +507,111 @@ void setupServer() {
   SPIFFS.begin();
 
   server.on("/api/demo", HTTP_GET, [](AsyncWebServerRequest *request) {
+    Serial.print("Get Demo State: ");
+    Serial.println(demoState.active);
+
     StaticJsonDocument<100> data;
 
-    data["active"] = demoState.active;
+    data["state"] = demoState.active;
 
     String response;
     serializeJson(data, response);
     request->send(200, "application/json", response);
   });
-  server.on("/api/demo/activate", HTTP_POST, [](AsyncWebServerRequest *request) {
-    startDemo();
+  server.on("/api/demo", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+    DynamicJsonDocument jsonDoc(512U);
+    bool success = DeserializationError::Ok == deserializeJson(jsonDoc, (const char*)data);
+    if (!success) {
+      Serial.println("No body in /api/demo");
+      request->send(400, "application/json", "{}");
+      return;
+    }
+    Serial.print("Set Demo State: ");
 
-    StaticJsonDocument<100> data;
+    bool state = jsonDoc["state"];
 
-    data["active"] = demoState.active;
+    Serial.println(state);
+
+    if (state) {
+      startDemo();
+    } else {
+      stopDemo();
+    };
+
+    StaticJsonDocument<100> res;
+
+    res["state"] = demoState.active;
 
     String response;
-    serializeJson(data, response);
+    serializeJson(res, response);
     request->send(200, "application/json", response);
   });
-  server.on("/api/demo/deactivate", HTTP_POST, [](AsyncWebServerRequest *request) {
-    stopDemo();
+  server.on("/api/state/pitlanes", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+    DynamicJsonDocument jsonDoc(512U);
+    bool success = DeserializationError::Ok == deserializeJson(jsonDoc, (const char*)data);
+    if (!success) {
+      Serial.println("No body in /api/state/pitlane");
+      request->send(400, "application/json", "{}");
+      return;
+    }
 
-    StaticJsonDocument<100> data;
+    Serial.print("Set Pitlane State: ");
+    bool lane1 = jsonDoc["lane1"];
+    bool lane2 = jsonDoc["lane2"];
+    Serial.print(lane1);
+    Serial.print(" ");
+    Serial.println(lane2);
 
-    data["active"] = demoState.active;
+    if (demoState.active) {
+      stopDemo();
+    }
+
+    updatePitlanes(lane1, lane2);
+
+    StaticJsonDocument<100> res;
+
+    res["lane1"] = lane1;
+    res["lane2"] = lane2;
 
     String response;
-    serializeJson(data, response);
+    serializeJson(res, response);
+    request->send(200, "application/json", response);
+  });
+  server.on("/api/state/flags", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+    DynamicJsonDocument jsonDoc(512U);
+    bool success = DeserializationError::Ok == deserializeJson(jsonDoc, (const char*)data);
+    if (!success) {
+      Serial.println("No body in /api/state/pitlane");
+      request->send(400, "application/json", "{}");
+      return;
+    }
+
+    Serial.print("Set Flags State: ");
+    int state = jsonDoc["state"];
+    Serial.println(state);
+
+    if (demoState.active) {
+      stopDemo();
+    }
+
+    switch (state) {
+      case 0:
+        setFlagsRed();
+        break;
+      case 1:
+        setFlagsGreen();
+        break;
+      case 2:
+        setFlagsChaos();
+        break;
+    }
+
+    StaticJsonDocument<100> res;
+
+    res["state"] = state;
+
+    String response;
+    serializeJson(res, response);
     request->send(200, "application/json", response);
   });
 
