@@ -2,6 +2,7 @@
   import type {PageData} from './$types';
   import {invalidate} from '$app/navigation';
   import {api} from '$lib/api';
+  import {onMount} from 'svelte';
 
   export let data: PageData;
 
@@ -25,6 +26,14 @@
 
     await invalidate('index:data');
   }
+
+  onMount(() => {
+    const interval = setInterval(async () => {
+      await invalidate('index:data');
+    }, 5000);
+
+    return () => clearInterval(interval);
+  })
 </script>
 
 <div class="mx-auto max-w-xl space-y-8">
@@ -46,10 +55,18 @@
             </div>
             <div>
                 <div class="join">
-                    <button class="btn join-item" class:btn-primary={!data.pitlanes?.lane1 && !data.pitlanes?.lane2} on:click={updatePitlane(false, false)}>Aus</button>
-                    <button class="btn join-item" class:btn-primary={data.pitlanes?.lane1 && !data.pitlanes?.lane2} on:click={updatePitlane(true, false)}>Pitlane 1</button>
-                    <button class="btn join-item" class:btn-primary={!data.pitlanes?.lane1 && data.pitlanes?.lane2} on:click={updatePitlane(false, true)}>Pitlane 2</button>
-                    <button class="btn join-item" class:btn-primary={data.pitlanes?.lane1 && data.pitlanes?.lane2} on:click={updatePitlane(true, true)}>Alle</button>
+                    <button class="btn join-item" class:btn-primary={!data.pitlanes?.lane1 && !data.pitlanes?.lane2}
+                            on:click={updatePitlane(false, false)}>Aus
+                    </button>
+                    <button class="btn join-item" class:btn-primary={data.pitlanes?.lane1 && !data.pitlanes?.lane2}
+                            on:click={updatePitlane(true, false)}>Pitlane 1
+                    </button>
+                    <button class="btn join-item" class:btn-primary={!data.pitlanes?.lane1 && data.pitlanes?.lane2}
+                            on:click={updatePitlane(false, true)}>Pitlane 2
+                    </button>
+                    <button class="btn join-item" class:btn-primary={data.pitlanes?.lane1 && data.pitlanes?.lane2}
+                            on:click={updatePitlane(true, true)}>Alle
+                    </button>
                 </div>
             </div>
         </div>
@@ -60,9 +77,14 @@
             </div>
             <div>
                 <div class="join w-full">
-                    <button class="btn join-item" class:btn-error={data.flags === 0} on:click={updateFlags(0)}>Rot</button>
-                    <button class="btn join-item" class:btn-success={data.flags === 1} on:click={updateFlags(1)}>Grün</button>
-                    <button class="btn join-item" class:bg-yellow-500={data.flags === 2} class:text-zinc-800={data.flags === 2} class:hover:bg-yellow-600={data.flags === 2} on:click={updateFlags(2)}>Chaos</button>
+                    <button class="btn join-item" class:btn-error={data.flags === 0} on:click={updateFlags(0)}>Rot
+                    </button>
+                    <button class="btn join-item" class:btn-success={data.flags === 1} on:click={updateFlags(1)}>Grün
+                    </button>
+                    <button class="btn join-item" class:bg-yellow-500={data.flags === 2}
+                            class:text-zinc-800={data.flags === 2} class:hover:bg-yellow-600={data.flags === 2}
+                            on:click={updateFlags(2)}>Chaos
+                    </button>
                 </div>
             </div>
         </div>
