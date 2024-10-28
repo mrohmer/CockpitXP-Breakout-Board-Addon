@@ -9,20 +9,21 @@ var
   raceStatus, chaosStatus: Boolean;
 begin
   raceStatus := getRaceStatus();
-  chaosStatus := getChaosValue(Cockpit.Parameter);
+  chaosStatus := getChaosStatus(Cockpit.Parameter);
 
   if (chaosStatus) then
   begin
-    cpSetOutput('Flags1', 0);
-    cpSetOutput('Flags2', 1);
+    cpSetOutput('Flags1', false);
+    cpSetOutput('Flags2', true);
   end
   else if (raceStatus) then
   begin
-    cpSetOutput('Flags1', 1);
-    cpSetOutput('Flags2', 0);
+    cpSetOutput('Flags1', true);
+    cpSetOutput('Flags2', false);
+  end
   else
   begin
-    cpSetOutput('Flags1', 0);
-    cpSetOutput('Flags2', 0);
+    cpSetOutput('Flags1', false);
+    cpSetOutput('Flags2', false);
   end;
 end.

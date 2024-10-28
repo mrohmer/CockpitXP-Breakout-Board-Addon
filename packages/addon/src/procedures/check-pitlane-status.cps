@@ -10,7 +10,7 @@ begin
     exit;
   end;
 
-  Cockpit.Slot := slot;
+  Cockpit.Slot := slotId;
 
   if (Int(Cockpit.TankStand) > 95) then
   begin
@@ -26,6 +26,6 @@ procedure checkPitlaneStatus;
 var
   pitlane: Integer;
 begin
-  cpSetOutput('Pitlane1', getPitlaneStatus(1));
-  cpSetOutput('Pitlane2', getPitlaneStatus(2));
+  cpSetOutput('Pitlane1', getPitlaneStatus(1) = 1);
+  cpSetOutput('Pitlane2', getPitlaneStatus(2) = 1);
 end;
