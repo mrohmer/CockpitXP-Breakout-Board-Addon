@@ -53,4 +53,5 @@ jobs:
           zip "../mr-breakout-board-addon" -r ./**
       - uses: ncipollo/release-action@v1
         with:
+          allowUpdates: true
           artifacts: "mr-breakout-board-addon.zip"
