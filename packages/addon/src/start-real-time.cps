@@ -44,6 +44,7 @@ var
   sleepTime: Integer;
 begin
   cpSetIntegerVar('Exit', 0);
+  cpSetIntegerVar('IsFinished', 0);
 
   sleepTime := cpGetIntegerVar('TimingSleep');
 

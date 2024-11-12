@@ -2,16 +2,17 @@
 { Event: ChangeRealTimeStatus }
 { Parameter: Cockpit.Parameter = <RennStatus> }
 
-{%%FUNCTION.GetRaceStatus%%}
 {%%FUNCTION.GetChaosStatus%%}
+{%%FUNCTION.GetFinishedStatus%%}
 
 var
-  raceStatus, chaosStatus: Boolean;
+  chaosStatus, finishedStatus: Boolean;
 begin
-  raceStatus := getRaceStatus();
   chaosStatus := getChaosStatus(Cockpit.Parameter);
+  finishedStatus := getFinishedStatus(Cockpit.Parameter);
 
   cpSetIntegerVar('IsChaos', 0);
+  cpSetIntegerVar('IsFinishedStatus', 0);
 
   if (Cockpit.Parameter = 0) then
   begin
@@ -22,6 +23,12 @@ begin
   begin
     cpSetIntegerVar('IsChaos', 1);
     cpSetOutput('Flags1', false);
+    cpSetOutput('Flags2', true);
+  end
+  else if (finishedStatus) then
+  begin
+    cpSetIntegerVar('IsFinished', 1);
+    cpSetOutput('Flags1', true);
     cpSetOutput('Flags2', true);
   end
   else if (Cockpit.Parameter = 1) then
