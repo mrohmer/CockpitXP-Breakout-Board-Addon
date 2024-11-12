@@ -1,6 +1,6 @@
 function getChaosStatus(parameter: Integer): Boolean;
 begin
-  if (parameter = 6) or (parameter = 7) then
+  if cpGetRacingStatus() = 'P' then
   begin
     Result := true;
   end
@@ -9,4 +9,3 @@ begin
     Result := false;
   end;
 end;
-
