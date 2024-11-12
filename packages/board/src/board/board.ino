@@ -307,23 +307,29 @@ void updateFlagsRed() {
   flagsState.toggles++;
 }
 
+void setFlagsCheckered(int shift, int r, int g, int b) {
+  flags.clear();
+
+  for (int flag = 0; flag < FLAGS_NUM; flag++) {
+    for (int pixel = shift; pixel < FLAGS_PIXELS_PER_FLAG / 2; pixel += 2) {
+      int index = flag * FLAGS_PIXELS_PER_FLAG + pixel;
+      int index2 = FLAGS_PIXELS_PER_FLAG - index - 1;
+
+      flags.setPixelColor(index, flags.Color(r, g, b));
+      flags.setPixelColor(index2, flags.Color(r, g, b));
+    }
+  }
+
+  flags.show();
+}
+
 void updateFlagsFinished() {
   if (flagsState.state != FLAGS_STATE_FINISHED) {
     return;
   }
 
   int shift = flagsState.toggles % 2;
-  flags.clear();
-
-  for (int flag = 0; flag < FLAGS_NUM; flag++) {
-    for (int pixel = shift; pixel < FLAGS_PIXELS_PER_FLAG; pixel += 2) {
-      int index = flag * FLAGS_PIXELS_PER_FLAG + pixel;
-
-      flags.setPixelColor(index, flags.Color(255, 255, 255));
-    }
-  }
-
-  flags.show();
+  setFlagsCheckered(shift, 255, 255, 255);
 
   flagsState.toggles = (flagsState.toggles + 1) % 2;
 }
@@ -334,24 +340,13 @@ void updateFlagsChaos() {
   }
 
   int shift = flagsState.toggles % 2;
-  flags.clear();
-
-  for (int flag = 0; flag < FLAGS_NUM; flag++) {
-    for (int pixel = shift; pixel < FLAGS_PIXELS_PER_FLAG; pixel += 2) {
-      int index = flag * FLAGS_PIXELS_PER_FLAG + pixel;
-
-      flags.setPixelColor(index, flags.Color(255, 255, 0));
-    }
-  }
-
-  flags.show();
+  setFlagsCheckered(shift, 255, 255, 0);
 
   flagsState.toggles = (flagsState.toggles + 1) % 2;
 }
 
 // --- inputs ---
 void setupInputPins() {
-  return; // todo fix
   pinMode(PIN_PITLANE1, INPUT);
   attachInterrupt(digitalPinToInterrupt(PIN_PITLANE1), readPitlanePins, CHANGE);
   pinMode(PIN_PITLANE2, INPUT);
