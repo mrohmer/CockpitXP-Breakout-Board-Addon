@@ -85,6 +85,10 @@
                             class:text-zinc-800={data.flags === 2} class:hover:bg-yellow-600={data.flags === 2}
                             on:click={updateFlags(2)}>Chaos
                     </button>
+                    <button class="btn join-item" class:bg-white={data.flags === 3}
+                            class:text-zinc-800={data.flags === 3} class:hover:bg-white={data.flags === 3}
+                            on:click={updateFlags(3)}>Finished
+                    </button>
                 </div>
             </div>
         </div>
