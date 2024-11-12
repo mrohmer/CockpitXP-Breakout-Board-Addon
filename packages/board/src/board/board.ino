@@ -10,12 +10,14 @@
 #define FLAGS_STATE_RED 0
 #define FLAGS_STATE_GREEN 1
 #define FLAGS_STATE_CHAOS 2
+#define FLAGS_STATE_FINISHED 3
 
 #define MS_CYCLE 250
 #define MS_BETWEEN_LED_TOGGLE 1000
 #define MS_BETWEEN_FLAGS_GREEN 500
 #define MS_BETWEEN_FLAGS_CHAOS 250
 #define MS_BETWEEN_FLAGS_RED 1000
+#define MS_BETWEEN_FLAGS_FINISHED 500
 
 #include <Arduino.h>
 #include <string.h>
@@ -35,6 +37,7 @@ struct LastExecutionState {
     unsigned long flagsGreen;
     unsigned long flagsChaos;
     unsigned long flagsRed;
+    unsigned long flagsFinished;
 #if IS_ESP
     unsigned long demo;
 #endif
@@ -93,6 +96,8 @@ void cycleUpdateFlagsChaos();
 
 void cycleUpdateFlagsRed();
 
+void cycleUpdateFlagsFinished();
+
 void toggleStatusLed();
 
 void flashStatusLed(int n);
@@ -102,6 +107,8 @@ void updateFlagsGreen();
 void updateFlagsChaos();
 
 void updateFlagsRed();
+
+void updateFlagsFinished();
 
 // --- Arduino Loop ---
 void setup() {
@@ -126,6 +133,7 @@ void loop() {
   cycleUpdateFlagsGreen();
   cycleUpdateFlagsChaos();
   cycleUpdateFlagsRed();
+  cycleUpdateFlagsFinished();
 
 #if IS_ESP
   cycleDemo();
@@ -161,9 +169,16 @@ void cycleUpdateFlagsChaos() {
 }
 
 void cycleUpdateFlagsRed() {
-  if (shouldExecuteInThisCycle(MS_BETWEEN_FLAGS_CHAOS, lastExecution.flagsRed)) {
+  if (shouldExecuteInThisCycle(MS_BETWEEN_FLAGS_RED, lastExecution.flagsRed)) {
     updateFlagsRed();
     lastExecution.flagsRed = millis();
+  }
+}
+
+void cycleUpdateFlagsFinished() {
+  if (shouldExecuteInThisCycle(MS_BETWEEN_FLAGS_FINISHED, lastExecution.flagsFinished)) {
+    updateFlagsFinished();
+    lastExecution.flagsFinished = millis();
   }
 }
 
@@ -251,6 +266,13 @@ void setFlagsRed() {
   };
 }
 
+void setFlagsFinished() {
+  flagsState = {
+          .state = FLAGS_STATE_FINISHED,
+          .toggles = 0
+  };
+}
+
 void setFlagsGreen() {
   flagsState = {
           .state = FLAGS_STATE_GREEN,
@@ -283,6 +305,27 @@ void updateFlagsRed() {
   flags.show();
 
   flagsState.toggles++;
+}
+
+void updateFlagsFinished() {
+  if (flagsState.state != FLAGS_STATE_FINISHED) {
+    return;
+  }
+
+  int shift = flagsState.toggles % 2;
+  flags.clear();
+
+  for (int flag = 0; flag < FLAGS_NUM; flag++) {
+    for (int pixel = shift; pixel < FLAGS_PIXELS_PER_FLAG; pixel += 2) {
+      int index = flag * FLAGS_PIXELS_PER_FLAG + pixel;
+
+      flags.setPixelColor(index, flags.Color(255, 255, 255));
+    }
+  }
+
+  flags.show();
+
+  flagsState.toggles = (flagsState.toggles + 1) % 2;
 }
 
 void updateFlagsChaos() {
@@ -340,6 +383,9 @@ void execReadFlagPins() {
       break;
     case 2:
       setFlagsChaos();
+      break;
+    case 3:
+      setFlagsFinished();
       break;
   }
 }
@@ -621,6 +667,9 @@ void setupServer() {
         break;
       case 2:
         setFlagsChaos();
+        break;
+      case 3:
+        setFlagsFinished();
         break;
     }
 
