@@ -4,7 +4,7 @@ begin
   begin
     Result := false;
   end
-  elseif (parameter = 3) or (parameter = 4) or (cpGetIntegerVar('IsFinished') = 1) then
+  else if (parameter = 3) or (parameter = 4) or (cpGetIntegerVar('IsFinished') = 1) then
   begin
     Result := true;
   end
