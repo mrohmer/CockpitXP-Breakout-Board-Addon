@@ -2,12 +2,6 @@
 { Event: StartRealTime }
 { Parameter: Keine }
 
-{%%PROCEDURE.CheckPitlaneStatus%%}
-
-{ Pascal Script Engine }
-{ Event: StartRealTime }
-{ Parameter: Keine }
-
 function getPitlaneStatus(pitlane: Integer): Integer;
 var
   slotId: integer;
