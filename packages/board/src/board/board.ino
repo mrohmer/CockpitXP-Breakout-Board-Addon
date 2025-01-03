@@ -24,13 +24,6 @@
 #include <math.h>
 #include <Adafruit_NeoPixel.h>
 
-#if IS_ESP
-#include <ESP8266WiFi.h>
-#include <ESPAsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-#include "AsyncJson.h"
-#include "ArduinoJson.h"
-#endif
 
 struct LastExecutionState {
     unsigned long ledToggle;
@@ -38,9 +31,6 @@ struct LastExecutionState {
     unsigned long flagsChaos;
     unsigned long flagsRed;
     unsigned long flagsFinished;
-#if IS_ESP
-    unsigned long demo;
-#endif
 };
 struct FlagsState {
     int state;
@@ -50,13 +40,6 @@ struct PitlaneState {
     bool lane1;
     bool lane2;
 };
-#if IS_ESP
-struct DemoState {
-    bool active;
-    int magicNumber;
-};
-struct DemoState demoState;
-#endif
 
 Adafruit_NeoPixel pitlane = Adafruit_NeoPixel(PITLANE_NUMPIXELS, PIN_PITLANE, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel flags = Adafruit_NeoPixel(FLAGS_NUMPIXELS, PIN_FLAGS, NEO_GRB + NEO_KHZ800);
@@ -66,19 +49,10 @@ struct FlagsState flagsState;
 struct PitlaneState pitlaneState;
 
 // --- Declarations ---
-#if IS_ESP
-void IRAM_ATTR readPitlanePins();
-void IRAM_ATTR readFlagPins();
-void setupServer();
-void setupDemo();
-void cycleDemo();
-#else
 
 void readPitlanePins();
 
 void readFlagPins();
-
-#endif
 
 void setupInputPins();
 
@@ -119,11 +93,6 @@ void setup() {
   setupPitlane();
   setupFlags();
 
-#if IS_ESP
-  setupDemo();
-  setupServer();
-#endif
-
   Serial.println("Setup Done.");
   flashStatusLed(10);
 }
@@ -134,10 +103,6 @@ void loop() {
   cycleUpdateFlagsChaos();
   cycleUpdateFlagsRed();
   cycleUpdateFlagsFinished();
-
-#if IS_ESP
-  cycleDemo();
-#endif
 
   delay(MS_CYCLE);
 }
@@ -385,14 +350,6 @@ void execReadFlagPins() {
   }
 }
 
-#if IS_ESP
-void IRAM_ATTR readPitlanePins(){
-  execReadPitlanePins();
-}
-void IRAM_ATTR readFlagPins(){
-  execReadFlagPins();
-}
-#else
 
 void readPitlanePins() {
   execReadPitlanePins();
@@ -401,287 +358,3 @@ void readPitlanePins() {
 void readFlagPins() {
   execReadFlagPins();
 }
-
-#endif
-
-
-#if IS_ESP
-void setupDemo() {
-  demoState = {
-          .active = false,
-          .magicNumber = -1
-  };
-}
-void startDemo() {
-  demoState = {
-          .active = true,
-          .magicNumber = -1
-  };
-}
-void stopDemo() {
-  demoState = {
-          .active = false,
-          .magicNumber = -1
-  };
-
-  setFlagsRed();
-  updatePitlanes(false, false);
-
-  execReadPitlanePins();
-  execReadFlagPins();
-}
-void updateDemoFlags() {
-  switch(demoState.magicNumber % 9) {
-    case 0:
-      Serial.println("Red Flags.");
-      setFlagsRed();
-      break;
-    case 1:
-      Serial.println("Green Flags.");
-      setFlagsGreen();
-      break;
-    case 4:
-      Serial.println("Chaos Flags.");
-      setFlagsChaos();
-      break;
-    case 7:
-      Serial.println("Green Flags.");
-      setFlagsGreen();
-      break;
-  }
-}
-void updateDemoPitlanes() {
-  switch(demoState.magicNumber % 13) {
-    case 0:
-      Serial.println("Pitlane [false, false].");
-      updatePitlanes(false, false);
-      break;
-    case 1:
-      Serial.println("Pitlane [true, false].");
-      updatePitlanes(true, false);
-      break;
-    case 2:
-      Serial.println("Pitlane [false, false].");
-      updatePitlanes(false, false);
-      break;
-    case 3:
-      Serial.println("Pitlane [false, true].");
-      updatePitlanes(false, true);
-      break;
-    case 4:
-      Serial.println("Pitlane [false, false].");
-      updatePitlanes(false, false);
-      break;
-    case 5:
-      Serial.println("Pitlane [false, true].");
-      updatePitlanes(false, true);
-      break;
-    case 6:
-      Serial.println("Pitlane [true, true].");
-      updatePitlanes(true, true);
-      break;
-    case 7:
-      Serial.println("Pitlane [true, false].");
-      updatePitlanes(true, false);
-      break;
-    case 8:
-      Serial.println("Pitlane [false, false].");
-      updatePitlanes(false, false);
-      break;
-    case 9:
-      Serial.println("Pitlane [true, false].");
-      updatePitlanes(true, false);
-      break;
-    case 10:
-      Serial.println("Pitlane [true, true].");
-      updatePitlanes(true, true);
-      break;
-    case 11:
-      Serial.println("Pitlane [false, true].");
-      updatePitlanes(false, true);
-      break;
-  }
-}
-void updateDemo() {
-  if (!demoState.active) {
-    return;
-  }
-  demoState.magicNumber = (demoState.magicNumber + 1) % 10000;
-
-  updateDemoFlags();
-  updateDemoPitlanes();
-}
-void cycleDemo() {
-  if (shouldExecuteInThisCycle(2500, lastExecution.demo)) {
-    updateDemo();
-
-    lastExecution.demo = millis();
-  }
-}
-
-AsyncWebServer server(80);
-
-const char* hostname = "cma";
-const char* password = "cmacmacma";
-
-class StaticAppRewrite : public AsyncWebRewrite
-{
-  public:
-  StaticAppRewrite(const char* from)
-    : AsyncWebRewrite(from, "/") {
-  }
-
-  bool match(AsyncWebServerRequest *request) override {
-    if (!request->url().startsWith(from())) {
-      return false;
-    }
-
-    _toUrl = request->url();
-    _toUrl.replace(from(), "");
-    return true;
-  }
-};
-
-void notFound(AsyncWebServerRequest *request) {
-  request->send(404, "text/plain", "Not found");
-}
-void setupServer() {
-  Serial.setDebugOutput(true);
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(hostname, password);
-
-  IPAddress ip = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(ip);
-
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
-
-  SPIFFS.begin();
-
-  server.on("/api/state", HTTP_GET, [](AsyncWebServerRequest *request) {
-    Serial.print("Get State: ");
-    StaticJsonDocument<100> data;
-
-    data["demo"] = demoState.active == 1;
-    data["flags"] = flagsState.state;
-
-    JsonObject pitlanes = data.createNestedObject("pitlanes");
-    pitlanes["lane1"] = pitlaneState.lane1;
-    pitlanes["lane2"] = pitlaneState.lane2;
-
-    String response;
-    serializeJson(data, response);
-
-    Serial.println(response);
-
-    request->send(200, "application/json", response);
-  });
-  server.on("/api/demo", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-    DynamicJsonDocument jsonDoc(512U);
-    bool success = DeserializationError::Ok == deserializeJson(jsonDoc, (const char*)data);
-    if (!success) {
-      Serial.println("No body in /api/demo");
-      request->send(400, "application/json", "{}");
-      return;
-    }
-    Serial.print("Set Demo State: ");
-
-    bool state = jsonDoc["state"];
-
-    Serial.println(state);
-
-    if (state) {
-      startDemo();
-    } else {
-      stopDemo();
-    };
-
-    StaticJsonDocument<100> res;
-
-    res["state"] = demoState.active;
-
-    String response;
-    serializeJson(res, response);
-    request->send(200, "application/json", response);
-  });
-  server.on("/api/state/pitlanes", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-    DynamicJsonDocument jsonDoc(512U);
-    bool success = DeserializationError::Ok == deserializeJson(jsonDoc, (const char*)data);
-    if (!success) {
-      Serial.println("No body in /api/state/pitlane");
-      request->send(400, "application/json", "{}");
-      return;
-    }
-
-    Serial.print("Set Pitlane State: ");
-    bool lane1 = jsonDoc["lane1"];
-    bool lane2 = jsonDoc["lane2"];
-    Serial.print(lane1);
-    Serial.print(" ");
-    Serial.println(lane2);
-
-    if (demoState.active) {
-      stopDemo();
-    }
-
-    updatePitlanes(lane1, lane2);
-
-    StaticJsonDocument<100> res;
-
-    res["lane1"] = lane1;
-    res["lane2"] = lane2;
-
-    String response;
-    serializeJson(res, response);
-    request->send(200, "application/json", response);
-  });
-  server.on("/api/state/flags", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-    DynamicJsonDocument jsonDoc(512U);
-    bool success = DeserializationError::Ok == deserializeJson(jsonDoc, (const char*)data);
-    if (!success) {
-      Serial.println("No body in /api/state/pitlane");
-      request->send(400, "application/json", "{}");
-      return;
-    }
-
-    Serial.print("Set Flags State: ");
-    int state = jsonDoc["state"];
-    Serial.println(state);
-
-    if (demoState.active) {
-      stopDemo();
-    }
-
-    switch (state) {
-      case 0:
-        setFlagsRed();
-        break;
-      case 1:
-        setFlagsGreen();
-        break;
-      case 2:
-        setFlagsChaos();
-        break;
-      case 3:
-        setFlagsFinished();
-        break;
-    }
-
-    StaticJsonDocument<100> res;
-
-    res["state"] = state;
-
-    String response;
-    serializeJson(res, response);
-    request->send(200, "application/json", response);
-  });
-
-  server.addRewrite( new StaticAppRewrite("/_app/immutable") );
-  server.addRewrite( new StaticAppRewrite("/_app") );
-
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
-
-  server.begin();
-}
-#endif

@@ -1,15 +1,9 @@
 {
   "name": "@rohmer/cockpit-xp-breakout-board-board",
   "scripts": {
-    "cp:ui": "rimraf data && cp -R ../board-config-ui/build/ data && mv data/_app/immutable/* data && mv data/_app/* data",
-    "build:esp": "pnpm cp:ui && pio run -e nodemcuv2",
-    "upload:esp": "pnpm cp:ui && pio run --target uploadfs -e nodemcuv2 && pio run --target upload -e nodemcuv2 && pio device monitor",
-    "build:arduino": "pio run -e arduino",
-    "upload:arduino": "pio run --target upload -e arduino && pio device monitor",
+    "build": "pio run -e arduino",
+    "upload": "pio run --target upload -e arduino && pio device monitor",
     "monitor": "pio device monitor"
-  },
-  "dependencies": {
-    "@rohmer/cockpit-xp-breakout-board-config-ui": "workspace:*"
   },
   "private": true,
   "devDependencies": {
