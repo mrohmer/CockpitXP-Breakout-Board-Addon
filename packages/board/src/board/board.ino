@@ -306,7 +306,7 @@ void updateFlagsChaos() {
   }
 
   int shift = flagsState.toggles % 2;
-  setFlagsCheckered(shift, 255, 255, 0);
+  setFlagsCheckered(shift, 255, 150, 0);
 
   flagsState.toggles = (flagsState.toggles + 1) % 2;
 }
