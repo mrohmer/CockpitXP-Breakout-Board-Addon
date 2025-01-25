@@ -98,13 +98,14 @@ void setup() {
 }
 
 void loop() {
+  long start = millis();
   cycleToggleStatusLed();
   cycleUpdateFlagsGreen();
   cycleUpdateFlagsChaos();
   cycleUpdateFlagsRed();
   cycleUpdateFlagsFinished();
 
-  delay(MS_CYCLE);
+  delay(MS_CYCLE - (millis() - start));
 }
 
 // --- Cycle ---
