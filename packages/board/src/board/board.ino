@@ -229,6 +229,7 @@ bool isFlagsSessionRecord() {
 void toggleFlagAllPixels(int toggles, int r, int g, int b) {
 
   bool on = toggles % 2 == 0;
+  flags.setBrightness(15);
   flags.clear();
   if (on) {
     flags.fill(flags.Color(r, g, b), 0, FLAGS_NUMPIXELS);
@@ -240,7 +241,8 @@ void updateFlagsGreen() {
     return;
   }
 
-  toggleFlagAllPixels(flagsState.toggles++, 0, 255, 0);
+  flags.setBrightness(8);
+  toggleFlagAllPixels(flagsState.toggles++, 140, 200, 0);
 }
 
 void updateFlagsRed() {
@@ -248,6 +250,7 @@ void updateFlagsRed() {
     return;
   }
 
+  flags.setBrightness(15);
   flags.clear();
   flags.fill(flags.Color(255, 0, 0), 0, FLAGS_NUMPIXELS);
   flags.show();
@@ -256,6 +259,7 @@ void updateFlagsRed() {
 }
 
 void setFlagsCheckered(int shift, int r, int g, int b) {
+  flags.setBrightness(15);
   flags.clear();
 
   for (int flag = 0; flag < FLAGS_NUM; flag++) {
@@ -307,7 +311,7 @@ void updateFlagsSessionRecord() {
     return;
   }
 
-  toggleFlagAllPixels(flagsState.sessionRecord.toggles++, 200, 0, 200);
+  toggleFlagAllPixels(flagsState.sessionRecord.toggles++, 160, 0, 255);
 }
 
 // --- inputs ---
