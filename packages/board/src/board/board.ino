@@ -312,27 +312,27 @@ void updateFlagsChaos() {
 
 // --- inputs ---
 void setupInputPins() {
-  pinMode(PIN_PITLANE1, INPUT);
+  pinMode(PIN_PITLANE1, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(PIN_PITLANE1), readPitlanePins, CHANGE);
-  pinMode(PIN_PITLANE2, INPUT);
+  pinMode(PIN_PITLANE2, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(PIN_PITLANE2), readPitlanePins, CHANGE);
-  pinMode(PIN_FLAG1, INPUT);
+  pinMode(PIN_FLAG1, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(PIN_FLAG1), readFlagPins, CHANGE);
-  pinMode(PIN_FLAG2, INPUT);
+  pinMode(PIN_FLAG2, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(PIN_FLAG2), readFlagPins, CHANGE);
 }
 
 // --- interrupts ---
 void execReadPitlanePins() {
-  bool lane1 = digitalRead(PIN_PITLANE1) == 1;
-  bool lane2 = digitalRead(PIN_PITLANE2) == 1;
+  bool lane1 = digitalRead(PIN_PITLANE1) == 0;
+  bool lane2 = digitalRead(PIN_PITLANE2) == 0;
 
   updatePitlanes(lane1, lane2);
 }
 
 void execReadFlagPins() {
-  int value1 = digitalRead(PIN_FLAG1);
-  int value2 = digitalRead(PIN_FLAG2);
+  int value1 = 1 - digitalRead(PIN_FLAG1);
+  int value2 = 1 - digitalRead(PIN_FLAG2);
 
   switch (value1 + value2 * 2) {
     case 0:
