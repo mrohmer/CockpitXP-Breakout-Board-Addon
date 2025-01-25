@@ -246,7 +246,7 @@ void setFlagsGreen() {
 }
 
 void updateFlagsGreen() {
-  if (flagsState.state != FLAGS_STATE_GREEN || flagsState.toggles > (5 * 2 - 1)) {
+  if (flagsState.state != FLAGS_STATE_GREEN || flagsState.toggles > (5 * 2)) {
     return;
   }
 
