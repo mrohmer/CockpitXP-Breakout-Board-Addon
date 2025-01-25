@@ -1,8 +1,3 @@
-#define PITLANE_NUMPIXELS_PER_PITLANE 16
-#define PITLANE_NUMPIXELS PITLANE_NUMPIXELS_PER_PITLANE * 2
-#define PITLANE_1_FIRST_INDEX 0
-#define PITLANE_2_FIRST_INDEX 16
-
 #define FLAGS_PIXELS_PER_FLAG 8
 #define FLAGS_NUM 5
 #define FLAGS_NUMPIXELS FLAGS_PIXELS_PER_FLAG * FLAGS_NUM
@@ -36,29 +31,19 @@ struct FlagsState {
     int state;
     int toggles;
 };
-struct PitlaneState {
-    bool lane1;
-    bool lane2;
-};
 
-Adafruit_NeoPixel pitlane = Adafruit_NeoPixel(PITLANE_NUMPIXELS, PIN_PITLANE, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel flags = Adafruit_NeoPixel(FLAGS_NUMPIXELS, PIN_FLAGS, NEO_GRB + NEO_KHZ800);
 
 struct LastExecutionState lastExecution;
 struct FlagsState flagsState;
-struct PitlaneState pitlaneState;
 
 // --- Declarations ---
-
-void readPitlanePins();
 
 void readFlagPins();
 
 void setupInputPins();
 
 void setupStatusLed();
-
-void setupPitlane();
 
 void setupFlags();
 
@@ -90,7 +75,6 @@ void setup() {
 
   setupStatusLed();
   setupInputPins();
-  setupPitlane();
   setupFlags();
 
   Serial.println("Setup Done.");
@@ -166,44 +150,6 @@ void flashStatusLed(int n) {
     digitalWrite(PIN_LED, !digitalRead(PIN_LED));
     delay(100);
   }
-}
-
-
-// --- Pitlane ---
-void setupPitlane() {
-  pitlaneState = {
-          .lane1 = false,
-          .lane2 = false
-  };
-  pitlane.begin();
-  pitlane.setBrightness(15);
-  pitlane.clear();
-  pitlane.show();
-}
-
-void updatePitlane(bool value, int firstIndex) {
-  if (!value) {
-    return;
-  }
-
-  pitlane.fill(pitlane.Color(255, 255, 255), firstIndex, PITLANE_NUMPIXELS_PER_PITLANE);
-}
-
-void updatePitlanes(bool lane1, bool lane2) {
-  pitlaneState.lane1 = lane1;
-  pitlaneState.lane2 = lane2;
-
-  pitlane.clear();
-  updatePitlane(
-          lane1,
-          PITLANE_1_FIRST_INDEX
-  );
-  updatePitlane(
-          lane2,
-          PITLANE_2_FIRST_INDEX
-  );
-
-  pitlane.show();
 }
 
 // --- FLAGS ---
@@ -313,10 +259,6 @@ void updateFlagsChaos() {
 
 // --- inputs ---
 void setupInputPins() {
-  pinMode(PIN_PITLANE1, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(PIN_PITLANE1), readPitlanePins, CHANGE);
-  pinMode(PIN_PITLANE2, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(PIN_PITLANE2), readPitlanePins, CHANGE);
   pinMode(PIN_FLAG1, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(PIN_FLAG1), readFlagPins, CHANGE);
   pinMode(PIN_FLAG2, INPUT_PULLUP);
@@ -324,12 +266,6 @@ void setupInputPins() {
 }
 
 // --- interrupts ---
-void execReadPitlanePins() {
-  bool lane1 = digitalRead(PIN_PITLANE1) == 0;
-  bool lane2 = digitalRead(PIN_PITLANE2) == 0;
-
-  updatePitlanes(lane1, lane2);
-}
 
 void execReadFlagPins() {
   int value1 = 1 - digitalRead(PIN_FLAG1);
@@ -349,11 +285,6 @@ void execReadFlagPins() {
       setFlagsFinished();
       break;
   }
-}
-
-
-void readPitlanePins() {
-  execReadPitlanePins();
 }
 
 void readFlagPins() {
