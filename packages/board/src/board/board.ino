@@ -176,7 +176,11 @@ void flashStatusLed(int n) {
 void setupFlags() {
   flagsState = {
           .state = FLAGS_STATE_RED,
-          .toggles = 0
+          .toggles = 0,
+          .sessionRecord = {
+            .state = false,
+            .toggles = 0
+          }
   };
   flags.begin();
   flags.setBrightness(15);
@@ -213,7 +217,7 @@ void setFlagsGreen() {
 }
 
 void setFlagsSessionRecord(bool state) {
-  if (state && flagsState.state) {
+  if (state && flagsState.sessionRecord.state) {
     return;
   }
   flagsState.sessionRecord = {
