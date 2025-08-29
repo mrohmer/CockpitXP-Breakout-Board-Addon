@@ -250,7 +250,7 @@ void updateFlagsGreen() {
 }
 
 void updateFlagsRed() {
-  if (isFlagsSessionRecord() || flagsState.state != FLAGS_STATE_RED || flagsState.toggles > 0) {
+  if (isFlagsSessionRecord() || flagsState.state != FLAGS_STATE_RED) {
     return;
   }
 
