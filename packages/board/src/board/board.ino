@@ -7,12 +7,13 @@
 #define FLAGS_STATE_CHAOS 2
 #define FLAGS_STATE_FINISHED 3
 
-#define MS_CYCLE 250
+#define MS_CYCLE 50
 #define MS_BETWEEN_LED_TOGGLE 1000
 #define MS_BETWEEN_FLAGS_GREEN 500
 #define MS_BETWEEN_FLAGS_CHAOS 250
 #define MS_BETWEEN_FLAGS_RED 1000
 #define MS_BETWEEN_FLAGS_FINISHED 500
+#define MS_BETWEEN_FLAGS_SESSION_RECORD 150
 
 #include <Arduino.h>
 #include <string.h>
@@ -26,10 +27,16 @@ struct LastExecutionState {
     unsigned long flagsChaos;
     unsigned long flagsRed;
     unsigned long flagsFinished;
+    unsigned long flagsSessionRecord;
+};
+struct FlagSessionRecordState {
+    bool state;
+    int toggles;
 };
 struct FlagsState {
     int state;
     int toggles;
+    struct FlagSessionRecordState sessionRecord;
 };
 
 Adafruit_NeoPixel flags = Adafruit_NeoPixel(FLAGS_NUMPIXELS, PIN_FLAGS, NEO_GRB + NEO_KHZ800);
@@ -40,6 +47,8 @@ struct FlagsState flagsState;
 // --- Declarations ---
 
 void readFlagPins();
+
+void readFlagSessionRecordPin();
 
 void setupInputPins();
 
@@ -57,6 +66,8 @@ void cycleUpdateFlagsRed();
 
 void cycleUpdateFlagsFinished();
 
+void cycleUpdateFlagsSessionRecord();
+
 void toggleStatusLed();
 
 void flashStatusLed(int n);
@@ -68,6 +79,8 @@ void updateFlagsChaos();
 void updateFlagsRed();
 
 void updateFlagsFinished();
+
+void updateFlagsSessionRecord();
 
 // --- Arduino Loop ---
 void setup() {
@@ -132,6 +145,13 @@ void cycleUpdateFlagsFinished() {
   }
 }
 
+void cycleUpdateFlagsSessionRecord() {
+  if (shouldExecuteInThisCycle(MS_BETWEEN_FLAGS_SESSION_RECORD, lastExecution.flagsSessionRecord)) {
+    updateFlagsSessionRecord();
+    lastExecution.flagsSessionRecord = millis();
+  }
+}
+
 // --- Status Led ---
 void setupStatusLed() {
   pinMode(PIN_LED, OUTPUT);
@@ -192,24 +212,41 @@ void setFlagsGreen() {
   };
 }
 
-void updateFlagsGreen() {
-  if (flagsState.state != FLAGS_STATE_GREEN || flagsState.toggles > (5 * 2)) {
+void setFlagsSessionRecord(bool state) {
+  if (state && flagsState.state) {
     return;
   }
+  flagsState.sessionRecord = {
+    .state = state,
+    .toggles = 0
+  };
+}
 
-  bool on = flagsState.toggles % 2 == 0;
+bool isFlagsSessionRecord() {
+    return flagsState.sessionRecord.state;
+}
+
+void toggleFlagAllPixels(int toggles, int r, int g, int b) {
+
+  bool on = toggles % 2 == 0;
   flags.setBrightness(15);
   flags.clear();
   if (on) {
-    flags.fill(flags.Color(0, 255, 0), 0, FLAGS_NUMPIXELS);
+    flags.fill(flags.Color(r, g, b), 0, FLAGS_NUMPIXELS);
   }
   flags.show();
+}
+void updateFlagsGreen() {
+  if (isFlagsSessionRecord() || flagsState.state != FLAGS_STATE_GREEN || flagsState.toggles > (5 * 2)) {
+    return;
+  }
 
-  flagsState.toggles++;
+  flags.setBrightness(8);
+  toggleFlagAllPixels(flagsState.toggles++, 140, 200, 0);
 }
 
 void updateFlagsRed() {
-  if (flagsState.state != FLAGS_STATE_RED) {
+  if (isFlagsSessionRecord() || flagsState.state != FLAGS_STATE_RED) {
     return;
   }
 
@@ -239,7 +276,7 @@ void setFlagsCheckered(int shift, int r, int g, int b) {
 }
 
 void updateFlagsFinished() {
-  if (flagsState.state != FLAGS_STATE_FINISHED) {
+  if (isFlagsSessionRecord() || flagsState.state != FLAGS_STATE_FINISHED) {
     return;
   }
 
@@ -250,7 +287,7 @@ void updateFlagsFinished() {
 }
 
 void updateFlagsChaos() {
-  if (flagsState.state != FLAGS_STATE_CHAOS) {
+  if (isFlagsSessionRecord() || flagsState.state != FLAGS_STATE_CHAOS) {
     return;
   }
 
@@ -260,12 +297,31 @@ void updateFlagsChaos() {
   flagsState.toggles = (flagsState.toggles + 1) % 2;
 }
 
+void updateFlagsSessionRecord() {
+  if (!isFlagsSessionRecord()) {
+    return;
+  }
+
+  if (flagsState.sessionRecord.toggles > 6) {
+    setFlagsSessionRecord(false);
+    updateFlagsChaos();
+    updateFlagsFinished();
+    updateFlagsGreen();
+    updateFlagsChaos();
+    return;
+  }
+
+  toggleFlagAllPixels(flagsState.sessionRecord.toggles++, 160, 0, 255);
+}
+
 // --- inputs ---
 void setupInputPins() {
   pinMode(PIN_FLAG1, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(PIN_FLAG1), readFlagPins, CHANGE);
   pinMode(PIN_FLAG2, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(PIN_FLAG2), readFlagPins, CHANGE);
+  pinMode(PIN_FLAG_SESSION_RECORD, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(PIN_FLAG_SESSION_RECORD), readFlagSessionRecordPin, CHANGE);
 }
 
 // --- interrupts ---
@@ -290,6 +346,16 @@ void execReadFlagPins() {
   }
 }
 
+void execReadFlagSessionRecordPin() {
+  if(digitalRead(PIN_FLAG1) == 0) {
+    setFlagsSessionRecord(true);
+  }
+}
+
 void readFlagPins() {
   execReadFlagPins();
+}
+
+void readFlagSessionRecordPin() {
+  execReadFlagSessionRecordPin();
 }
