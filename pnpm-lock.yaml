@@ -29,6 +29,12 @@ importers:
         specifier: ^5.0.7
         version: 5.0.7
 
+  packages/ingress-board:
+    devDependencies:
+      rimraf:
+        specifier: ^5.0.7
+        version: 5.0.7
+
 packages:
 
   /@babel/code-frame@7.23.5:

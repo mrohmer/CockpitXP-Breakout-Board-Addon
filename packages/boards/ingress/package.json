@@ -1,0 +1,12 @@
+{
+  "name": "@cockpit-xp-breakout/ingress-board",
+  "scripts": {
+    "build": "pio run -e arduino",
+    "upload": "pio run --target upload -e arduino && pio device monitor",
+    "monitor": "pio device monitor"
+  },
+  "private": true,
+  "devDependencies": {
+    "rimraf": "^5.0.7"
+  }
+}

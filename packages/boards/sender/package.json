@@ -1,5 +1,5 @@
 {
-  "name": "@rohmer/cockpit-xp-breakout-board-board",
+  "name": "@cockpit-xp-breakout/sender-board",
   "scripts": {
     "build": "pio run -e arduino",
     "upload": "pio run --target upload -e arduino && pio device monitor",
