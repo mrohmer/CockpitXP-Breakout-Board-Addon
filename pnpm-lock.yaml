@@ -23,13 +23,27 @@ importers:
 
   packages/addon: {}
 
-  packages/board:
+  packages/boards/board:
     devDependencies:
       rimraf:
         specifier: ^5.0.7
         version: 5.0.7
 
-  packages/ingress-board:
+  packages/boards/flag:
+    devDependencies:
+      rimraf:
+        specifier: ^5.0.7
+        version: 5.0.7
+
+  packages/boards/ingress:
+    devDependencies:
+      rimraf:
+        specifier: ^5.0.7
+        version: 5.0.7
+
+  packages/boards/libs: {}
+
+  packages/boards/sender:
     devDependencies:
       rimraf:
         specifier: ^5.0.7
