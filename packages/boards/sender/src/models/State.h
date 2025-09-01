@@ -20,8 +20,8 @@ public:
     bool isChaos();
     bool isFinished();
 
-    void setFlags(int flags);
-    void setSessionRecord(bool sessionRecord);
+    bool setFlags(int flags);
+    bool setSessionRecord(bool sessionRecord);
 };
 
 

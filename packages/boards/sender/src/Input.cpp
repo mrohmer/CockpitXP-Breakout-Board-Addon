@@ -16,6 +16,19 @@ void Input::onReceive(String data) {
     deserializeJson(doc, data);
 	JsonArray array = doc.as<JsonArray>();
 
-    this->state->setFlags(array[0].as<int>());
-    this->state->setSessionRecord(array[1].as<int>() == 1);
+    bool changedFlags = this->state->setFlags(array[0].as<int>());
+    bool changedSessionRecord = this->state->setSessionRecord(array[1].as<int>() == 1);
+
+    if (!changedFlags && !changedSessionRecord) {
+        return;
+    }
+    this->callListeners();
+}
+void Input::onChange(OnChange onChange) {
+    this->listeners.insert(this->listeners.end(), onChange);
+}
+void Input::callListeners() {
+    for (auto & element : this->listeners) {
+        element(this->state);
+    }
 }

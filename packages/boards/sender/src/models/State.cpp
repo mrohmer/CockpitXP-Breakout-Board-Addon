@@ -16,17 +16,19 @@ bool State::isChaos() {
 bool State::isFinished() {
     return this->flags == 3;
 }
-void State::setFlags(int flags) {
+bool State::setFlags(int flags) {
     if (this->flags == flags) {
-        return;
+        return false;
     }
     this->flags = flags;
     this->lastChangeFlags = millis();
+    return true;
 }
-void State::setSessionRecord(bool sessionRecord) {
+bool State::setSessionRecord(bool sessionRecord) {
     if (this->sessionRecord == sessionRecord) {
-        return;
+        return false;
     }
     this->sessionRecord = sessionRecord;
     this->lastChangeSessionRecord = millis();
+    return true;
 }
