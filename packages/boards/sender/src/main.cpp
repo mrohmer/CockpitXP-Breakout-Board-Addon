@@ -5,20 +5,31 @@
 #include <Arduino.h>
 #include "Input.h"
 #include "Led.h"
+#include "Broadcast.h"
+#include "Controller.h"
 
 #define INTERNAL_LED_PIN 22
 #define SDA_PIN 23
 #define SCL_PIN 19
+#define CHANNEL 3
 
-State* state = new State();
-Input input(8, SDA_PIN, SCL_PIN, state);
+Controller controller(new Input(8, SDA_PIN, SCL_PIN), new Broadcast(CHANNEL));
 Led internalLed(INTERNAL_LED_PIN);
 
+void restart() {
+  internalLed.off();
+  delay(1000);
+  ESP.restart();
+}
 void setup() {
   Serial.begin(9600);
 
   internalLed.init();
-  input.init();
+  internalLed.on();
+
+  if (!controller.init()) {
+    return restart();
+  }
 
   internalLed.flash(10);
 }
