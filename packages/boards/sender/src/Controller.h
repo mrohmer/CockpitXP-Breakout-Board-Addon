@@ -6,7 +6,7 @@
 #define CONTROLLER_H
 
 #include "Input.h"
-#include "Broadcast.h"
+#include "communication/Broadcast.h"
 
 class Controller {
 private:

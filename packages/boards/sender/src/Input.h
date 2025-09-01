@@ -5,8 +5,8 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include <State.h>
-#include <I2C.h>
+#include <models/State.h>
+#include <communication/I2C.h>
 #include "ArduinoJson.h"
 
 class Input {

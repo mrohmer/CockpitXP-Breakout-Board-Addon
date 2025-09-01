@@ -5,7 +5,7 @@
 #include <Arduino.h>
 #include "Input.h"
 #include "Led.h"
-#include "Broadcast.h"
+#include "communication/Broadcast.h"
 #include "Controller.h"
 
 #define INTERNAL_LED_PIN 22
