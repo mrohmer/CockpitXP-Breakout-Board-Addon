@@ -3,30 +3,24 @@
 //
 
 #include <Arduino.h>
-#include "I2C.h"
+#include "Input.h"
 #include "Led.h"
 
 #define INTERNAL_LED_PIN 22
 #define SDA_PIN 23
 #define SCL_PIN 19
 
-void onReceive(String data);
-
-I2C i2c(8, SDA_PIN, SCL_PIN, onReceive);
+State* state = new State();
+Input input(8, SDA_PIN, SCL_PIN, state);
 Led internalLed(INTERNAL_LED_PIN);
 
 void setup() {
   Serial.begin(9600);
 
   internalLed.init();
-  i2c.init();
+  input.init();
 
   internalLed.flash(10);
-}
-
-void onReceive(String data) {
-  Serial.print("Received data: ");
-  Serial.println(data);
 }
 
 void loop() {
