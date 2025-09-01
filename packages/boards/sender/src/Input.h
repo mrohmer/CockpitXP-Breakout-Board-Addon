@@ -15,7 +15,7 @@ private:
     State* state;
     void onReceive(String data);
 public:
-    Input(int i2cAdress, int i2cSdaPin, int i2cSclPin, State* state);
+    Input(int i2cAdress, int i2cSdaPin, int i2cSclPin);
     void init();
 };
 
