@@ -37,7 +37,11 @@ struct State {
 };
 
 struct State state;
-I2C i2c;
+#ifdef ESP32
+I2C i2c(PIN_SDA, PIN_SCL);
+#else
+I2C i2c
+#endif
 bool send = false;
 
 // --- Arduino Loop ---
@@ -90,7 +94,7 @@ void sendStateToI2C() {
   Serial.println("Sending state");
   Serial.print("[flags, sessionRecord]: ");
 
-  char json[100];
+  char json[10];
   sprintf(json, "[%d,%d]", state.flags, state.sessionRecord);
   Serial.println(json);
 
