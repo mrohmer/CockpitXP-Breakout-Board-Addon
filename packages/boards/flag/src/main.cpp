@@ -2,18 +2,19 @@
 // Created by kali on 8/31/25.
 //
 
-#include <Arduino.h>
-#include "Led.h"
-#include "communication/Now.h"
-
 #ifdef ESP32
 #define INTERNAL_LED_PIN 22
 #else
 #define INTERNAL_LED_PIN 2
 #endif
 
+#include <Arduino.h>
+#include "Led.h"
+#include "Controller.h"
+#include "Flags.h"
 
 Led internalLed(INTERNAL_LED_PIN);
+Controller controller(new Flags(FLAGS_PIN));
 
 void restart() {
     internalLed.off();
@@ -26,8 +27,7 @@ void setup() {
     internalLed.init();
     internalLed.on();
 
-    bool success = Now::getInstance()
-        ->init();
+    bool success = controller.init();
 
     if (!success) {
         restart();
