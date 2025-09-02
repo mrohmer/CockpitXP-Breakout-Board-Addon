@@ -81,7 +81,7 @@ void Controller::setRed(int count) {
     this->send(LightDto::createRed());
 }
 void Controller::setGreen(int count) {
-    bool on = count <= (5 * 2) && count % 2 == 0;
+    bool on = count <= (5 * 2) && count % 2 == 1;
     this->send(LightDto::createGreen(on));
 }
 void Controller::setChaos(int count) {
