@@ -16,6 +16,7 @@ bool Controller::init() {
     }
     this->input->init();
     Serial.println("Initialized Controller");
+    this->startRed();
     return true;
 }
 void Controller::onChange(State* state) {
@@ -53,7 +54,7 @@ void Controller::startRed() {
         return;
     }
     this->endAllTickers();
-    this->red = new CountingTicker(0.5, std::bind(&Controller::setRed, this, std::placeholders::_1));
+    this->red = new CountingTicker(0.5f, std::bind(&Controller::setRed, this, std::placeholders::_1));
 }
 void Controller::startGreen() {
     if (this->green != nullptr) {

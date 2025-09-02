@@ -20,7 +20,7 @@ private:
     void onReceive(String data);
     void callListeners();
 public:
-    Input(int i2cAdress, int i2cSdaPin, int i2cSclPin);
+    Input(uint8_t i2cAdress, int i2cSdaPin, int i2cSclPin);
     void init();
     void onChange(OnChange onChange);
 };

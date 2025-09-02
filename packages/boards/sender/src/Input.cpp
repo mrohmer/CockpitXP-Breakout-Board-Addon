@@ -4,7 +4,7 @@
 
 #include "Input.h"
 
-Input::Input(int i2cAdress, int i2cSdaPin, int i2cSclPin) {
+Input::Input(uint8_t i2cAdress, int i2cSdaPin, int i2cSclPin) {
     this->i2c = new I2C(i2cAdress, i2cSdaPin, i2cSclPin, std::bind(&Input::onReceive, this, std::placeholders::_1));
     this->state = new State();
 }

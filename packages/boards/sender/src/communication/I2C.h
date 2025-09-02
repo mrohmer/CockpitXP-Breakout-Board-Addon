@@ -14,7 +14,7 @@ typedef std::function<void(String)> Callback;
 class I2C {
 private:
     static I2C* instance;
-    int address;
+    uint8_t address;
     uint8_t sdaPin;
     uint8_t sclPin;
     Callback onReceiveCallback;
@@ -27,7 +27,7 @@ private:
         }
     }
 public:
-    I2C(int address, uint8_t sdaPin, uint8_t sclPin, Callback onReceiveCallback);
+    I2C(uint8_t address, uint8_t sdaPin, uint8_t sclPin, Callback onReceiveCallback);
     void init();
 };
 

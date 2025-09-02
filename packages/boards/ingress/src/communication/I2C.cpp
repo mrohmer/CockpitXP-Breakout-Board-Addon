@@ -27,20 +27,21 @@ void I2C::send(char* data) {
     for(address = 1; address < 127; address++ ) {
         Wire.beginTransmission(address);
 #ifdef ESP32
-        Wire.write((uint8_t*)data.c_str(), data.length());
+        Wire.print(data.c_str());
 #else
         Wire.write(data);
 #endif
         error = Wire.endTransmission();
         if (error == 0) {
             nDevices++;
-        }
-        else if (error==4) {
+        } else if (error != 2) {
             Serial.print("Unknow error at address 0x");
             if (address<16) {
                 Serial.print("0");
             }
-            Serial.println(address,HEX);
+            Serial.print(address,HEX);
+            Serial.print(": ");
+            Serial.println(error);
         }
     }
 

@@ -7,7 +7,7 @@
 CountingTicker::CountingTicker(float rateInHz, OnCount callback) {
     this->callback = callback;
 
-    ticker.attach(1 / (rateInHz * 1000), std::bind(&CountingTicker::tick, this));
+    ticker.attach_ms(1000 / rateInHz, std::bind(&CountingTicker::tick, this));
     this->tick();
 }
 CountingTicker::~CountingTicker() {

@@ -11,9 +11,9 @@
 #define INTERNAL_LED_PIN 22
 #define SDA_PIN 23
 #define SCL_PIN 19
-#define CHANNEL 3
+#define CHANNEL 0
 
-Controller controller(new Input(8, SDA_PIN, SCL_PIN), new Broadcast(CHANNEL));
+Controller controller(new Input((uint8_t)0x55, SDA_PIN, SCL_PIN), new Broadcast(CHANNEL));
 Led internalLed(INTERNAL_LED_PIN);
 
 void restart() {
