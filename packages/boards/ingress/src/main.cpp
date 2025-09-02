@@ -9,7 +9,7 @@
 // --- Declarations ---
 void onFlagsChange(int flags);
 
-void onSessionRecordChange(bool sessionRecord);
+void onSessionRecordChange(int sessionRecord);
 
 void sendStateToI2C();
 
@@ -71,14 +71,17 @@ void sendStateToI2C() {
 
 // --- interrupts ---
 void onFlagsChange(int flags) {
-  if (flags != state.flags) {
+  if (flags == state.flags) {
     return;
   }
   state.flags = flags;
   send = true;
 }
 
-void onSessionRecordChange(bool sessionRecord) {
+void onSessionRecordChange(int sessionRecord) {
+  if (sessionRecord == state.sessionRecord) {
+    return;
+  }
   state.sessionRecord = sessionRecord;
   send = true;
 }

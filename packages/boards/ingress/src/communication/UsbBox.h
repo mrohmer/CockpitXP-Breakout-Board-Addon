@@ -8,15 +8,14 @@
 #include <Arduino.h>
 #include <FunctionalInterrupt.h>
 
-typedef std::function<void(int)> FlagsCallback;
-typedef std::function<void(bool)> SessionRecordCallback;
+typedef std::function<void(int)> OnChangeCallback;
 typedef std::function<void()> InterruptCallback;
 
 class UsbBox {
 private:
     int pinFlags1, pinFlags2, pinSessionRecord;
-    FlagsCallback* flagsCallback;
-    SessionRecordCallback* sessionRecordCallback;
+    OnChangeCallback flagsCallback;
+    OnChangeCallback sessionRecordCallback;
 
     UsbBox* initPin(int pin, InterruptCallback callback);
     void onFlagsInterrup();
@@ -24,8 +23,8 @@ private:
 public:
     UsbBox(int pinFlags1, int pinFlags2, int pinSessionRecord);
     UsbBox* init();
-    UsbBox* onFlagsChange(FlagsCallback callback);
-    UsbBox* onSessionRecordChange(SessionRecordCallback callback);
+    UsbBox* onFlagsChange(OnChangeCallback callback);
+    UsbBox* onSessionRecordChange(OnChangeCallback callback);
 };
 
 

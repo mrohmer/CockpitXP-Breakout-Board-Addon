@@ -20,12 +20,12 @@ UsbBox* UsbBox::initPin(int pin, InterruptCallback callback) {
     attachInterrupt(digitalPinToInterrupt(pin), callback, CHANGE);
     return this;
 }
-UsbBox* UsbBox::onFlagsChange(FlagsCallback callback) {
-    this->flagsCallback = &callback;
+UsbBox* UsbBox::onFlagsChange(OnChangeCallback callback) {
+    this->flagsCallback = callback;
     return this;
 }
-UsbBox* UsbBox::onSessionRecordChange(SessionRecordCallback callback) {
-    this->sessionRecordCallback = &callback;
+UsbBox* UsbBox::onSessionRecordChange(OnChangeCallback callback) {
+    this->sessionRecordCallback = callback;
     return this;
 }
 void UsbBox::onFlagsInterrup() {
@@ -35,13 +35,12 @@ void UsbBox::onFlagsInterrup() {
     uint8_t value1 = 1 - digitalRead(this->pinFlags1);
     uint8_t value2 = 1 - digitalRead(this->pinFlags2);
 
-    auto callback = *this->flagsCallback;
-    callback(value1 + value2 * 2);
+    this->flagsCallback(value1 + value2 * 2);
 }
 void UsbBox::onSessionRecordInterrup() {
     if (this->sessionRecordCallback == nullptr) {
         return;
     }
-    auto callback = *this->sessionRecordCallback;
-    callback((1 - digitalRead(PIN_FLAG_SESSION_RECORD)) == 1);
+
+    this->sessionRecordCallback((1 - digitalRead(PIN_FLAG_SESSION_RECORD)));
 }
