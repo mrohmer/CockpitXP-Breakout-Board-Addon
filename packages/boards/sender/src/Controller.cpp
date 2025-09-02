@@ -4,14 +4,14 @@
 
 #include "Controller.h"
 
-Controller::Controller(Input* input, Broadcast* broadcast) {
+Controller::Controller(Input* input, Now* now) {
     this->input = input;
-    this->broadcast = broadcast;
+    this->now = now;
 
     this->input->onChange(std::bind(&Controller::onChange, this, std::placeholders::_1));
 }
 bool Controller::init() {
-    if (!this->broadcast->init()) {
+    if (!this->now->init()) {
         return false;
     }
     this->input->init();
@@ -93,5 +93,5 @@ void Controller::setFinished(int count) {
     this->send(LightDto::createFinished(initial));
 }
 void Controller::send(LightDto* dto) {
-    this->broadcast->send(dto->serialize());
+    this->now->send(dto->serialize());
 }

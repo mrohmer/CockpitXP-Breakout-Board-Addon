@@ -6,7 +6,7 @@
 #define CONTROLLER_H
 
 #include "Input.h"
-#include "communication/Broadcast.h"
+#include "communication/Now.h"
 #include "models/State.h"
 #include "models/LightDto.h"
 #include "utils/CountingTicker.h"
@@ -14,7 +14,7 @@
 class Controller {
 private:
     Input* input;
-    Broadcast* broadcast;
+    Now* now;
     CountingTicker* finished;
     CountingTicker* chaos;
     CountingTicker* green;
@@ -31,7 +31,7 @@ private:
     void setFinished(int count);
     void send(LightDto* dto);
 public:
-    Controller(Input* input, Broadcast* broadcast);
+    Controller(Input* input, Now* now);
     bool init();
 };
 

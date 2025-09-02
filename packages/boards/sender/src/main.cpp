@@ -5,7 +5,7 @@
 #include <Arduino.h>
 #include "Input.h"
 #include "Led.h"
-#include "communication/Broadcast.h"
+#include "communication/Now.h"
 #include "Controller.h"
 
 #define INTERNAL_LED_PIN 22
@@ -13,7 +13,7 @@
 #define SCL_PIN 19
 #define CHANNEL 0
 
-Controller controller(new Input((uint8_t)0x55, SDA_PIN, SCL_PIN), new Broadcast(CHANNEL));
+Controller controller(new Input((uint8_t)0x55, SDA_PIN, SCL_PIN), new Now(CHANNEL));
 Led internalLed(INTERNAL_LED_PIN);
 
 void restart() {
