@@ -5,14 +5,15 @@ I2C::I2C(int sdaPin, int sclPin) {
     this->sdaPin = sdaPin;
     this->sclPin = sclPin;
 }
-#endif
 void I2C::init() {
-#ifdef ESP32
     Wire.begin(this->sdaPin, this->sclPin);
-#else
-    Wire.begin();
-#endif
 }
+#else
+void I2C::init() {
+    Wire.begin();
+}
+#endif
+
 void I2C::registerSend() {
     this->needsSend = true;
 }
