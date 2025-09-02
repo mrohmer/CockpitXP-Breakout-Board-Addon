@@ -15,6 +15,7 @@ bool Controller::init() {
         return false;
     }
     this->input->init();
+    Serial.println("Initialized Controller");
     return true;
 }
 void Controller::onChange(State* state) {

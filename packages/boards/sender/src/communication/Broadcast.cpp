@@ -30,6 +30,7 @@ bool Broadcast::init() {
 		return false;
 	}
 	this->initialised = true;
+    Serial.println("Initialized Broadcast");
 	return true;
 }
 bool Broadcast::initPeer() {

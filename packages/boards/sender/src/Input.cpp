@@ -10,6 +10,7 @@ Input::Input(int i2cAdress, int i2cSdaPin, int i2cSclPin) {
 }
 void Input::init() {
     this->i2c->init();
+    Serial.println("Initialized Input");
 }
 void Input::onReceive(String data) {
     JsonDocument doc;

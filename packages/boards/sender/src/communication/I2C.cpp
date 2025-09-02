@@ -14,8 +14,9 @@ I2C::I2C(int address, uint8_t sdaPin, uint8_t sclPin, Callback onReceiveCallback
     this->onReceiveCallback = onReceiveCallback;
 }
 void I2C::init() {
-    Wire.begin(this->address, this->sdaPin, this->sclPin);
+    Wire.begin(this->sdaPin, this->sclPin, this->address);
     Wire.onReceive(staticOnReceive);
+    Serial.println("Initialized I2C");
 }
 void I2C::onReceive(int length) {
     Serial.println("I2C::onReceive");
