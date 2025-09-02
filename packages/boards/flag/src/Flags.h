@@ -15,9 +15,9 @@ private:
     Adafruit_NeoPixel* pxl = nullptr;
 public:
     Flags(int pin);
-    void init();
+    Flags* init();
     Flags* setColorString(int index, String color);
-    Flags* setColor(int index, uint32_t color);
+    Flags* setColor(int index, int r, int g, int b);
     Flags* show();
     Flags* clear();
 };
