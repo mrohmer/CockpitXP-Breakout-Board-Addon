@@ -1,8 +1,8 @@
 {
   "name": "@cockpit-xp-breakout/flag-board",
   "scripts": {
-    "build": "pio run -e arduino",
-    "upload": "pio run --target upload -e arduino && pio device monitor",
+    "build": "pio run -e esp8266",
+    "upload": "pio run --target upload -e esp8266 && pio device monitor",
     "monitor": "pio device monitor"
   },
   "private": true,
