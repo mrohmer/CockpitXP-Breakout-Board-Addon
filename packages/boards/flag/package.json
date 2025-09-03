@@ -1,0 +1,12 @@
+{
+  "name": "@cockpit-xp-breakout/flag-board",
+  "scripts": {
+    "build": "pio run -e esp8266",
+    "upload": "pio run --target upload -e esp8266 && pio device monitor",
+    "monitor": "pio device monitor"
+  },
+  "private": true,
+  "devDependencies": {
+    "rimraf": "^5.0.7"
+  }
+}

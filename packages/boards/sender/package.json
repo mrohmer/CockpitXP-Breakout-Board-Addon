@@ -1,0 +1,12 @@
+{
+  "name": "@cockpit-xp-breakout/sender-board",
+  "scripts": {
+    "build": "pio run -e esp",
+    "upload": "pio run --target upload -e esp && pio device monitor",
+    "monitor": "pio device monitor"
+  },
+  "private": true,
+  "devDependencies": {
+    "rimraf": "^5.0.7"
+  }
+}

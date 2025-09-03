@@ -1,9 +1,18 @@
 {
-  "name": "@rohmer/cockpit-xp-breakout-board-root",
+  "name": "@cockpit-xp-breakout/root",
   "scripts": {
     "build": "turbo run build",
-    "upload": "turbo run upload --filter @rohmer/cockpit-xp-breakout-board-board",
-    "monitor": "turbo run monitor --filter @rohmer/cockpit-xp-breakout-board-board",
+    "build:ingress": "turbo run build --filter @cockpit-xp-breakout/ingress-board",
+    "build:sender": "turbo run build --filter @cockpit-xp-breakout/sender-board",
+    "build:flag": "turbo run build --filter @cockpit-xp-breakout/flag-board",
+    "upload": "turbo run upload",
+    "upload:ingress": "turbo run upload --filter @cockpit-xp-breakout/ingress-board",
+    "upload:sender": "turbo run upload --filter @cockpit-xp-breakout/sender-board",
+    "upload:flag": "turbo run upload --filter @cockpit-xp-breakout/flag-board",
+    "monitor": "turbo run monitor",
+    "monitor:ingress": "turbo run monitor --filter @cockpit-xp-breakout/ingress-board",
+    "monitor:sender": "turbo run monitor --filter @cockpit-xp-breakout/sender-board",
+    "monitor:flag": "turbo run monitor --filter @cockpit-xp-breakout/flag-board",
     "values": "node scripts/calc-possible-values",
     "prepare": "husky install",
     "dev": "turbo run dev"
