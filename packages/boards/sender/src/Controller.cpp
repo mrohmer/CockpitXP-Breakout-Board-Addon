@@ -75,7 +75,7 @@ void Controller::startFinished() {
         return;
     }
     this->endAllTickers();
-    this->chaos = new CountingTicker(2, std::bind(&Controller::setFinished, this, std::placeholders::_1));
+    this->finished = new CountingTicker(2, std::bind(&Controller::setFinished, this, std::placeholders::_1));
 }
 void Controller::setRed(int count) {
     this->send(LightDto::createRed());
