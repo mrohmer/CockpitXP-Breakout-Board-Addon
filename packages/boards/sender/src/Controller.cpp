@@ -94,7 +94,23 @@ void Controller::setFinished(int count) {
 }
 void Controller::send(LightDto* dto) {
     this->now->send(dto->serialize());
+    this->updateFlags(dto);
 }
 void Controller::loop() {
     this->input->loop();
+}
+Controller* Controller::addFlag(Flags* flag) {
+    this->flags.insert(this->flags.end(), flag);
+    return this;
+}
+void Controller::updateFlags(LightDto* dto) {
+    for (auto & element : this->flags) {
+        element
+            ->clear()
+            ->setColorString(0, dto->lights[0])
+            ->setColorString(1, dto->lights[1])
+            ->setColorString(2, dto->lights[2])
+            ->setColorString(3, dto->lights[3])
+            ->show();
+    }
 }

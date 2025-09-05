@@ -7,6 +7,7 @@
 #include "Led.h"
 #include "communication/Now.h"
 #include "Controller.h"
+#include "Flags.h"
 
 #define CHANNEL 0
 
@@ -32,6 +33,9 @@ void setup() {
   internalLed.init();
   internalLed.on();
 
+#ifdef INTERNAL_RGB_LED_PIN
+  controller.addFlag(new Flags(INTERNAL_RGB_LED_PIN));
+#endif
   if (!controller.init()) {
     return restart();
   }

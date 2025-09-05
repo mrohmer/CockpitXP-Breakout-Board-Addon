@@ -10,6 +10,8 @@
 #include "models/State.h"
 #include "models/LightDto.h"
 #include "utils/CountingTicker.h"
+#include "Flags.h"
+#include <vector>
 
 class Controller {
 private:
@@ -19,6 +21,7 @@ private:
     CountingTicker* chaos;
     CountingTicker* green;
     CountingTicker* red;
+    std::vector<Flags*> flags;
     void onChange(State state);
     void endAllTickers();
     void startGreen();
@@ -30,10 +33,12 @@ private:
     void setChaos(int count);
     void setFinished(int count);
     void send(LightDto* dto);
+    void updateFlags(LightDto* dto);
 public:
     Controller(Input* input, Now* now);
     bool init();
     void loop();
+    Controller* addFlag(Flags* flag);
 };
 
 
