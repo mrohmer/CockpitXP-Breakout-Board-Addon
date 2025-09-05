@@ -33,10 +33,12 @@ void setup() {
   internalLed.init();
   internalLed.on();
 
+  bool success = controller.addFlag(new Flags(FLAGS_PIN))
 #ifdef INTERNAL_RGB_LED_PIN
-  controller.addFlag(new Flags(INTERNAL_RGB_LED_PIN));
+    ->addFlag(new Flags(INTERNAL_RGB_LED_PIN))
 #endif
-  if (!controller.init()) {
+    ->init();
+  if (!success) {
     return restart();
   }
 
