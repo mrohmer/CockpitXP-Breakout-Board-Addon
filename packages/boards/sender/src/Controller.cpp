@@ -19,14 +19,14 @@ bool Controller::init() {
     this->startRed();
     return true;
 }
-void Controller::onChange(State* state) {
-    if (state->isGreen()) {
+void Controller::onChange(State state) {
+    if (state.isGreen) {
         return this->startGreen();
     }
-    if (state->isChaos()) {
+    if (state.isChaos) {
         return this->startChaos();
     }
-    if (state->isFinished()) {
+    if (state.isFinished) {
         return this->startFinished();
     }
     return this->startRed();

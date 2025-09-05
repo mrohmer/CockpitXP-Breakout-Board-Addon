@@ -19,7 +19,7 @@ private:
     CountingTicker* chaos;
     CountingTicker* green;
     CountingTicker* red;
-    void onChange(State* state);
+    void onChange(State state);
     void endAllTickers();
     void startGreen();
     void startRed();

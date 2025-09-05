@@ -11,14 +11,14 @@
 #include <vector>
 
 
-typedef std::function<void(State*)> OnChange;
+typedef std::function<void(State)> OnChange;
 class Input {
 private:
     I2C* i2c;
-    State* state;
+    State lastState;
     std::vector<OnChange> listeners;
     void onReceive(String data);
-    void callListeners();
+    void callListeners(State state);
 public:
     Input(uint8_t i2cAdress, int i2cSdaPin, int i2cSclPin);
     void init();
