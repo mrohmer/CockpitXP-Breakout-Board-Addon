@@ -8,7 +8,6 @@
 #include "communication/Now.h"
 #include "Controller.h"
 
-#define INTERNAL_LED_PIN 22
 #define CHANNEL 0
 
 #ifdef USE_I2C_INPUT
@@ -28,7 +27,7 @@ void restart() {
   ESP.restart();
 }
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   internalLed.init();
   internalLed.on();

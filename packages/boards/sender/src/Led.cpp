@@ -20,8 +20,8 @@ void Led::toggle() {
 void Led::flash(int times) {
     while (times-- > 0) {
         this->toggle();
-        delay(100);
+        delay(50);
         this->toggle();
-        delay(100);
+        delay(50);
     }
 }
