@@ -10,6 +10,7 @@ State createState(int flags, bool sessionRecord) {
         .isGreen = flags == 1,
         .isChaos = flags == 2,
         .isFinished = flags == 3,
+        .flags = flags,
         .isSessionRecord = sessionRecord,
     };
 }

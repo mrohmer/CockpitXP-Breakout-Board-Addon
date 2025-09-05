@@ -2,29 +2,30 @@
 // Created by kali on 9/1/25.
 //
 
-#ifndef INPUT_H
-#define INPUT_H
+#ifndef I2C_INPUT_H
+#define I2C_INPUT_H
 
+#include "Input.h"
 #include <models/State.h>
 #include <communication/I2C.h>
 #include "ArduinoJson.h"
 #include <vector>
 
 
-typedef std::function<void(State)> OnChange;
-class Input {
+class I2CInput : public Input {
 private:
     I2C* i2c;
     State lastState;
-    std::vector<OnChange> listeners;
+    std::vector<OnInputChange> listeners;
     void onReceive(String data);
     void callListeners(State state);
 public:
-    Input(uint8_t i2cAdress, int i2cSdaPin, int i2cSclPin);
+    I2CInput(uint8_t i2cAdress, int i2cSdaPin, int i2cSclPin);
     void init();
-    void onChange(OnChange onChange);
+    void loop() {};
+    void onChange(OnInputChange onChange);
 };
 
 
 
-#endif //INPUT_H
+#endif //I2C_INPUT_H

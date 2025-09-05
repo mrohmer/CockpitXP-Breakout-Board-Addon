@@ -5,7 +5,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "Input.h"
+#include "input/Input.h"
 #include "communication/Now.h"
 #include "models/State.h"
 #include "models/LightDto.h"
@@ -33,6 +33,7 @@ private:
 public:
     Controller(Input* input, Now* now);
     bool init();
+    void loop();
 };
 
 

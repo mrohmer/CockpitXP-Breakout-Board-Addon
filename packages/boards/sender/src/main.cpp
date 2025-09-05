@@ -3,17 +3,23 @@
 //
 
 #include <Arduino.h>
-#include "Input.h"
+#include "input/Input.h"
 #include "Led.h"
 #include "communication/Now.h"
 #include "Controller.h"
 
 #define INTERNAL_LED_PIN 22
-#define SDA_PIN 23
-#define SCL_PIN 19
 #define CHANNEL 0
 
-Controller controller(new Input((uint8_t)0x55, SDA_PIN, SCL_PIN), new Now(CHANNEL));
+#ifdef USE_I2C_INPUT
+#include "input/I2CInput.h"
+Input* input = new I2CInput((uint8_t)0x55, PIN_SDA, PIN_SCL);
+#else
+#include "input/UsbBoxInput.h"
+Input* input = new UsbBoxInput(PIN_FLAG1, PIN_FLAG2, PIN_SESSION_RECORD);
+#endif
+
+Controller controller(input, new Now(CHANNEL));
 Led internalLed(INTERNAL_LED_PIN);
 
 void restart() {
@@ -36,5 +42,6 @@ void setup() {
 
 void loop() {
   internalLed.toggle();
-  delay(500);
+  controller.loop();
+  delay(100);
 }

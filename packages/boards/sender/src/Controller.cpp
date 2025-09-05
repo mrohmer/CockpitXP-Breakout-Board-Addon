@@ -95,3 +95,6 @@ void Controller::setFinished(int count) {
 void Controller::send(LightDto* dto) {
     this->now->send(dto->serialize());
 }
+void Controller::loop() {
+    this->input->loop();
+}
