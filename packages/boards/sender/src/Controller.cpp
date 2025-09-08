@@ -100,6 +100,10 @@ void Controller::send(LightDto* dto) {
 void Controller::loop() {
     this->input->loop();
 }
+Controller* Controller::addFlag(Flags* flag) {
+    this->flags.insert(this->flags.end(), flag);
+    return this;
+}
 void Controller::initFlags() {
     for (auto & element : this->flags) {
         element->init();
