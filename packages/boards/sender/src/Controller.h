@@ -33,6 +33,7 @@ private:
     void setChaos(int count);
     void setFinished(int count);
     void send(LightDto* dto);
+    void initFlags();
     void updateFlags(LightDto* dto);
 public:
     Controller(Input* input, Now* now);

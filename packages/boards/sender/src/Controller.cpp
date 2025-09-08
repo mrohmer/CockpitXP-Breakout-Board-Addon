@@ -15,6 +15,7 @@ bool Controller::init() {
         return false;
     }
     this->input->init();
+    this->initFlags();
     Serial.println("Initialized Controller");
     this->startRed();
     return true;
@@ -98,10 +99,11 @@ void Controller::send(LightDto* dto) {
 }
 void Controller::loop() {
     this->input->loop();
-}
-Controller* Controller::addFlag(Flags* flag) {
-    this->flags.insert(this->flags.end(), flag);
-    return this;
+}n
+void Controller::initFlags() {
+    for (auto & element : this->flags) {
+        element->init();
+    }
 }
 void Controller::updateFlags(LightDto* dto) {
     for (auto & element : this->flags) {

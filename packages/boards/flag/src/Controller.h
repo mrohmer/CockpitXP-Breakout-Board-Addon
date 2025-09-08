@@ -10,17 +10,20 @@
 #include <utils/CountingTicker.h>
 #include "ArduinoJson.h"
 #include <cmath>
+#include <vector>
 
 class Controller {
 private:
-    Flags* flags;
+    std::vector<Flags*> flags;
     Now* now;
     CountingTicker* initTicker;
     void onReceiveData(String data);
     void initAnimationTick(int count);
+    void initFlags();
 public:
-    Controller(Flags* flags);
+    Controller();
     bool init();
+    Controller* addFlag(Flags* flag);
 };
 
 
