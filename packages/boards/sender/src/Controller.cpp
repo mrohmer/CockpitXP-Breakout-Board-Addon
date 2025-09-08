@@ -99,7 +99,7 @@ void Controller::send(LightDto* dto) {
 }
 void Controller::loop() {
     this->input->loop();
-}n
+}
 void Controller::initFlags() {
     for (auto & element : this->flags) {
         element->init();
