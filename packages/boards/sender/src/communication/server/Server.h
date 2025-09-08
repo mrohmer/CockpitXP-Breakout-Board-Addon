@@ -14,6 +14,7 @@
 #define WEBSERVER_H
 #include <ESPAsyncWebServer.h>
 #include "OTA.h"
+#include <WebSerial.h>
 
 class HttpServer {
 private:

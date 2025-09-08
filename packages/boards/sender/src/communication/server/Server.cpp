@@ -9,11 +9,12 @@ void HttpServer::init() {
         String html = F(
             "<html><head><title>");
         html += WiFi.getHostname();
-        html += F("</title></head><body><a href=\"/update\">OTA Update</a></html>");
+        html += F("</title></head><body><a href=\"/update\">OTA Update</a> | <a href=\"/webserial\">Serial</a></html>");
 
         request->send(200, "text/html", html);
     });
 
+    WebSerial.begin(this->server);
     this->server->begin();
 }
 void HttpServer::loop() {
