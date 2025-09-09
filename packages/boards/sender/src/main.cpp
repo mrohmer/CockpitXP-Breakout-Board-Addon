@@ -40,6 +40,9 @@ void setup() {
 
   WiFi.setHostname(HOSTNAME);
   WiFi.begin(SECRET_WIFI_SSID, SECRET_WIFI_PASSKEY);
+  WiFi.setAutoReconnect(true);
+  WiFi.persistent(true);
+
   server.init();
 
   bool success = controller.addFlag(new Flags(FLAGS_PIN))
