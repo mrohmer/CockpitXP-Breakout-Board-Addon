@@ -5,7 +5,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include <Flags.h>
+#include <hardware/Flags.h>
 #include <communication/Now.h>
 #include <utils/CountingTicker.h>
 #include "ArduinoJson.h"
