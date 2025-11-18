@@ -44,6 +44,6 @@ void setup() {
 }
 
 void loop() {
-    internalLed.toggle();
+    // internalLed.toggle();
     delay(500);
 }
