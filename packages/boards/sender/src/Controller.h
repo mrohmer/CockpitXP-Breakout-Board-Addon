@@ -21,6 +21,8 @@ private:
     CountingTicker* chaos;
     CountingTicker* green;
     CountingTicker* red;
+    CountingTicker* progress;
+	bool updating = false;
     std::vector<Flags*> flags;
     void onChange(State state);
     void endAllTickers();
@@ -40,6 +42,8 @@ public:
     bool init();
     void loop();
     Controller* addFlag(Flags* flag);
+	void setUpdateProgress(float progress);
+	void setUpdateDone();
 };
 
 

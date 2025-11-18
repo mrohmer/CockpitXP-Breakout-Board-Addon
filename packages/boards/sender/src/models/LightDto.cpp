@@ -29,6 +29,26 @@ LightDto* LightDto::createChaos(bool initial) {
 LightDto* LightDto::createFinished(bool initial) {
     return createCheckered(initial, "fff", "000");
 }
+LightDto* LightDto::createProgress(float progress) {
+    int v = (progress / 4) * 256;
+    int diff = v % 4;
+    int base = v - diff;
+    String color = "ff9600";
+    String v1 = color + toHexStr(base);
+    String v2 = color + toHexStr(base + (diff > 0 ? 1 : 0));
+    String v3 = color + toHexStr(base + (diff > 1 ? 1 : 0));
+    String v4 = color + toHexStr(base + (diff > 2 ? 1 : 0));
+    return new LightDto(v1, v2, v1, v2);
+}
+String LightDto::toHexStr(int value) {
+    String hexStr = String(value, HEX);
+
+    if (hexStr.length() < 2) {
+        hexStr = "0" + hexStr;
+    }
+
+    return hexStr;
+}
 String LightDto::serialize() {
     JsonDocument doc;
 

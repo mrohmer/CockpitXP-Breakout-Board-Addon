@@ -20,10 +20,10 @@ void Controller::initAnimationTick(int count) {
     for (auto & element : this->flags) {
         element
             ->clear()
-            ->setColor(0, v, v, v)
-            ->setColor(1, v, v, v)
-            ->setColor(2, v, v, v)
-            ->setColor(3, v, v, v)
+            ->setColor(0, v, v, v, 1)
+            ->setColor(1, v, v, v, 1)
+            ->setColor(2, v, v, v, 1)
+            ->setColor(3, v, v, v, 1)
             ->show();
     }
 }

@@ -17,7 +17,7 @@ public:
     Flags(int pin);
     Flags* init();
     Flags* setColorString(int index, String color);
-    Flags* setColor(int index, int r, int g, int b);
+    Flags* setColor(int index, int r, int g, int b, int a);
     Flags* show();
     Flags* clear();
 };

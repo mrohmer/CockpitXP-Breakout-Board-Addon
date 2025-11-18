@@ -21,6 +21,9 @@ bool Controller::init() {
     return true;
 }
 void Controller::onChange(State state) {
+	if (this->updating) {
+		return;
+	}
     if (state.isGreen) {
         return this->startGreen();
     }
@@ -119,4 +122,16 @@ void Controller::updateFlags(LightDto* dto) {
             ->setColorString(3, dto->lights[3])
             ->show();
     }
+}
+void Controller::setUpdateProgress(float progress) {
+	this->updating = true;
+	this->endAllTickers();
+
+    this->send(LightDto::createProgress(progress));
+}
+void Controller::setUpdateDone() {
+	this->updating = true;
+	this->endAllTickers();
+
+    this->send(LightDto::createProgress(100));
 }

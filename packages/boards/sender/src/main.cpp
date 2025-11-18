@@ -43,7 +43,10 @@ void setup() {
   WiFi.setAutoReconnect(true);
   WiFi.persistent(true);
 
-  server.init();
+  server
+    .onUpdateProgress(std::bind(&Controller::setUpdateProgress, &controller, std::placeholders::_1))
+    ->onUpdateDone(std::bind(&Controller::setUpdateDone, &controller))
+    ->init();
 
   bool success = controller.addFlag(new Flags(FLAGS_PIN))
 #ifdef INTERNAL_RGB_LED_PIN

@@ -15,13 +15,13 @@ Flags* Flags::init() {
 Flags* Flags::setColorString(int index, String str) {
     optional<Color> color = parseColor(std::string(str.c_str()));
 
-    return this->setColor(index, color->r, color->g, color->b);
+    return this->setColor(index, color->r, color->g, color->b, color->a);
 }
-Flags* Flags::setColor(int index, int r, int g, int b) {
+Flags* Flags::setColor(int index, int r, int g, int b, int a) {
     if (index < 0 || index >= NUM_LEDS / 2) {
         return this;
     }
-    uint32_t color = pxl->Color(r, g, b);
+    uint32_t color = pxl->Color(r, g, b, a);
     pxl->setPixelColor(index, color);
     int otherSideIndex = NUM_LEDS - index - 1;
     pxl->setPixelColor(otherSideIndex, color);
