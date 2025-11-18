@@ -3,12 +3,15 @@
 //
 
 #include <Arduino.h>
+#include <Wire.h>
 #include "Led.h"
 #include "Controller.h"
 #include "Flags.h"
+#include "Battery.h"
 
 Led internalLed(INTERNAL_LED_PIN);
 Controller controller;
+Battery battery;
 
 void restart() {
     internalLed.off();
@@ -17,6 +20,8 @@ void restart() {
 }
 void setup() {
     Serial.begin(9600);
+
+    Wire.begin(PIN_SDA, PIN_SCL, 0);
 
     internalLed.init();
     internalLed.on();
@@ -31,10 +36,14 @@ void setup() {
         restart();
     }
 
+    battery.init();
+
     internalLed.flash(10);
 }
 
 void loop() {
     internalLed.toggle();
+    // todo: work with battery percentage
+    battery.getPercentage();
     delay(500);
 }
