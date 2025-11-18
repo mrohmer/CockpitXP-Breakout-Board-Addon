@@ -6,6 +6,7 @@
 #define CONTROLLER_H
 
 #include <hardware/Flags.h>
+#include <hardware/Battery.h>
 #include <communication/Now.h>
 #include <utils/CountingTicker.h>
 #include "ArduinoJson.h"
@@ -16,14 +17,18 @@ class Controller {
 private:
     std::vector<Flags*> flags;
     Now* now;
+    Battery* battery;
+    bool forceShowBattery = true;
     CountingTicker* initTicker;
+    void showBatteryTimerUpdate(int count);
     void onReceiveData(String data);
-    void initAnimationTick(int count);
     void initFlags();
+    double getBatteryPercentage();
 public:
     Controller();
     bool init();
     Controller* addFlag(Flags* flag);
+    Controller* setBattery(Battery* battery);
 };
 
 

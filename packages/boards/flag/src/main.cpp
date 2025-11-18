@@ -43,7 +43,5 @@ void setup() {
 
 void loop() {
     internalLed.toggle();
-    // todo: work with battery percentage
-    battery.getPercentage();
     delay(500);
 }

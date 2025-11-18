@@ -11,23 +11,35 @@ Controller::Controller() {
 bool Controller::init() {
     this->initFlags();
 
-    this->initTicker = new CountingTicker(25, std::bind(&Controller::initAnimationTick, this, std::placeholders::_1));
+    this->showBatteryTimerUpdate(0);
+    this->initTicker = new CountingTicker(1000, std::bind(&Controller::showBatteryTimerUpdate, this, std::placeholders::_1));
     return this->now->init();
 }
-void Controller::initAnimationTick(int count) {
-    int steps = 70;
-    int v = std::abs((count + steps / 2) % steps - steps / 2) + 5;
+void Controller::showBatteryTimerUpdate(int count) {
+    this->forceShowBattery = count < 5;
+
+    double percentage = this->getBatteryPercentage();
+    double r = 255.0 * (1.0 - percentage);
+    double g = 255.0 * percentage;
+    double b = 0;
     for (auto & element : this->flags) {
         element
             ->clear()
-            ->setColor(0, v, v, v, 1)
-            ->setColor(1, v, v, v, 1)
-            ->setColor(2, v, v, v, 1)
-            ->setColor(3, v, v, v, 1)
+            ->setColor(0, r, g, b, 1)
             ->show();
     }
 }
+double Controller::getBatteryPercentage() {
+    if (this->battery == nullptr) {
+        return 0;
+    }
+
+    return this->battery->getPercentage() / 100;
+}
 void Controller::onReceiveData(String data) {
+    if (this->forceShowBattery) {
+        return;
+    }
     if (this->initTicker != nullptr) {
         this->initTicker->off();
         this->initTicker = nullptr;
@@ -54,4 +66,8 @@ void Controller::initFlags() {
     for (auto & element : this->flags) {
         element->init();
     }
+}
+Controller* Controller::setBattery(Battery* battery) {
+    this->battery = battery;
+    return this;
 }
