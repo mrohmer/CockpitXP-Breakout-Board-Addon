@@ -19,13 +19,13 @@ void Controller::showBatteryTimerUpdate(int count) {
     this->forceShowBattery = count < 5;
 
     double percentage = this->getBatteryPercentage();
-    double r = 255.0 * (1.0 - percentage);
-    double g = 255.0 * percentage;
+    double r = 255.0 * (1.0 - percentage) / 16;
+    double g = 255.0 * percentage / 16;
     double b = 0;
     for (auto & element : this->flags) {
         element
             ->clear()
-            ->setColor(0, r, g, b, 1)
+            ->setColor(1, r, g, b, 1)
             ->show();
     }
 }
