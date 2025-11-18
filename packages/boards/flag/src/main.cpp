@@ -26,7 +26,11 @@ void setup() {
     internalLed.init();
     internalLed.on();
 
-    bool success = controller.addFlag(new Flags(FLAGS_PIN))
+    battery.init();
+
+    bool success = controller
+        .setBattery(&battery)
+        ->addFlag(new Flags(FLAGS_PIN))
 #ifdef INTERNAL_RGB_LED_PIN
         ->addFlag(new Flags(INTERNAL_RGB_LED_PIN))
 #endif
@@ -35,8 +39,6 @@ void setup() {
     if (!success) {
         restart();
     }
-
-    battery.init();
 
     internalLed.flash(10);
 }
