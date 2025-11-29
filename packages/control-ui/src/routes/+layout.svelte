@@ -1,13 +1,11 @@
 <script lang="ts">
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
     import {browser} from "$app/environment";
 	
 	let { children } = $props();
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
     <title>CMA Center Control</title>
 </svelte:head>
 
