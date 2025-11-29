@@ -14,6 +14,7 @@ public:
     virtual void init() = 0;
     virtual void loop() = 0;
     virtual void onChange(OnInputChange onChange) = 0;
+    virtual State getState() = 0;
 };
 
 

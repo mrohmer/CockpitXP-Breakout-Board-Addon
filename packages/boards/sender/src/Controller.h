@@ -7,6 +7,7 @@
 
 #include "input/Input.h"
 #include "communication/Now.h"
+#include "communication/ble/Ble.h"
 #include "models/State.h"
 #include "models/LightDto.h"
 #include "utils/CountingTicker.h"
@@ -17,14 +18,17 @@ class Controller {
 private:
     Input* input;
     Now* now;
+    Ble* ble;
     CountingTicker* finished;
     CountingTicker* chaos;
     CountingTicker* green;
     CountingTicker* red;
     CountingTicker* progress;
 	bool updating = false;
+	bool isBleControl = false;
     std::vector<Flags*> flags;
     void onChange(State state);
+    void execUpdate(State state);
     void endAllTickers();
     void startGreen();
     void startRed();
@@ -37,8 +41,9 @@ private:
     void send(LightDto* dto);
     void initFlags();
     void updateFlags(LightDto* dto);
+    void updateBleControl(bool enabled, State state);
 public:
-    Controller(Input* input, Now* now);
+    Controller(Input* input, Now* now, Ble* ble);
     bool init();
     void loop();
     Controller* addFlag(Flags* flag);

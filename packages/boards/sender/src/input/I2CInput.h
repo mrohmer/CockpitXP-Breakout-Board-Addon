@@ -24,6 +24,7 @@ public:
     void init();
     void loop() {};
     void onChange(OnInputChange onChange);
+    State getState();
 };
 
 

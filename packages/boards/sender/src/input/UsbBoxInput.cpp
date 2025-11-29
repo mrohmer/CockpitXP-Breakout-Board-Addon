@@ -47,3 +47,6 @@ void UsbBoxInput::callListeners(State state) {
 void UsbBoxInput::loop() {
     this->callListeners(this->currentState);
 }
+State UsbBoxInput::getState() {
+    return this->lastState;
+}

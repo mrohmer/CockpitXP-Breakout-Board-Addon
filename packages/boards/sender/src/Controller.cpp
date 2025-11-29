@@ -4,9 +4,10 @@
 
 #include "Controller.h"
 
-Controller::Controller(Input* input, Now* now) {
+Controller::Controller(Input* input, Now* now, Ble* ble) {
     this->input = input;
     this->now = now;
+    this->ble = ble;
 
     this->input->onChange(std::bind(&Controller::onChange, this, std::placeholders::_1));
 }
@@ -18,12 +19,21 @@ bool Controller::init() {
     this->initFlags();
     Serial.println("Initialized Controller");
     this->startRed();
+
+    this->ble->getControlFlags()->onChange(std::bind(&Controller::updateBleControl, this, std::placeholders::_1, std::placeholders::_2));
     return true;
 }
 void Controller::onChange(State state) {
-	if (this->updating) {
+	if (this->isBleControl) {
 		return;
 	}
+
+    this->execUpdate(state);
+}
+void Controller::execUpdate(State state) {
+    if (this->updating) {
+        return;
+    }
     if (state.isGreen) {
         return this->startGreen();
     }
@@ -134,4 +144,13 @@ void Controller::setUpdateDone() {
 	this->endAllTickers();
 
     this->send(LightDto::createProgress(100));
+}
+void Controller::updateBleControl(bool enabled, State state) {
+    this->isBleControl = enabled;
+
+    if (this->isBleControl) {
+        this->execUpdate(state);
+    } else {
+        this->execUpdate(this->input->getState());
+    }
 }

@@ -32,3 +32,6 @@ void I2CInput::callListeners(State state) {
         element(state);
     }
 }
+State I2CInput::getState() {
+    return this->lastState;
+}
