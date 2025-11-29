@@ -25,7 +25,7 @@ void Ble::onConnect(BLEServer *server) {
     connected = true;
 
     // notify characteristcs
-    // characteristic->notify();
+    this->controlFlags->notify();
 }
 void Ble::onDisconnect(BLEServer *server) {
     connected = false;

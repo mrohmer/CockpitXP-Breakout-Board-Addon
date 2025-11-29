@@ -16,7 +16,8 @@ typedef std::function<void(bool enabled, State)> OnBleControlInputChange;
 
 class BleControlFlags : public BLECharacteristicCallbacks {
 private:
-    BLECharacteristic *characteristic;
+    BLECharacteristic *characteristicEnabled;
+    BLECharacteristic *characteristicValue;
     std::vector<OnBleControlInputChange> listeners;
     bool enabled = false;
     State state = createState(0, false);
@@ -27,6 +28,7 @@ public:
     BleControlFlags(BLEService* service);
     void onWrite(BLECharacteristic* characteristic);
     void onChange(OnBleControlInputChange onChange);
+    void notify();
 };
 
 

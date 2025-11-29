@@ -5,20 +5,20 @@
 #include "BleControlFlags.h"
 
 BleControlFlags::BleControlFlags(BLEService* service) {
-    this->characteristic = service->createCharacteristic(
+    this->characteristicEnabled = service->createCharacteristic(
         BLE_FLAGS_CONTROL_ENABLE_CHARACTERISTICS_UUID,
         BLECharacteristic::PROPERTY_WRITE_NR |
         BLECharacteristic::PROPERTY_INDICATE
     );
-    this->characteristic->addDescriptor(new BLE2902());
-    this->characteristic->setCallbacks(this);
-    this->characteristic = service->createCharacteristic(
+    this->characteristicEnabled->addDescriptor(new BLE2902());
+    this->characteristicEnabled->setCallbacks(this);
+    this->characteristicValue = service->createCharacteristic(
         BLE_FLAGS_CONTROL_VALUE_CHARACTERISTICS_UUID,
         BLECharacteristic::PROPERTY_WRITE_NR |
         BLECharacteristic::PROPERTY_INDICATE
     );
-    this->characteristic->addDescriptor(new BLE2902());
-    this->characteristic->setCallbacks(this);
+    this->characteristicValue->addDescriptor(new BLE2902());
+    this->characteristicValue->setCallbacks(this);
 }
 void BleControlFlags::onWrite(BLECharacteristic* characteristic) {
     if (characteristic->getUUID().toString() == BLE_FLAGS_CONTROL_ENABLE_CHARACTERISTICS_UUID) {
@@ -44,6 +44,8 @@ void BleControlFlags::onControlValueChange(BLECharacteristic* characteristic) {
     } else if (payload == F("FINISH")) {
         this->callListeners(this->enabled, createState(3, false));
     }
+
+    characteristic->notify();
 }
 void BleControlFlags::onChange(OnBleControlInputChange onChange) {
     this->listeners.insert(this->listeners.end(), onChange);
@@ -54,4 +56,8 @@ void BleControlFlags::callListeners(bool enabled, State state) {
     for (auto & element : this->listeners) {
         element(enabled, state);
     }
+}
+void BleControlFlags::notify() {
+    this->characteristicEnabled->notify();
+    this->characteristicValue->notify();
 }

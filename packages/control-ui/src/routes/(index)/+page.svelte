@@ -133,7 +133,7 @@
     </div>
 </div>
 
-{#if connecting || disconnecting || device}
+{#if device && characteristics?.controlEnabled && characteristics?.controlValue}
     <Characteristic characteristic={characteristics?.controlEnabled}>
         {#snippet content(enabled)}
             <label class="label">
@@ -152,7 +152,7 @@
             </Characteristic>
         {/snippet}
     </Characteristic>
-{:else}
+{:else if !device && !connecting && !disconnecting}
     <div class="flex-1 max-h-96 flex flex-col justify-center items-center">
         <button class="flex flex-col justify-center items-center gap-10 cursor-pointer py-4 w-full" onclick={connect()}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="size-32">
