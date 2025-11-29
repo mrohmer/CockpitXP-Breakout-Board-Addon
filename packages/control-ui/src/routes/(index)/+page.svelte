@@ -142,7 +142,7 @@
             </label>
             <Characteristic characteristic={characteristics?.controlValue}>
                 {#snippet content(value)}
-                    <div class="join transition-opacity" class:opacity-50={!enabled && enabled !== "true"} class:pointer-events-none={!enabled && enabled !== "true"}>
+                    <div class="join">
                         <input class="join-item btn" type="radio" name="control_value_options" checked={value === "RED" || !value} value="RED" aria-label="RED" onchange={e => e.target.checked && changeValue(e.target.value)} />
                         <input class="join-item btn" type="radio" name="control_value_options" checked={value === "GREEN"} value="GREEN" aria-label="GREEN" onchange={e => e.target.checked && changeValue(e.target.value)} />
                         <input class="join-item btn" type="radio" name="control_value_options" checked={value === "CHAOS"} value="CHAOS" aria-label="CHAOS" onchange={e => e.target.checked && changeValue(e.target.value)} />
