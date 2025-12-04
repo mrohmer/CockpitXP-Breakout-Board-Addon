@@ -21,7 +21,7 @@ void Controller::tickBattery(int count) {
     double percentage = this->getBatteryPercentage();
     this->showBatteryTimerUpdate(percentage);
     if (percentage > 0) {
-        this->now->setPingDataDouble("batteryPercentage", percentage);
+        this->now->setPingDataDouble("battery", percentage * 100);
     }
 }
 void Controller::showBatteryTimerUpdate(double percentage) {
