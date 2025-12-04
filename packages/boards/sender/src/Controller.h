@@ -26,7 +26,9 @@ private:
     CountingTicker* progress;
 	bool updating = false;
 	bool isBleControl = false;
+	bool isBleConnected = false;
     std::vector<Flags*> flags;
+    std::vector<Flags*> statusFlags;
     void onChange(State state);
     void execUpdate(State state);
     void endAllTickers();
@@ -41,12 +43,16 @@ private:
     void send(LightDto* dto);
     void initFlags();
     void updateFlags(LightDto* dto);
+    void updateStateFlags(LightDto* dto);
     void updateBleControl(bool enabled, State state);
+    void setBleConnected(bool connected);
+	bool mirrorFlagToStatusFlag();
 public:
     Controller(Input* input, Now* now, Ble* ble);
     bool init();
     void loop();
     Controller* addFlag(Flags* flag);
+    Controller* addStatusFlag(Flags* flag);
 	void setUpdateProgress(float progress);
 	void setUpdateDone();
 };

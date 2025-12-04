@@ -22,6 +22,7 @@ public:
     static LightDto* createChaos(bool initial);
     static LightDto* createFinished(bool initial);
     static LightDto* createProgress(float progress);
+    static LightDto* createBleConnection();
     LightDto* setSessionRecord(bool on);
     String serialize();
 };

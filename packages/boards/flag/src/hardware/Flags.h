@@ -13,6 +13,7 @@
 class Flags {
 private:
     Adafruit_NeoPixel* pxl = nullptr;
+    int adjustToAlpha(int v, int a);
 public:
     Flags(int pin);
     Flags* init();

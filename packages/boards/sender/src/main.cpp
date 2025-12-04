@@ -42,7 +42,7 @@ void setup() {
 
   bool success = controller.addFlag(new Flags(FLAGS_PIN))
 #ifdef INTERNAL_RGB_LED_PIN
-    ->addFlag(new Flags(INTERNAL_RGB_LED_PIN))
+    ->addStatusFlag(new Flags(INTERNAL_RGB_LED_PIN))
 #endif
     ->init();
   if (!success) {

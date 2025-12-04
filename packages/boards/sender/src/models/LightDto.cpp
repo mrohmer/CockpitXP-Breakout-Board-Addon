@@ -40,6 +40,10 @@ LightDto* LightDto::createProgress(float progress) {
     String v4 = color + toHexStr(base + (diff > 2 ? 1 : 0));
     return new LightDto(v1, v2, v1, v2);
 }
+LightDto* LightDto::createBleConnection() {
+    String v = "0082fc22";
+    return new LightDto(v, v, v, v);
+}
 String LightDto::toHexStr(int value) {
     String hexStr = String(value, HEX);
 

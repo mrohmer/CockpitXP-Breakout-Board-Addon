@@ -13,11 +13,12 @@
 class Flags {
 private:
     Adafruit_NeoPixel* pxl = nullptr;
+    int adjustToAlpha(int v, int a);
 public:
     Flags(int pin);
     Flags* init();
     Flags* setColorString(int index, String color);
-    Flags* setColor(int index, int r, int g, int b);
+    Flags* setColor(int index, int r, int g, int b, int a);
     Flags* show();
     Flags* clear();
 };

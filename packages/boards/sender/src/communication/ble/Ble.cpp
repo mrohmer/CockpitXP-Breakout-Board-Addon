@@ -23,16 +23,26 @@ void Ble::init() {
 }
 void Ble::onConnect(BLEServer *server) {
     connected = true;
+    this->callOnConnectionChangeListeners(true);
 
     // notify characteristcs
     this->controlFlags->notify();
 }
 void Ble::onDisconnect(BLEServer *server) {
     connected = false;
+    this->callOnConnectionChangeListeners(false);
 
     delay(500);
     BLEDevice::startAdvertising();
 }
 BleControlFlags* Ble::getControlFlags() {
     return this->controlFlags;
+}
+void Ble::onConnectionChange(BleOnConnectionChangeCallback callback) {
+    this->onConnectionChangeListeners.insert(this->onConnectionChangeListeners.end(), callback);
+}
+void Ble::callOnConnectionChangeListeners(bool state) {
+    for (auto & element : this->onConnectionChangeListeners) {
+        element(state);
+    }
 }

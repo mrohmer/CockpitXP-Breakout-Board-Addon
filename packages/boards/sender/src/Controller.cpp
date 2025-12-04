@@ -20,6 +20,7 @@ bool Controller::init() {
     Serial.println("Initialized Controller");
     this->startRed();
 
+    this->ble->onConnectionChange(std::bind(&Controller::setBleConnected, this, std::placeholders::_1));
     this->ble->getControlFlags()->onChange(std::bind(&Controller::updateBleControl, this, std::placeholders::_1, std::placeholders::_2));
     return true;
 }
@@ -117,13 +118,34 @@ Controller* Controller::addFlag(Flags* flag) {
     this->flags.insert(this->flags.end(), flag);
     return this;
 }
+Controller* Controller::addStatusFlag(Flags* flag) {
+    this->statusFlags.insert(this->statusFlags.end(), flag);
+    return this;
+}
 void Controller::initFlags() {
     for (auto & element : this->flags) {
+        element->init();
+    }
+    for (auto & element : this->statusFlags) {
         element->init();
     }
 }
 void Controller::updateFlags(LightDto* dto) {
     for (auto & element : this->flags) {
+        element
+            ->clear()
+            ->setColorString(0, dto->lights[0])
+            ->setColorString(1, dto->lights[1])
+            ->setColorString(2, dto->lights[2])
+            ->setColorString(3, dto->lights[3])
+            ->show();
+    }
+    if (this->mirrorFlagToStatusFlag()) {
+        this->updateStateFlags(dto);
+    }
+}
+void Controller::updateStateFlags(LightDto* dto) {
+    for (auto & element : this->statusFlags) {
         element
             ->clear()
             ->setColorString(0, dto->lights[0])
@@ -153,4 +175,16 @@ void Controller::updateBleControl(bool enabled, State state) {
     } else {
         this->execUpdate(this->input->getState());
     }
+}
+void Controller::setBleConnected(bool connected) {
+    this->isBleConnected = connected;
+
+    Serial.printf("Ble connected: %d\n", this->isBleConnected);
+
+    if (!this->mirrorFlagToStatusFlag()) {
+        this->updateStateFlags(LightDto::createBleConnection());
+    }
+}
+bool Controller::mirrorFlagToStatusFlag() {
+    return !this->isBleConnected;
 }
