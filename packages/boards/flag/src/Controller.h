@@ -19,8 +19,10 @@ private:
     Now* now;
     Battery* battery;
     bool forceShowBattery = true;
-    CountingTicker* initTicker;
-    void showBatteryTimerUpdate(int count);
+    bool dataReceived = false;
+    CountingTicker* batteryTicker;
+    void tickBattery(int count);
+    void showBatteryTimerUpdate(double percentage);
     void onReceiveData(String data);
     void initFlags();
     double getBatteryPercentage();

@@ -4,9 +4,9 @@
 
 #include "Controller.h"
 
-Controller::Controller(Input* input, Now* now, Ble* ble) {
+Controller::Controller(Input* input, Ble* ble) {
     this->input = input;
-    this->now = now;
+    this->now = Now::getInstance();
     this->ble = ble;
 
     this->input->onChange(std::bind(&Controller::onChange, this, std::placeholders::_1));

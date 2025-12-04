@@ -11,14 +11,23 @@ Controller::Controller() {
 bool Controller::init() {
     this->initFlags();
 
-    this->showBatteryTimerUpdate(0);
-    this->initTicker = new CountingTicker(1000, std::bind(&Controller::showBatteryTimerUpdate, this, std::placeholders::_1));
+    this->tickBattery(0);
+    this->batteryTicker = new CountingTicker(1000, std::bind(&Controller::tickBattery, this, std::placeholders::_1));
     return this->now->init();
 }
-void Controller::showBatteryTimerUpdate(int count) {
+void Controller::tickBattery(int count) {
     this->forceShowBattery = count < 5;
 
     double percentage = this->getBatteryPercentage();
+    this->showBatteryTimerUpdate(percentage);
+    if (percentage > 0) {
+        this->now->setPingDataDouble("batteryPercentage", percentage);
+    }
+}
+void Controller::showBatteryTimerUpdate(double percentage) {
+    if (this->dataReceived) {
+        return;
+    }
     double r = 255.0 * (1.0 - percentage) / 16;
     double g = 255.0 * percentage / 16;
     double b = 0;
@@ -40,22 +49,31 @@ void Controller::onReceiveData(String data) {
     if (this->forceShowBattery) {
         return;
     }
-    if (this->initTicker != nullptr) {
-        this->initTicker->off();
-        this->initTicker = nullptr;
-    }
+
     JsonDocument doc;
     deserializeJson(doc, data);
-    JsonArray array = doc.as<JsonArray>();
 
-    for (auto & element : this->flags) {
-        element
-            ->clear()
-            ->setColorString(0, array[0])
-            ->setColorString(1, array[1])
-            ->setColorString(2, array[2])
-            ->setColorString(3, array[3])
-            ->show();
+    JsonObject object = doc.as<JsonObject>();
+
+    if (object.isNull() || !object.containsKey("type")) {
+        // not an object with a key
+        return;
+    }
+
+    if (object["type"]== "color") {
+        this->dataReceived = true;
+
+        JsonArray array = object["data"].as<JsonArray>();
+
+        for (auto & element : this->flags) {
+            element
+                ->clear()
+                ->setColorString(0, array[0])
+                ->setColorString(1, array[1])
+                ->setColorString(2, array[2])
+                ->setColorString(3, array[3])
+                ->show();
+        }
     }
 }
 Controller* Controller::addFlag(Flags* flag) {

@@ -4,9 +4,7 @@
 
 #include "Now.h"
 
-Now::Now(int channel) {
-    this->channel = channel;
-}
+Now* Now::instance = nullptr;
 
 bool Now::init() {
 	WiFi.mode(WIFI_STA);
@@ -29,6 +27,9 @@ bool Now::init() {
 	if(!result) {
 		return false;
 	}
+
+	esp_now_register_recv_cb(staticOnReceiveData);
+
 	this->initialised = true;
     Serial.println("Initialized Broadcast");
 	return true;
@@ -39,7 +40,7 @@ bool Now::initPeer() {
     for (int ii = 0; ii < 6; ++ii) {
         peer.peer_addr[ii] = (uint8_t)0xff;
     }
-    peer.channel = this->channel;
+    peer.channel = 0;
     peer.encrypt = 0;
 
     Serial.print("Peer Status: ");
@@ -120,4 +121,19 @@ void Now::send(String payload) {
 	else {
 		Serial.println("Not sure what happened");
 	}
+}
+Now* Now::onReceive(OnReceiveCallback callback) {
+	this->onReceiveCallback = callback;
+	return this;
+}
+void Now::onReceiveData(EspNowRecvInfo *macAddr, Data *data, Length len) {
+	char* buff = (char*) data;
+	String buffStr = String(buff);
+	Serial.printf(
+		"reveived from %02x:%02x:%02x:%02x:%02x:%02x: %s\n",
+		macAddr->src_addr[0], macAddr->src_addr[1], macAddr->src_addr[2],
+		macAddr->src_addr[3], macAddr->src_addr[4], macAddr->src_addr[5],
+		buffStr.c_str()
+	);
+	// this->onReceiveCallback(buffStr);
 }

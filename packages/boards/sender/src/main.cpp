@@ -10,7 +10,6 @@
 #include "Controller.h"
 #include "Flags.h"
 
-#define CHANNEL 0
 #define HOSTNAME F("center.cma")
 
 #include "communication/ble/Ble.h"
@@ -24,7 +23,7 @@ Input* input = new I2CInput((uint8_t)0x55, PIN_SDA, PIN_SCL);
 Input* input = new UsbBoxInput(PIN_FLAG1, PIN_FLAG2, PIN_SESSION_RECORD);
 #endif
 
-Controller controller(input, new Now(CHANNEL), ble);
+Controller controller(input, ble);
 Led internalLed(INTERNAL_LED_PIN);
 
 void restart() {

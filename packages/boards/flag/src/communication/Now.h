@@ -22,6 +22,9 @@ typedef uint8_t Data;
 typedef unsigned char Length;
 #endif
 
+#include <Ticker.h>
+#include "ArduinoJson.h"
+
 typedef std::function<void(String)> OnReceiveCallback;
 
 class Now {
@@ -29,6 +32,11 @@ private:
     static Now* instance;
 	bool initialised = false;
     OnReceiveCallback onReceiveCallback;
+    esp_now_peer_info_t peer;
+    uint8_t *senderMacAddr = nullptr;
+    bool canSend = false;
+    Ticker ticker;
+    JsonDocument pingData;
 
     static void staticOnReceiveData(EspNowRecvInfo *macAddr, Data *data, Length len) {
         Serial.println("Now::staticOnReceiveData");
@@ -37,7 +45,10 @@ private:
         }
     }
     void onReceiveData(EspNowRecvInfo *macAddr, Data *data, Length len);
-
+    bool initPeer();
+    bool pairPeer();
+    void sendPing();
+    void send(String payload);
 public:
     static Now* getInstance() {
         if (!instance) {
@@ -47,6 +58,11 @@ public:
     }
     bool init();
     Now* onReceive(OnReceiveCallback callback);
+    void setPingDataBool(String key, bool value);
+    void setPingDataInt(String key, int value);
+    void setPingDataFloat(String key, float value);
+    void setPingDataDouble(String key, double value);
+    void setPingDataString(String key, String value);
 };
 
 #endif //NOW_H
