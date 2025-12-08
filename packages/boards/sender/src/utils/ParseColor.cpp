@@ -23,7 +23,7 @@ optional<Color> parseColor(const std::string& str) {
         }
     } else if (str.length() == 4) {
         int64_t iv = parseInt(str, 16);
-        if (!(iv >= 0 && iv <= 0xfff)) {
+        if (!(iv >= 0 && iv <= 0xffff)) {
             return {};
         } else {
             return {{
@@ -47,7 +47,7 @@ optional<Color> parseColor(const std::string& str) {
         }
     }else if (str.length() == 8) {
         int64_t iv = parseInt(str, 16);
-        if (!(iv >= 0 && iv <= 0xffffff)) {
+        if (!(iv >= 0 && iv <= 0xffffffff)) {
             return {};  // Covers NaN.
         } else {
             return {{

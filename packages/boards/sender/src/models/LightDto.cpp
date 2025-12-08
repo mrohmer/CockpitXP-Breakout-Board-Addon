@@ -11,11 +11,11 @@ LightDto::LightDto(String l1, String l2, String l3, String l4){
     this->lights[3] = l4;
 }
 LightDto* LightDto::createGreen(bool on) {
-    String v = on ? "8cc800" : "000";
+    String v = on ? "8cc80022" : "000";
    return new LightDto(v, v, v, v);
 }
 LightDto* LightDto::createRed() {
-    String v = "ff0000";
+    String v = "ff000022";
     return new LightDto(v, v, v, v);
 }
 LightDto* LightDto::createCheckered(bool initial, String vOn, String vOff) {
@@ -24,18 +24,18 @@ LightDto* LightDto::createCheckered(bool initial, String vOn, String vOff) {
     return new LightDto(v1, v2, v1, v2);
 }
 LightDto* LightDto::createChaos(bool initial) {
-    String on = "ff9600";
+    String on = "ff960022";
     String off = "000";
     return new LightDto(on, initial ? on : off, on, initial ? off : on);
 }
 LightDto* LightDto::createFinished(bool initial) {
-    return createCheckered(initial, "fff", "000");
+    return createCheckered(initial, "fff2", "000");
 }
 LightDto* LightDto::createProgress(float progress) {
     int v = (progress / 4) * 256;
     int diff = v % 4;
     int base = v - diff;
-    String color = "ff9600";
+    String color = "ff960022";
     String v1 = color + toHexStr(base);
     String v2 = color + toHexStr(base + (diff > 0 ? 1 : 0));
     String v3 = color + toHexStr(base + (diff > 1 ? 1 : 0));
