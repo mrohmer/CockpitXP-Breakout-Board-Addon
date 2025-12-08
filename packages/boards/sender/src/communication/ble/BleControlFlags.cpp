@@ -7,14 +7,18 @@
 BleControlFlags::BleControlFlags(BLEService* service) {
     this->characteristicEnabled = service->createCharacteristic(
         BLE_FLAGS_CONTROL_ENABLE_CHARACTERISTICS_UUID,
-        BLECharacteristic::PROPERTY_WRITE_NR |
+        BLECharacteristic::PROPERTY_READ |
+        BLECharacteristic::PROPERTY_WRITE |
+        BLECharacteristic::PROPERTY_NOTIFY |
         BLECharacteristic::PROPERTY_INDICATE
     );
     this->characteristicEnabled->addDescriptor(new BLE2902());
     this->characteristicEnabled->setCallbacks(this);
     this->characteristicValue = service->createCharacteristic(
-        BLE_FLAGS_CONTROL_VALUE_CHARACTERISTICS_UUID,
-        BLECharacteristic::PROPERTY_WRITE_NR |
+    BLE_FLAGS_CONTROL_VALUE_CHARACTERISTICS_UUID,
+        BLECharacteristic::PROPERTY_READ |
+        BLECharacteristic::PROPERTY_WRITE |
+        BLECharacteristic::PROPERTY_NOTIFY |
         BLECharacteristic::PROPERTY_INDICATE
     );
     this->characteristicValue->addDescriptor(new BLE2902());
