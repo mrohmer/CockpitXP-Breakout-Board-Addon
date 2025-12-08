@@ -2,8 +2,8 @@
 // Created by kali on 9/1/25.
 //
 
-#ifndef CONTROLLER_H
-#define CONTROLLER_H
+#ifndef FLAG_CONTROLLER_H
+#define FLAG_CONTROLLER_H
 
 #include "input/Input.h"
 #include "communication/Now.h"
@@ -14,7 +14,7 @@
 #include "Flags.h"
 #include <vector>
 
-class Controller {
+class FlagController {
 private:
     Input* input;
     Now* now;
@@ -48,14 +48,14 @@ private:
     void setBleConnected(bool connected);
 	bool mirrorFlagToStatusFlag();
 public:
-    Controller(Input* input, Ble* ble);
+    FlagController(Input* input, Ble* ble);
     bool init();
     void loop();
-    Controller* addFlag(Flags* flag);
-    Controller* addStatusFlag(Flags* flag);
+    FlagController* addFlag(Flags* flag);
+    FlagController* addStatusFlag(Flags* flag);
 	void setUpdateProgress(float progress);
 	void setUpdateDone();
 };
 
 
-#endif //CONTROLLER_H
+#endif //FLAG_CONTROLLER_H

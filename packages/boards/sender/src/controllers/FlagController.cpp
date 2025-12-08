@@ -2,16 +2,16 @@
 // Created by kali on 9/1/25.
 //
 
-#include "Controller.h"
+#include "FlagController.h"
 
-Controller::Controller(Input* input, Ble* ble) {
+FlagController::FlagController(Input* input, Ble* ble) {
     this->input = input;
     this->now = Now::getInstance();
     this->ble = ble;
 
-    this->input->onChange(std::bind(&Controller::onChange, this, std::placeholders::_1));
+    this->input->onChange(std::bind(&FlagController::onChange, this, std::placeholders::_1));
 }
-bool Controller::init() {
+bool FlagController::init() {
     if (!this->now->init()) {
         return false;
     }
@@ -20,18 +20,18 @@ bool Controller::init() {
     Serial.println("Initialized Controller");
     this->startRed();
 
-    this->ble->onConnectionChange(std::bind(&Controller::setBleConnected, this, std::placeholders::_1));
-    this->ble->getControlFlags()->onChange(std::bind(&Controller::updateBleControl, this, std::placeholders::_1, std::placeholders::_2));
+    this->ble->onConnectionChange(std::bind(&FlagController::setBleConnected, this, std::placeholders::_1));
+    this->ble->getControlFlags()->onChange(std::bind(&FlagController::updateBleControl, this, std::placeholders::_1, std::placeholders::_2));
     return true;
 }
-void Controller::onChange(State state) {
+void FlagController::onChange(State state) {
 	if (this->isBleControl) {
 		return;
 	}
 
     this->execUpdate(state);
 }
-void Controller::execUpdate(State state) {
+void FlagController::execUpdate(State state) {
     if (this->updating) {
         return;
     }
@@ -46,7 +46,7 @@ void Controller::execUpdate(State state) {
     }
     return this->startRed();
 }
-void Controller::endAllTickers() {
+void FlagController::endAllTickers() {
     if (this->red != nullptr) {
         this->red->off();
         this->red = nullptr;
@@ -64,65 +64,65 @@ void Controller::endAllTickers() {
         this->finished = nullptr;
     }
 }
-void Controller::startRed() {
+void FlagController::startRed() {
     if (this->red != nullptr) {
         return;
     }
     this->endAllTickers();
-    this->red = new CountingTicker(0.5f, std::bind(&Controller::setRed, this, std::placeholders::_1));
+    this->red = new CountingTicker(0.5f, std::bind(&FlagController::setRed, this, std::placeholders::_1));
 }
-void Controller::startGreen() {
+void FlagController::startGreen() {
     if (this->green != nullptr) {
         return;
     }
     this->endAllTickers();
-    this->green = new CountingTicker(2, std::bind(&Controller::setGreen, this, std::placeholders::_1));
+    this->green = new CountingTicker(2, std::bind(&FlagController::setGreen, this, std::placeholders::_1));
 }
-void Controller::startChaos() {
+void FlagController::startChaos() {
     if (this->chaos != nullptr) {
         return;
     }
     this->endAllTickers();
-    this->chaos = new CountingTicker(4, std::bind(&Controller::setChaos, this, std::placeholders::_1));
+    this->chaos = new CountingTicker(4, std::bind(&FlagController::setChaos, this, std::placeholders::_1));
 }
-void Controller::startFinished() {
+void FlagController::startFinished() {
     if (this->finished != nullptr) {
         return;
     }
     this->endAllTickers();
-    this->finished = new CountingTicker(2, std::bind(&Controller::setFinished, this, std::placeholders::_1));
+    this->finished = new CountingTicker(2, std::bind(&FlagController::setFinished, this, std::placeholders::_1));
 }
-void Controller::setRed(int count) {
+void FlagController::setRed(int count) {
     this->send(LightDto::createRed());
 }
-void Controller::setGreen(int count) {
+void FlagController::setGreen(int count) {
     bool on = count <= (5 * 2) && count % 2 == 1;
     this->send(LightDto::createGreen(on));
 }
-void Controller::setChaos(int count) {
+void FlagController::setChaos(int count) {
     bool initial = count % 2 == 0;
     this->send(LightDto::createChaos(initial));
 }
-void Controller::setFinished(int count) {
+void FlagController::setFinished(int count) {
     bool initial = count % 2 == 0;
     this->send(LightDto::createFinished(initial));
 }
-void Controller::send(LightDto* dto) {
+void FlagController::send(LightDto* dto) {
     this->now->send(dto->serialize());
     this->updateFlags(dto);
 }
-void Controller::loop() {
+void FlagController::loop() {
     this->input->loop();
 }
-Controller* Controller::addFlag(Flags* flag) {
+FlagController* FlagController::addFlag(Flags* flag) {
     this->flags.insert(this->flags.end(), flag);
     return this;
 }
-Controller* Controller::addStatusFlag(Flags* flag) {
+FlagController* FlagController::addStatusFlag(Flags* flag) {
     this->statusFlags.insert(this->statusFlags.end(), flag);
     return this;
 }
-void Controller::initFlags() {
+void FlagController::initFlags() {
     for (auto & element : this->flags) {
         element->init();
     }
@@ -130,7 +130,7 @@ void Controller::initFlags() {
         element->init();
     }
 }
-void Controller::updateFlags(LightDto* dto) {
+void FlagController::updateFlags(LightDto* dto) {
     for (auto & element : this->flags) {
         element
             ->clear()
@@ -144,7 +144,7 @@ void Controller::updateFlags(LightDto* dto) {
         this->updateStateFlags(dto);
     }
 }
-void Controller::updateStateFlags(LightDto* dto) {
+void FlagController::updateStateFlags(LightDto* dto) {
     for (auto & element : this->statusFlags) {
         element
             ->clear()
@@ -155,19 +155,19 @@ void Controller::updateStateFlags(LightDto* dto) {
             ->show();
     }
 }
-void Controller::setUpdateProgress(float progress) {
+void FlagController::setUpdateProgress(float progress) {
 	this->updating = true;
 	this->endAllTickers();
 
     this->send(LightDto::createProgress(progress));
 }
-void Controller::setUpdateDone() {
+void FlagController::setUpdateDone() {
 	this->updating = true;
 	this->endAllTickers();
 
     this->send(LightDto::createProgress(100));
 }
-void Controller::updateBleControl(bool enabled, State state) {
+void FlagController::updateBleControl(bool enabled, State state) {
     this->isBleControl = enabled;
 
     if (this->isBleControl) {
@@ -176,7 +176,7 @@ void Controller::updateBleControl(bool enabled, State state) {
         this->execUpdate(this->input->getState());
     }
 }
-void Controller::setBleConnected(bool connected) {
+void FlagController::setBleConnected(bool connected) {
     this->isBleConnected = connected;
 
     Serial.printf("Ble connected: %d\n", this->isBleConnected);
@@ -185,6 +185,6 @@ void Controller::setBleConnected(bool connected) {
         this->updateStateFlags(LightDto::createBleConnection());
     }
 }
-bool Controller::mirrorFlagToStatusFlag() {
+bool FlagController::mirrorFlagToStatusFlag() {
     return !this->isBleConnected;
 }
