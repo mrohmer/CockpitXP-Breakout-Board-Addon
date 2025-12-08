@@ -152,6 +152,17 @@
             </Characteristic>
         {/snippet}
     </Characteristic>
+    <Characteristic characteristic={characteristics?.flagDevices}>
+        {#snippet content(value)}
+            <div class="card card-border bg-base-100 w-96">
+                <div class="card-body">
+                    <h2 class="card-title">Flaggen</h2>
+                    <p>{value || 'Keine Geräte verbunden'}</p>
+                </div>
+            </div>
+            <div>{value}</div>
+        {/snippet}
+    </Characteristic>
 {:else if !device && !connecting && !disconnecting}
     <div class="flex-1 max-h-96 flex flex-col justify-center items-center">
         <button class="flex flex-col justify-center items-center gap-10 cursor-pointer py-4 w-full" onclick={connect()}>
