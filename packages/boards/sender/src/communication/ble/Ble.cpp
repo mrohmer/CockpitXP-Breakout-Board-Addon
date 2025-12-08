@@ -5,6 +5,7 @@
 #include "Ble.h"
 
 void Ble::init() {
+    BLEDevice::setMTU(512);
     BLEDevice::init(F("CMA Center"));
     this->server = BLEDevice::createServer();
     this->server->setCallbacks(this);
