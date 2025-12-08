@@ -48,8 +48,8 @@ private:
     void setBleConnected(bool connected);
 	bool mirrorFlagToStatusFlag();
 public:
-    FlagController(Input* input, Ble* ble);
-    bool init();
+    FlagController(Input* input, Now* now, Ble* ble);
+    void init();
     void loop();
     FlagController* addFlag(Flags* flag);
     FlagController* addStatusFlag(Flags* flag);

@@ -5,6 +5,8 @@
 #ifndef NOW_H
 #define NOW_H
 
+#include <vector>
+
 #ifdef ESP32
     #include <WiFi.h>
     #include <esp_wifi.h>
@@ -22,14 +24,14 @@
     typedef unsigned char Length;
 #endif
 
-typedef std::function<void(String)> OnReceiveCallback;
+typedef std::function<void(uint8_t*, String)> OnReceiveCallback;
 
 class Now {
 private:
     static Now* instance;
 	bool initialised = false;
     esp_now_peer_info_t peer;
-    OnReceiveCallback onReceiveCallback;
+    std::vector<OnReceiveCallback> onReceiveCallbacks;
     static void staticOnReceiveData(EspNowRecvInfo *macAddr, Data *data, Length len) {
         Serial.println("Now::staticOnReceiveData");
         if (instance) {

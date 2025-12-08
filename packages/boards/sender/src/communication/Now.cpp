@@ -123,7 +123,7 @@ void Now::send(String payload) {
 	}
 }
 Now* Now::onReceive(OnReceiveCallback callback) {
-	this->onReceiveCallback = callback;
+    this->onReceiveCallbacks.insert(this->onReceiveCallbacks.end(), callback);
 	return this;
 }
 void Now::onReceiveData(EspNowRecvInfo *macAddr, Data *data, Length len) {
@@ -135,5 +135,8 @@ void Now::onReceiveData(EspNowRecvInfo *macAddr, Data *data, Length len) {
 		macAddr->src_addr[3], macAddr->src_addr[4], macAddr->src_addr[5],
 		buffStr.c_str()
 	);
-	// this->onReceiveCallback(buffStr);
+
+	for (auto & element : this->onReceiveCallbacks) {
+		element(macAddr->src_addr, buffStr);
+	}
 }

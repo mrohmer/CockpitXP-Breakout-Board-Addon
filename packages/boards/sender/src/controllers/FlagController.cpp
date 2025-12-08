@@ -4,17 +4,14 @@
 
 #include "FlagController.h"
 
-FlagController::FlagController(Input* input, Ble* ble) {
+FlagController::FlagController(Input* input, Now* now, Ble* ble) {
     this->input = input;
-    this->now = Now::getInstance();
+    this->now = now;
     this->ble = ble;
 
     this->input->onChange(std::bind(&FlagController::onChange, this, std::placeholders::_1));
 }
-bool FlagController::init() {
-    if (!this->now->init()) {
-        return false;
-    }
+void FlagController::init() {
     this->input->init();
     this->initFlags();
     Serial.println("Initialized Controller");
@@ -22,7 +19,6 @@ bool FlagController::init() {
 
     this->ble->onConnectionChange(std::bind(&FlagController::setBleConnected, this, std::placeholders::_1));
     this->ble->getControlFlags()->onChange(std::bind(&FlagController::updateBleControl, this, std::placeholders::_1, std::placeholders::_2));
-    return true;
 }
 void FlagController::onChange(State state) {
 	if (this->isBleControl) {

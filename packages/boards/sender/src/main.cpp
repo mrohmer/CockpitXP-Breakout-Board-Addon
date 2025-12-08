@@ -8,6 +8,7 @@
 #include "Led.h"
 #include "communication/Now.h"
 #include "controllers/FlagController.h"
+#include "controllers/DeviceController.h"
 #include "communication/ble/Ble.h"
 #include "Flags.h"
 
@@ -21,8 +22,10 @@ Input* input = new I2CInput((uint8_t)0x55, PIN_SDA, PIN_SCL);
 Input* input = new UsbBoxInput(PIN_FLAG1, PIN_FLAG2, PIN_SESSION_RECORD);
 #endif
 
+Now* now = Now::getInstance();
 Ble* ble = new Ble();
-FlagController flagController(input, ble);
+FlagController flagController(input, now, ble);
+DeviceController deviceController(now, ble);
 Led internalLed(INTERNAL_LED_PIN);
 
 void restart() {
@@ -37,15 +40,18 @@ void setup() {
   internalLed.on();
 
   ble->init();
+  bool success = now->init();
 
-  bool success = flagController.addFlag(new Flags(FLAGS_PIN))
+  if (!success) {
+    return restart();
+  }
+
+  flagController.addFlag(new Flags(FLAGS_PIN))
 #ifdef INTERNAL_RGB_LED_PIN
     ->addStatusFlag(new Flags(INTERNAL_RGB_LED_PIN))
 #endif
     ->init();
-  if (!success) {
-    return restart();
-  }
+  deviceController.init();
 
   internalLed.flash(10);
 }
