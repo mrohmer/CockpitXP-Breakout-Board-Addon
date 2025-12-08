@@ -38,3 +38,7 @@ void BleFlagDevices::callListeners(String macAddress) {
 void BleFlagDevices::notify() {
     this->characteristicDeviceState->notify();
 }
+void BleFlagDevices::setValue(String payload) {
+    this->characteristicDeviceState->setValue(payload);
+    this->characteristicDeviceState->notify();
+}

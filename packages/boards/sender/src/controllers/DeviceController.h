@@ -25,6 +25,8 @@ private:
 
     void onReceiveData(uint8_t* macAddress, String payload);
     void onReceivePing(uint8_t* mac, JsonObject payload);
+    void publishToBle();
+    String serialiseDevice(FlagDevice device);
 public:
     DeviceController(Now* now, Ble* ble);
     void init();

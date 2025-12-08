@@ -24,6 +24,7 @@ public:
     BleFlagDevices(BLEService* service);
     void onWrite(BLECharacteristic* characteristic);
     void onIdentify(OnBleIdentify callback);
+    void setValue(String payload);
     void notify();
 };
 
