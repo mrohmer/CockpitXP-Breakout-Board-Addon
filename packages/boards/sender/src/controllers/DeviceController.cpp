@@ -70,7 +70,10 @@ void DeviceController::publishToBle() {
     this->ble->getFlagDevices()->setValue(payload);
 }
 String DeviceController::serialiseDevice(FlagDevice device) {
-    bool online = (millis() - device.lastPing) <= 20000;
+    long sinceLastPing = millis() - device.lastPing;
     int percentage = std::round(device.batteryPercentage);
-    return device.macAddress + (online ? "1" : "0") + String(percentage);
+    bool online = sinceLastPing <= 29000;
+    bool heartbeatMissed = sinceLastPing <= 60000;
+    int onlineChar = online + heartbeatMissed;
+    return device.macAddress + String(onlineChar) + String(percentage);
 }
