@@ -21,24 +21,13 @@ bool Now::init() {
     return true;
 }
 void Now::onReceiveData(EspNowRecvInfo *macAddr, Data *data, Length len) {
-    bool isFirstTimeContact = !this->canSend || this->senderMacAddr == nullptr || this->senderMacAddr != macAddr->src_addr;
     this->senderMacAddr = macAddr->src_addr;
 
     char* buff = (char*) data;
     String buffStr = String(buff);
     this->onReceiveCallback(buffStr);
-
-    if (isFirstTimeContact) {
-        Serial.println("Is first time contact");
-        this->canSend = this->initPeer();
-    }
 }
 void Now::sendPing() {
-    if (!this->canSend) {
-        Serial.println("Can't send");
-        return;
-    }
-
     JsonDocument doc;
     doc["t"] = "p";
     doc["d"] = this->pingData;
@@ -106,8 +95,13 @@ bool Now::pairPeer() {
     }
 }
 void Now::send(String payload) {
-    if (!this->canSend) {
-        Serial.println("Can't send");
+    if (this->senderMacAddr == nullptr) {
+        Serial.println("No sender MAC address");
+        return;
+    }
+
+    if (!this->initPeer()) {
+        Serial.println("Failed to init peer");
         return;
     }
     const uint8_t *peer_addr = this->senderMacAddr;
