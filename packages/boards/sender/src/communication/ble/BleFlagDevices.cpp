@@ -39,6 +39,9 @@ void BleFlagDevices::notify() {
     this->characteristicDeviceState->notify();
 }
 void BleFlagDevices::setValue(String payload) {
+    if (payload == this->characteristicDeviceState->getValue()) {
+        return;
+    }
     this->characteristicDeviceState->setValue(payload);
     this->characteristicDeviceState->notify();
 }

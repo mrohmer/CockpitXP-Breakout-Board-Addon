@@ -66,7 +66,6 @@ void DeviceController::publishToBle() {
         }
         payload += this->serialiseDevice(pair.second);
     }
-    Serial.printf("ble payload: %s\n", payload.c_str());
     this->ble->getFlagDevices()->setValue(payload);
 }
 String DeviceController::serialiseDevice(FlagDevice device) {
