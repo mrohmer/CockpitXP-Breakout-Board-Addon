@@ -19,7 +19,7 @@ void DeviceController::onReceiveData(uint8_t* macAddress, String payload) {
 
     JsonObject object = doc.as<JsonObject>();
 
-    if (object.isNull() || !object.containsKey("type")) {
+    if (object.isNull() || !object.containsKey("t")) {
         // not an object with a key
         return;
     }
