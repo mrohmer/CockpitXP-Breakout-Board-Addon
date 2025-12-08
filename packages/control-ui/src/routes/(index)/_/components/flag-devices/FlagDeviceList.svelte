@@ -15,7 +15,7 @@
         <FlagDevice {device} />
     {:else}
         <div class="opacity-70 text-xl text-center">
-            Keine Flaggen gefunden
+            Keine Flaggen verbunden
         </div>
     {/each}
 </div>

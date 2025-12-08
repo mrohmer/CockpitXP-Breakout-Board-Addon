@@ -21,6 +21,7 @@ void DeviceController::onReceiveData(uint8_t* macAddress, String payload) {
 
     if (object.isNull() || !object.containsKey("t")) {
         // not an object with a key
+        Serial.println("rejecting message");
         return;
     }
 

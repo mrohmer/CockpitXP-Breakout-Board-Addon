@@ -1,13 +1,29 @@
+<script lang="ts" module>
+    import {persisted} from 'svelte-persisted-store'
+
+    const names = persisted<Record<string, string>>("cma-center:flag-device-names", {});
+</script>
 <script lang="ts">
     import {type FlagDevice, OnlineState} from "../../models/flag-device";
     import FlagDeviceBattery from "./FlagDeviceBattery.svelte";
     import {slide} from 'svelte/transition';
+    import {getRandomFlagDeviceName} from "../../utils/get-random-flag-device-name";
 
     type Props = {
         device: FlagDevice
     }
     let {device}: Props = $props();
-
+    $effect(() => {
+        if (!device) {
+            return;
+        }
+        const storedName = $names?.[device.id];
+        if (storedName) {
+            return;
+        }
+        const generated = getRandomFlagDeviceName();
+        names.update((state) => ({...state, [device.id]: generated}));
+    });
 </script>
 
 <div class="card bg-base-100 border-1 border-base-300 w-full shadow-lg shadow transition-opacity" transition:slide
@@ -17,7 +33,7 @@
     <div class="card-body">
         <div class="flex gap-1">
             <div class="flex-1">
-                <h3 class="card-title">{device.mac}</h3>
+                <h3 class="card-title">{$names[device.id] ?? device.mac}</h3>
                 <p>
                     {#if device.state === OnlineState.ONLINE}
                         <div class="inline-grid *:[grid-area:1/1]">
