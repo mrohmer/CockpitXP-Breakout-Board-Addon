@@ -56,8 +56,8 @@ String LightDto::toHexStr(int value) {
 String LightDto::serialize() {
     JsonDocument doc;
 
-    doc["type"] = "color";
-    JsonArray arr = doc["data"].to<JsonArray>(); // turn data into array
+    doc["t"] = "c";
+    JsonArray arr = doc["d"].to<JsonArray>(); // turn data into array
 
     for (int i = 0; i < 4; i++) {
         arr.add(lights[i]);

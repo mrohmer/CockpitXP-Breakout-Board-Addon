@@ -16,7 +16,7 @@ bool Now::init() {
 
     esp_now_register_recv_cb(staticOnReceiveData);
 
-    ticker.attach_ms(10000, std::bind(&Now::sendPing, this));
+    ticker.attach_ms(1250, std::bind(&Now::sendPing, this));
 
     return true;
 }
@@ -38,8 +38,8 @@ void Now::sendPing() {
     }
 
     JsonDocument doc;
-    doc["type"] = "ping";
-    doc["data"] = this->pingData;
+    doc["t"] = "p";
+    doc["d"] = this->pingData;
 
     String json;
     serializeJson(doc, json);

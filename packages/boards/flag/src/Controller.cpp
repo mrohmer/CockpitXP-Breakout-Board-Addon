@@ -21,7 +21,7 @@ void Controller::tickBattery(int count) {
     double percentage = this->getBatteryPercentage();
     this->showBatteryTimerUpdate(percentage);
     if (percentage > 0) {
-        this->now->setPingDataDouble("battery", percentage * 100);
+        this->now->setPingDataDouble("b", percentage * 100);
     }
 }
 void Controller::showBatteryTimerUpdate(double percentage) {
@@ -55,15 +55,15 @@ void Controller::onReceiveData(String data) {
 
     JsonObject object = doc.as<JsonObject>();
 
-    if (object.isNull() || !object.containsKey("type")) {
+    if (object.isNull() || !object.containsKey("t")) {
         // not an object with a key
         return;
     }
 
-    if (object["type"]== "color") {
+    if (object["t"]== "c") {
         this->dataReceived = true;
 
-        JsonArray array = object["data"].as<JsonArray>();
+        JsonArray array = object["d"].as<JsonArray>();
 
         for (auto & element : this->flags) {
             element
