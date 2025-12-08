@@ -6,6 +6,7 @@
     import Snackbars from "./_/components/Snackbars.svelte";
     import FloatingBottomBar from "$lib/components/FloatingBottomBar.svelte";
     import Characteristic from "$lib/components/Characteristic.svelte";
+    import FlagDeviceList from "./_/components/flag-devices/FlagDeviceList.svelte";
 
     let connecting = $state(false);
     let isReconnect = $state(false);
@@ -125,44 +126,46 @@
     }
 </script>
 
-<div class="stats stats-horizontal shadow w-full">
-    <div class="stat place-items-center">
-        <div class="stat-title text-sm sm:text-lg">Connected</div>
-        <div class="stat-value text-2xl sm:text-4xl">{device && !connecting && !disconnecting ? 'true' : 'false'}</div>
-        <div class="stat-desc">&nbsp;</div>
-    </div>
-</div>
-
 {#if device && characteristics?.controlEnabled && characteristics?.controlValue}
-    <Characteristic characteristic={characteristics?.controlEnabled}>
-        {#snippet content(enabled)}
-            <label class="label">
-                <input type="checkbox" checked={enabled === "true"} class="toggle" onchange={e => changeEnabled(e.target.checked)} />
-                Enabled
-            </label>
-            <Characteristic characteristic={characteristics?.controlValue}>
+    <div class="space-y-10">
+        <div class="space-y-3">
+            <h2 class="text-2xl">
+                Flaggen
+            </h2>
+            <Characteristic characteristic={characteristics?.flagDevices}>
                 {#snippet content(value)}
-                    <div class="join">
-                        <input class="join-item btn" type="radio" name="control_value_options" checked={value === "RED" || !value} value="RED" aria-label="RED" onchange={e => e.target.checked && changeValue(e.target.value)} />
-                        <input class="join-item btn" type="radio" name="control_value_options" checked={value === "GREEN"} value="GREEN" aria-label="GREEN" onchange={e => e.target.checked && changeValue(e.target.value)} />
-                        <input class="join-item btn" type="radio" name="control_value_options" checked={value === "CHAOS"} value="CHAOS" aria-label="CHAOS" onchange={e => e.target.checked && changeValue(e.target.value)} />
-                        <input class="join-item btn" type="radio" name="control_value_options" checked={value === "FINISH"} value="FINISH" aria-label="FINISH" onchange={e => e.target.checked && changeValue(e.target.value)} />
-                    </div>
+                    <FlagDeviceList deviceStr={value}/>
                 {/snippet}
             </Characteristic>
-        {/snippet}
-    </Characteristic>
-    <Characteristic characteristic={characteristics?.flagDevices}>
-        {#snippet content(value)}
-            <div class="card card-border bg-base-100 w-96">
-                <div class="card-body">
-                    <h2 class="card-title">Flaggen</h2>
-                    <p>{value || 'Keine Geräte verbunden'}</p>
-                </div>
-            </div>
-            <div>{value}</div>
-        {/snippet}
-    </Characteristic>
+        </div>
+    </div>
+    <div class="space-y-10">
+        <div class="space-y-3">
+            <h2 class="text-2xl">
+                Manuelle Steuerung
+            </h2>
+            <Characteristic characteristic={characteristics?.controlEnabled}>
+                {#snippet content(enabled)}
+                    <div>
+                        <label class="label">
+                            <input type="checkbox" checked={enabled === "true"} class="toggle" onchange={e => changeEnabled(e.target.checked)} />
+                            Enabled
+                        </label>
+                    </div>
+                    <Characteristic characteristic={characteristics?.controlValue}>
+                        {#snippet content(value)}
+                            <div class="join">
+                                <input class="join-item btn" type="radio" name="control_value_options" checked={value === "RED" || !value} value="RED" aria-label="RED" onchange={e => e.target.checked && changeValue(e.target.value)} />
+                                <input class="join-item btn" type="radio" name="control_value_options" checked={value === "GREEN"} value="GREEN" aria-label="GREEN" onchange={e => e.target.checked && changeValue(e.target.value)} />
+                                <input class="join-item btn" type="radio" name="control_value_options" checked={value === "CHAOS"} value="CHAOS" aria-label="CHAOS" onchange={e => e.target.checked && changeValue(e.target.value)} />
+                                <input class="join-item btn" type="radio" name="control_value_options" checked={value === "FINISH"} value="FINISH" aria-label="FINISH" onchange={e => e.target.checked && changeValue(e.target.value)} />
+                            </div>
+                        {/snippet}
+                    </Characteristic>
+                {/snippet}
+            </Characteristic>
+        </div>
+    </div>
 {:else if !device && !connecting && !disconnecting}
     <div class="flex-1 max-h-96 flex flex-col justify-center items-center">
         <button class="flex flex-col justify-center items-center gap-10 cursor-pointer py-4 w-full" onclick={connect()}>
