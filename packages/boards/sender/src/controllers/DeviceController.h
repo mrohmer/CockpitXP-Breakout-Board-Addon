@@ -9,6 +9,7 @@
 #include "communication/ble/Ble.h"
 #include "communication/Now.h"
 #include "ArduinoJson.h"
+#include "Ticker.h"
 
 struct FlagDevice {
     String macAddress;
@@ -22,10 +23,13 @@ private:
     std::map<String, FlagDevice> flagDevices;
     Ble* ble;
     Now* now;
+    Ticker ticker;
+    long lastPublish = -1000;
 
     void onReceiveData(uint8_t* macAddress, String payload);
     void onReceivePing(uint8_t* mac, JsonObject payload);
     void publishToBle();
+    void tick();
     String serialiseDevice(FlagDevice device);
 public:
     DeviceController(Now* now, Ble* ble);

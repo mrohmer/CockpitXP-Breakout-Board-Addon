@@ -10,6 +10,8 @@ DeviceController::DeviceController(Now* now, Ble* ble) {
 }
 void DeviceController::init() {
     this->now->onReceive(std::bind(&DeviceController::onReceiveData, this, std::placeholders::_1, std::placeholders::_2));
+
+    ticker.attach_ms(1000, std::bind(&DeviceController::tick, this));
 }
 void DeviceController::onReceiveData(uint8_t* macAddress, String payload) {
     JsonDocument doc;
@@ -50,7 +52,13 @@ void DeviceController::onReceivePing(uint8_t* mac, JsonObject payload) {
 
     this->publishToBle();
 }
+void DeviceController::tick() {
+    if ((millis() - this->lastPublish) > 900) {
+        this->publishToBle();
+    }
+}
 void DeviceController::publishToBle() {
+    this->lastPublish = millis();
     String payload = "";
     for (const auto& pair : this->flagDevices) {
         if (payload.length() > 0) {
