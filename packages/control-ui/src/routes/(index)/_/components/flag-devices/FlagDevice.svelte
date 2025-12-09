@@ -8,11 +8,15 @@
     import FlagDeviceBattery from "./FlagDeviceBattery.svelte";
     import {slide} from 'svelte/transition';
     import {getRandomFlagDeviceName} from "../../utils/get-random-flag-device-name";
+    import {bluetooth, type ConnectResult} from "$lib";
 
     type Props = {
-        device: FlagDevice
+        device: FlagDevice,
+        characteristics: ConnectResult['characteristics']
     }
-    let {device}: Props = $props();
+    let {device, characteristics}: Props = $props();
+    let isIdentifying = $state(false);
+
     $effect(() => {
         if (!device) {
             return;
@@ -24,6 +28,15 @@
         const generated = getRandomFlagDeviceName();
         names.update((state) => ({...state, [device.id]: generated}));
     });
+
+    const identify = () => async () => {
+        if (isIdentifying) {
+            return;
+        }
+        isIdentifying = true;
+        await Promise.allSettled([bluetooth.writeCharacteristicWithoutResponse(characteristics.flagDeviceIdentify, device.id), new Promise(resolve => setTimeout(resolve, 10000))]);
+        isIdentifying = false;
+    }
 </script>
 
 <div class="card bg-base-100 border-1 border-base-300 w-full shadow-lg shadow transition-opacity" transition:slide
@@ -35,7 +48,12 @@
             <div class="flex-1">
                 <h3 class="card-title">{$names[device.id] ?? device.mac}</h3>
                 <p>
-                    {#if device.state === OnlineState.ONLINE}
+                    {#if isIdentifying}
+                        <div class="inline-grid *:[grid-area:1/1]">
+                            <div class="status status-info animate-ping"></div>
+                            <div class="status status-info"></div>
+                        </div> Identifiziert
+                    {:else if device.state === OnlineState.ONLINE}
                         <div class="inline-grid *:[grid-area:1/1]">
                             <div class="status status-success animate-ping"></div>
                             <div class="status status-success"></div>
@@ -63,7 +81,7 @@
                         </div>
                         <ul tabindex="0" class="dropdown-content menu bg-base-100 text-base-content rounded-box z-[1] w-52 p-2 shadow">
                             <li>
-                                <button>Identifizieren</button>
+                                <button onclick={identify()}>{isIdentifying ? 'Identifizieren' : 'Identifiziert...'}</button>
                             </li>
                         </ul>
                     </div>
@@ -72,5 +90,3 @@
         </div>
     </div>
 </div>
-{#snippet alertMenu()}
-{/snippet}

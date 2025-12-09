@@ -134,7 +134,7 @@
             </h2>
             <Characteristic characteristic={characteristics?.flagDevices}>
                 {#snippet content(value)}
-                    <FlagDeviceList deviceStr={value}/>
+                    <FlagDeviceList deviceStr={value} {characteristics}/>
                 {/snippet}
             </Characteristic>
         </div>
