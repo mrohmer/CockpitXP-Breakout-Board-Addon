@@ -34,7 +34,7 @@
             return;
         }
         isIdentifying = true;
-        await Promise.allSettled([bluetooth.writeCharacteristicWithoutResponse(characteristics.flagDeviceIdentify, device.id), new Promise(resolve => setTimeout(resolve, 10000))]);
+        await Promise.allSettled([bluetooth.writeCharacteristicWithoutResponse(characteristics.flagDeviceIdentify, device.id), new Promise(resolve => setTimeout(resolve, 3000))]);
         isIdentifying = false;
     }
 </script>
@@ -81,7 +81,7 @@
                         </div>
                         <ul tabindex="0" class="dropdown-content menu bg-base-100 text-base-content rounded-box z-[1] w-52 p-2 shadow">
                             <li>
-                                <button onclick={identify()}>{isIdentifying ? 'Identifizieren' : 'Identifiziert...'}</button>
+                                <button onclick={identify()}>{isIdentifying ? 'Identifiziert...' : 'Identifizieren'}</button>
                             </li>
                         </ul>
                     </div>
