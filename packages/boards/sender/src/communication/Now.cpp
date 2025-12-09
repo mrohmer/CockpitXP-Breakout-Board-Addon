@@ -148,10 +148,22 @@ bool Now::macStringToBytes(const String &macStr, uint8_t mac[6]) {
 }
 bool Now::send(String macAdress, String payload) {
 	esp_now_peer_info_t peer;
+	// clear peer data
+	memset(&peer, 0, sizeof(peer));
 
 	if (!this->macStringToBytes(macAdress, peer.peer_addr)) {
 		return false;
 	}
+	Serial.printf(
+		"Mac address: %02X:%02X:%02X:%02X:%02X:%02X\n",
+		peer.peer_addr[0],
+		peer.peer_addr[1],
+		peer.peer_addr[2],
+		peer.peer_addr[3],
+		peer.peer_addr[4],
+		peer.peer_addr[5]
+	);
+
 	peer.channel = 0;
 	peer.encrypt = 0;
 	if (!this->initPeer(peer)) {

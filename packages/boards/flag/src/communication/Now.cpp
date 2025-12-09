@@ -25,6 +25,7 @@ void Now::onReceiveData(EspNowRecvInfo *macAddr, Data *data, Length len) {
 
     char* buff = (char*) data;
     String buffStr = String(buff);
+    Serial.printf("payload: %s\n", buffStr.c_str());
     this->onReceiveCallback(buffStr);
 }
 void Now::sendPing() {
