@@ -11,6 +11,8 @@ DeviceController::DeviceController(Now* now, Ble* ble) {
 void DeviceController::init() {
     this->now->onReceive(std::bind(&DeviceController::onReceiveData, this, std::placeholders::_1, std::placeholders::_2));
 
+    this->ble->getFlagDevices()->onIdentify(std::bind(&DeviceController::onReceiveIdentify, this, std::placeholders::_1));
+
     ticker.attach_ms(1000, std::bind(&DeviceController::tick, this));
 }
 void DeviceController::onReceiveData(uint8_t* macAddress, String payload) {
@@ -52,6 +54,15 @@ void DeviceController::onReceivePing(uint8_t* mac, JsonObject payload) {
     }
 
     this->publishToBle();
+}
+void DeviceController::onReceiveIdentify(String macAddress) {
+    Serial.printf("Sending identify message to %s\n", macAddress.c_str());
+    bool success = this->now->send(macAddress, "{\"t\": \"i\"}");
+    if (success) {
+        Serial.println("Identify message sent successfully");
+    } else {
+        Serial.println("Identify message could not be sent");
+    }
 }
 void DeviceController::tick() {
     if ((millis() - this->lastPublish) > 900) {

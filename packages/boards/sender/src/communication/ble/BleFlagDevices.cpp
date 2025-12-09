@@ -35,6 +35,9 @@ void BleFlagDevices::callListeners(String macAddress) {
         element(macAddress);
     }
 }
+void BleFlagDevices::onIdentify(OnBleIdentify callback) {
+    this->listeners.insert(this->listeners.end(), callback);
+}
 void BleFlagDevices::notify() {
     this->characteristicDeviceState->notify();
 }
