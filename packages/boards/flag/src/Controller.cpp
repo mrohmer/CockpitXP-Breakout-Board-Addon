@@ -12,7 +12,7 @@ bool Controller::init() {
     this->initFlags();
 
     this->tickBattery(0);
-    this->batteryTicker = new CountingTicker(1000, std::bind(&Controller::tickBattery, this, std::placeholders::_1));
+    this->batteryTicker = new CountingTicker(1, std::bind(&Controller::tickBattery, this, std::placeholders::_1));
     return this->now->init();
 }
 void Controller::tickBattery(int count) {
@@ -20,7 +20,7 @@ void Controller::tickBattery(int count) {
 
     double percentage = this->getBatteryPercentage();
     this->showBatteryTimerUpdate(percentage);
-    if (percentage > 0) {
+    if (percentage >= 0) {
         this->now->setPingDataDouble("b", std::round(percentage * 10000) / 100);
     }
 }
@@ -28,13 +28,14 @@ void Controller::showBatteryTimerUpdate(double percentage) {
     if (this->dataReceived) {
         return;
     }
-    double r = 255.0 * (1.0 - percentage) / 16;
-    double g = 255.0 * percentage / 16;
+    double r = 255.0f * (1.0f - percentage);
+    double g = 255.0f * percentage;
     double b = 0;
+
     for (auto & element : this->flags) {
         element
             ->clear()
-            ->setColor(1, r, g, b, 1)
+            ->setColor(0, r, g, b, 20)
             ->show();
     }
 }
@@ -60,7 +61,7 @@ void Controller::onReceiveData(String data) {
         return;
     }
 
-    if (object["t"]== "c") {
+    if (object["t"] == "c") {
         this->dataReceived = true;
 
         JsonArray array = object["d"].as<JsonArray>();
