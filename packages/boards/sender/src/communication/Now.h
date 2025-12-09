@@ -44,6 +44,7 @@ private:
     bool initPeer(esp_now_peer_info_t peer);
     bool pairPeer(esp_now_peer_info_t peer);
     bool sendWithPeer(esp_now_peer_info_t peer, String payload);
+    bool macStringToBytes(const String &macStr, uint8_t mac[6]);
 public:
     static Now* getInstance() {
         if (!instance) {

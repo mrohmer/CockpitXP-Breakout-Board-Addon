@@ -130,9 +130,34 @@ bool Now::sendWithPeer(esp_now_peer_info_t peer, String payload) {
 bool Now::sendBroadcast(String payload) {
 	return this->sendWithPeer(this->broadcastPeer, payload);
 }
+bool Now::macStringToBytes(const String &macStr, uint8_t mac[6]) {
+	if (macStr.length() == 17 || macStr.length() == 12) {
+		int segmentWidth = macStr.length() == 17 ? 3 : 2;
+		for (int i = 0; i < 6; i++) {
+			char high = macStr[i * segmentWidth];
+			char low  = macStr[i * segmentWidth + 1];
+
+			mac[i] = (uint8_t) strtol((String(high) + String(low)).c_str(), NULL, 16);
+		}
+
+		return true;
+	}
+
+	Serial.printf("Invalid mac address format: %s", macStr.c_str());
+	return false;
+}
 bool Now::send(String macAdress, String payload) {
-	// todo parse macAddress and forward peer
-	return this->sendWithPeer(this->broadcastPeer, payload);
+	esp_now_peer_info_t peer;
+
+	if (!this->macStringToBytes(macAdress, peer.peer_addr)) {
+		return false;
+	}
+	peer.channel = 0;
+	peer.encrypt = 0;
+	if (!this->initPeer(peer)) {
+		return false;
+	}
+	return this->sendWithPeer(peer, payload);
 }
 Now* Now::onReceive(OnReceiveCallback callback) {
     this->onReceiveCallbacks.insert(this->onReceiveCallbacks.end(), callback);
