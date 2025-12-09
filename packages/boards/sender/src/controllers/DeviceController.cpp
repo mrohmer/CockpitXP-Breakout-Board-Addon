@@ -31,12 +31,12 @@ void DeviceController::onReceiveData(uint8_t* macAddress, String payload) {
 }
 void DeviceController::onReceivePing(uint8_t* mac, JsonObject payload) {
     long lastPing = millis();
-    double batterPercentage = payload["b"].as<double>();
+    double batterPercentage = payload.isNull() || payload["b"].isNull() ? 0.0f : payload["b"].as<double>();
     char buff[18]; // "AA:BB:CC:DD:EE:FF" + null terminator
     sprintf(buff, "%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     String macAddress = String(buff);
 
-    if (this->flagDevices.find("f") == this->flagDevices.end()) {
+    if (this->flagDevices.find(macAddress) == this->flagDevices.end()) {
         this->flagDevices[macAddress] = {
             .macAddress = macAddress,
             .lastPing = lastPing,
@@ -72,6 +72,7 @@ void DeviceController::publishToBle() {
 String DeviceController::serialiseDevice(FlagDevice device) {
     long sinceLastPing = millis() - device.lastPing;
     int percentage = std::round(device.batteryPercentage);
+    percentage = std::min(std::max(percentage, 0), 100);
     bool online = sinceLastPing <= 2900;
     bool heartbeatMissed = sinceLastPing <= 10000;
     int onlineChar = online + heartbeatMissed;
