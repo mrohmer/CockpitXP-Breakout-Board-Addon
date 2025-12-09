@@ -30,7 +30,7 @@ class Now {
 private:
     static Now* instance;
 	bool initialised = false;
-    esp_now_peer_info_t peer;
+    esp_now_peer_info_t broadcastPeer;
     std::vector<OnReceiveCallback> onReceiveCallbacks;
     static void staticOnReceiveData(EspNowRecvInfo *macAddr, Data *data, Length len) {
         Serial.println("Now::staticOnReceiveData");
@@ -40,8 +40,10 @@ private:
     }
 
     void onReceiveData(EspNowRecvInfo *macAddr, Data *data, Length len);
-    bool initPeer();
-    bool pairPeer();
+    bool initBroadcastPeer();
+    bool initPeer(esp_now_peer_info_t peer);
+    bool pairPeer(esp_now_peer_info_t peer);
+    bool sendWithPeer(esp_now_peer_info_t peer, String payload);
 public:
     static Now* getInstance() {
         if (!instance) {
@@ -51,7 +53,8 @@ public:
     }
     Now* onReceive(OnReceiveCallback callback);
     bool init();
-    void send(String payload);
+    bool sendBroadcast(String payload);
+    bool send(String macAdress, String payload);
 };
 
 #endif //NOW_H

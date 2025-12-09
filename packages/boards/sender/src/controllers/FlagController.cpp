@@ -104,7 +104,7 @@ void FlagController::setFinished(int count) {
     this->send(LightDto::createFinished(initial));
 }
 void FlagController::send(LightDto* dto) {
-    this->now->send(dto->serialize());
+    this->now->sendBroadcast(dto->serialize());
     this->updateFlags(dto);
 }
 void FlagController::loop() {

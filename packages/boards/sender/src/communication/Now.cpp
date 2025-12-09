@@ -23,7 +23,7 @@ bool Now::init() {
     // esp_now_register_send_cb(OnDataSent);
     // esp_now_register_recv_cb(OnDataRecv);
 
-    bool result = this->initPeer();
+    bool result = this->initBroadcastPeer();
 	if(!result) {
 		return false;
 	}
@@ -34,17 +34,20 @@ bool Now::init() {
     Serial.println("Initialized Broadcast");
 	return true;
 }
-bool Now::initPeer() {
-    // clear peer data
-    memset(&peer, 0, sizeof(peer));
-    for (int ii = 0; ii < 6; ++ii) {
-        peer.peer_addr[ii] = (uint8_t)0xff;
-    }
-    peer.channel = 0;
-    peer.encrypt = 0;
+bool Now::initBroadcastPeer() {
+	// clear peer data
+	memset(&this->broadcastPeer, 0, sizeof(this->broadcastPeer));
+	for (int ii = 0; ii < 6; ++ii) {
+		this->broadcastPeer.peer_addr[ii] = (uint8_t)0xff;
+	}
+	this->broadcastPeer.channel = 0;
+	this->broadcastPeer.encrypt = 0;
 
+	return this->initPeer(this->broadcastPeer);
+}
+bool Now::initPeer(esp_now_peer_info_t peer) {
     Serial.print("Peer Status: ");
-    const uint8_t *peer_addr = this->peer.peer_addr;
+    const uint8_t *peer_addr = peer.peer_addr;
     // check if the peer exists
     bool exists = esp_now_is_peer_exist(peer_addr);
     if (exists) {
@@ -54,10 +57,10 @@ bool Now::initPeer() {
     }
 
     // Peer not paired, attempt pair
-    return this->pairPeer();
+    return this->pairPeer(peer);
 }
-bool Now::pairPeer() {
-    esp_err_t addStatus = esp_now_add_peer(&this->peer);
+bool Now::pairPeer(esp_now_peer_info_t peer) {
+    esp_err_t addStatus = esp_now_add_peer(&peer);
     if (addStatus == ESP_OK) {
         // Pair success
         Serial.println("Pair success");
@@ -90,17 +93,18 @@ bool Now::pairPeer() {
     }
 }
 
-void Now::send(String payload) {
+bool Now::sendWithPeer(esp_now_peer_info_t peer, String payload) {
 	if (!this->initialised) {
-		return;
+		return false;
 	}
-	const uint8_t *peer_addr = this->peer.peer_addr;
+	const uint8_t *peer_addr = peer.peer_addr;
 
 	Serial.print("Sending: "); Serial.println(payload);
 	esp_err_t result = esp_now_send(peer_addr, (uint8_t*)payload.c_str(), payload.length());
 	Serial.print("Send Status: ");
 	if (result == ESP_OK) {
 		Serial.println("Success");
+		return true;
 	}
 	else if (result == ESP_ERR_ESPNOW_NOT_INIT) {
 		// How did we get so far!!
@@ -121,6 +125,14 @@ void Now::send(String payload) {
 	else {
 		Serial.println("Not sure what happened");
 	}
+	return false;
+}
+bool Now::sendBroadcast(String payload) {
+	return this->sendWithPeer(this->broadcastPeer, payload);
+}
+bool Now::send(String macAdress, String payload) {
+	// todo parse macAddress and forward peer
+	return this->sendWithPeer(this->broadcastPeer, payload);
 }
 Now* Now::onReceive(OnReceiveCallback callback) {
     this->onReceiveCallbacks.insert(this->onReceiveCallbacks.end(), callback);
