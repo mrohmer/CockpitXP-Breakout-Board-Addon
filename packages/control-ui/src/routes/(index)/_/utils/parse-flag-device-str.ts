@@ -9,7 +9,7 @@ const idToMac = (id: string): string => [
     [id[10], id[11]],
 ].map((d) => d.join('')).join(':');
 const parseFlagDeviceSubStr = (str: string): FlagDevice|undefined => {
-    const result = /^(?<id>[A-Z0-9]{12})(?<online>[0-2])(?<battery>[1-9]\d?|100)$/.exec(str);
+    const result = /^(?<id>[A-Z0-9]{12})(?<online>[0-2])(?<battery>[1-9]\d?|100|0)$/.exec(str);
 
     if (!result?.groups) {
         return undefined;
