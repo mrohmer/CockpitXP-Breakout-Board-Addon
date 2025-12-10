@@ -20,6 +20,7 @@ private:
     Battery* battery;
     bool forceShowBattery = true;
     bool dataReceived = false;
+    bool lightOff = false;
     CountingTicker* batteryTicker;
     CountingTicker* identifyTicker = nullptr;
     String color1, color2, color3, color4;
@@ -29,6 +30,7 @@ private:
     void onReceiveData(String data);
     void onReceiveColor(String c1, String c2, String c3, String c4);
     void onReceiveIdentify();
+    void onReceiveToggleLight();
     void updateColor();
     void showColorOnFlags(String c1, String c2, String c3, String c4);
     void initFlags();

@@ -12,6 +12,7 @@ BleFlagDevices::BleFlagDevices(BLEService* service) {
         BLECharacteristic::PROPERTY_INDICATE
     );
     this->characteristicDeviceState->addDescriptor(new BLE2902());
+
     this->characteristicIdentify = service->createCharacteristic(
         BLE_FLAG_DEVICES_IDENTIFY_CHARACTERISTICS_UUID,
         BLECharacteristic::PROPERTY_WRITE_NR |
@@ -19,24 +20,48 @@ BleFlagDevices::BleFlagDevices(BLEService* service) {
     );
     this->characteristicIdentify->addDescriptor(new BLE2902());
     this->characteristicIdentify->setCallbacks(this);
+
+    this->characteristicLightToggle = service->createCharacteristic(
+        BLE_FLAG_DEVICES_LIGHT_TOGGLE_CHARACTERISTICS_UUID,
+        BLECharacteristic::PROPERTY_WRITE_NR |
+        BLECharacteristic::PROPERTY_INDICATE
+    );
+    this->characteristicLightToggle->addDescriptor(new BLE2902());
+    this->characteristicLightToggle->setCallbacks(this);
 }
 void BleFlagDevices::onWrite(BLECharacteristic* characteristic) {
     if (characteristic->getUUID().toString() == BLE_FLAG_DEVICES_IDENTIFY_CHARACTERISTICS_UUID) {
         this->onControlIdentify(characteristic);
     }
+    if (characteristic->getUUID().toString() == BLE_FLAG_DEVICES_LIGHT_TOGGLE_CHARACTERISTICS_UUID) {
+        this->onControlLightToggle(characteristic);
+    }
 }
 void BleFlagDevices::onControlIdentify(BLECharacteristic* characteristic) {
     String payload = characteristic->getValue();
 
-    this->callListeners(payload);
+    this->callIdentifyListeners(payload);
 }
-void BleFlagDevices::callListeners(String macAddress) {
-    for (auto & element : this->listeners) {
+void BleFlagDevices::onControlLightToggle(BLECharacteristic* characteristic) {
+    String payload = characteristic->getValue();
+
+    this->callLightToggleListeners(payload);
+}
+void BleFlagDevices::callIdentifyListeners(String macAddress) {
+    for (auto & element : this->identifyListeners) {
+        element(macAddress);
+    }
+}
+void BleFlagDevices::callLightToggleListeners(String macAddress) {
+    for (auto & element : this->lightToggleListeners) {
         element(macAddress);
     }
 }
 void BleFlagDevices::onIdentify(OnBleIdentify callback) {
-    this->listeners.insert(this->listeners.end(), callback);
+    this->identifyListeners.insert(this->identifyListeners.end(), callback);
+}
+void BleFlagDevices::onLightToggle(OnBleLightToggle callback) {
+    this->lightToggleListeners.insert(this->lightToggleListeners.end(), callback);
 }
 void BleFlagDevices::notify() {
     this->characteristicDeviceState->notify();

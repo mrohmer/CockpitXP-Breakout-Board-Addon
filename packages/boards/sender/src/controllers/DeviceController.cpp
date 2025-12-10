@@ -12,6 +12,7 @@ void DeviceController::init() {
     this->now->onReceive(std::bind(&DeviceController::onReceiveData, this, std::placeholders::_1, std::placeholders::_2));
 
     this->ble->getFlagDevices()->onIdentify(std::bind(&DeviceController::onReceiveIdentify, this, std::placeholders::_1));
+    this->ble->getFlagDevices()->onLightToggle(std::bind(&DeviceController::onReceiveLightToggle, this, std::placeholders::_1));
 
     ticker.attach_ms(1000, std::bind(&DeviceController::tick, this));
 }
@@ -57,11 +58,20 @@ void DeviceController::onReceivePing(uint8_t* mac, JsonObject payload) {
 }
 void DeviceController::onReceiveIdentify(String macAddress) {
     Serial.printf("Sending identify message to %s\n", macAddress.c_str());
-    bool success = this->now->send(macAddress, "{\"t\": \"i\"}");
+    bool success = this->now->send(macAddress, "{\"t\":\"i\"}");
     if (success) {
         Serial.println("Identify message sent successfully");
     } else {
         Serial.println("Identify message could not be sent");
+    }
+}
+void DeviceController::onReceiveLightToggle(String macAddress) {
+    Serial.printf("Sending toggle light message to %s\n", macAddress.c_str());
+    bool success = this->now->send(macAddress, "{\"t\":\"t\"}");
+    if (success) {
+        Serial.println("Light toggle message sent successfully");
+    } else {
+        Serial.println("Light toggle message could not be sent");
     }
 }
 void DeviceController::tick() {

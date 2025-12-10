@@ -69,6 +69,9 @@ void Controller::onReceiveData(String data) {
     if (object["t"] == "i") {
         return this->onReceiveIdentify();
     }
+    if (object["t"] == "t") {
+        return this->onReceiveToggleLight();
+    }
 }
 void Controller::onReceiveColor(String c1, String c2, String c3, String c4) {
     this->dataReceived = true;
@@ -91,6 +94,12 @@ void Controller::onReceiveIdentify() {
 
     this->identifyTicker = new CountingTicker(12, std::bind(&Controller::tickIdentify, this, std::placeholders::_1));
 }
+void Controller::onReceiveToggleLight() {
+    Serial.println("Received Toggle Light");
+
+    this->lightOff = !this->lightOff;
+    this->updateColor();
+}
 void Controller::tickIdentify(int count) {
     if (count > 24) {
         this->identifyTicker->off();
@@ -108,6 +117,10 @@ void Controller::tickIdentify(int count) {
     this->showColorOnFlags(color1, color2, color3, color4);
 }
 void Controller::updateColor() {
+    if (this->lightOff) {
+        String off = "000";
+        return this->showColorOnFlags(off, off, off, off);
+    }
     this->showColorOnFlags(this->color1, this->color2, this->color3, this->color4);
 }
 void Controller::showColorOnFlags(String c1, String c2, String c3, String c4) {

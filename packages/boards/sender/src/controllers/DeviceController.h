@@ -29,6 +29,7 @@ private:
     void onReceiveData(uint8_t* macAddress, String payload);
     void onReceivePing(uint8_t* mac, JsonObject payload);
     void onReceiveIdentify(String macAddress);
+    void onReceiveLightToggle(String macAddress);
     void publishToBle();
     void tick();
     String serialiseDevice(FlagDevice device);

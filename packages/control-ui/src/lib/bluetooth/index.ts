@@ -7,7 +7,8 @@ type Characteristics =
     | 'controlEnabled'
     | 'controlValue'
     | 'flagDevices'
-    | 'flagDeviceIdentify';
+    | 'flagDeviceIdentify'
+    | 'flagDeviceToggleLight';
 export type ConnectResult = {
     device: BluetoothDevice;
     server: BluetoothRemoteGATTServer;
@@ -20,6 +21,7 @@ const BLE_FLAGS_CONTROL_ENABLE_CHARACTERISTICS_UUID = "bf191dbf-5147-440e-96d4-0
 const BLE_FLAGS_CONTROL_VALUE_CHARACTERISTICS_UUID = "010081b9-b828-4f92-ac11-a159ce55ead2";
 const BLE_FLAG_DEVICES_STATE_CHARACTERISTICS_UUID = "b32474c1-42d6-495a-a514-47f48ee72965";
 const BLE_FLAG_DEVICES_IDENTIFY_CHARACTERISTICS_UUID = "10a1c632-b0a5-4d38-b53e-b9a652adc84b";
+const BLE_FLAG_DEVICES_LIGHT_TOGGLE_CHARACTERISTICS_UUID = "69029ed0-711a-4a96-bfec-3f414d020d0f";
 
 const isSupported = () => browser && typeof navigator?.bluetooth !== "undefined";
 const hasPermission = async (): Promise<boolean> => {
@@ -34,11 +36,12 @@ const createConnectionResult = async (device: BluetoothDevice) => {
     const server = await device.gatt.connect();
     const service = await server.getPrimaryService(SERVICE_UUID);
 
-    const [controlEnabled, controlValue, flagDevices, flagDeviceIdentify] = await Promise.all([
+    const [controlEnabled, controlValue, flagDevices, flagDeviceIdentify, flagDeviceToggleLight] = await Promise.all([
             service.getCharacteristic(BLE_FLAGS_CONTROL_ENABLE_CHARACTERISTICS_UUID),
             service.getCharacteristic(BLE_FLAGS_CONTROL_VALUE_CHARACTERISTICS_UUID),
             service.getCharacteristic(BLE_FLAG_DEVICES_STATE_CHARACTERISTICS_UUID),
             service.getCharacteristic(BLE_FLAG_DEVICES_IDENTIFY_CHARACTERISTICS_UUID),
+            service.getCharacteristic(BLE_FLAG_DEVICES_LIGHT_TOGGLE_CHARACTERISTICS_UUID),
         ]
             .map(p => p.catch(e => {
                 console.error(e);
@@ -46,7 +49,7 @@ const createConnectionResult = async (device: BluetoothDevice) => {
             }))
     );
 
-    const characteristics: ConnectResult['characteristics'] = {controlEnabled, controlValue, flagDevices, flagDeviceIdentify};
+    const characteristics: ConnectResult['characteristics'] = {controlEnabled, controlValue, flagDevices, flagDeviceIdentify, flagDeviceToggleLight};
     return {device, server, service, characteristics};
 }
 const internalTryReconnect = async (device: BluetoothDevice) => {

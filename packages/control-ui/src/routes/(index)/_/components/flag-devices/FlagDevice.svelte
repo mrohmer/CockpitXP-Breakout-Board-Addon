@@ -16,6 +16,8 @@
     }
     let {device, characteristics}: Props = $props();
     let isIdentifying = $state(false);
+    let isTogglingLights = $state(false);
+    let isTogglingDone = $state(false);
 
     $effect(() => {
         if (!device) {
@@ -29,13 +31,26 @@
         names.update((state) => ({...state, [device.id]: generated}));
     });
 
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     const identify = () => async () => {
         if (isIdentifying) {
             return;
         }
         isIdentifying = true;
-        await Promise.allSettled([bluetooth.writeCharacteristicWithoutResponse(characteristics.flagDeviceIdentify, device.id), new Promise(resolve => setTimeout(resolve, 3000))]);
+        await Promise.allSettled([bluetooth.writeCharacteristicWithoutResponse(characteristics.flagDeviceIdentify, device.id), delay(3000)]);
         isIdentifying = false;
+    }
+    const toggleLight = () => async () => {
+        if (isTogglingLights) {
+            return;
+        }
+        isTogglingLights = true;
+        isTogglingDone = false;
+        await Promise.allSettled([bluetooth.writeCharacteristicWithoutResponse(characteristics.flagDeviceToggleLight, device.id), delay(1000)]);
+        isTogglingLights = false;
+        isTogglingDone = true;
+        await delay(5000);
+        isTogglingDone = false;
     }
 </script>
 
@@ -80,6 +95,9 @@
                             </svg>
                         </div>
                         <ul tabindex="0" class="dropdown-content menu bg-base-100 text-base-content rounded-box z-[1] w-52 p-2 shadow">
+                            <li>
+                                <button onclick={toggleLight()}>{isTogglingLights ? 'Licht wird umgeschalten...' : isTogglingDone ? 'Licht umgeschalten' : 'Licht umschalten'}</button>
+                            </li>
                             <li>
                                 <button onclick={identify()}>{isIdentifying ? 'Identifiziert...' : 'Identifizieren'}</button>
                             </li>
