@@ -8,7 +8,7 @@
 #include <Flags.h>
 #include <hardware/Battery.h>
 #include <communication/FlagNow.h>
-#include <utils/CountingTicker.h>
+#include <CountingTicker.h>
 #include "ArduinoJson.h"
 #include <cmath>
 #include <vector>

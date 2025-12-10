@@ -10,7 +10,7 @@
 #include "communication/ble/Ble.h"
 #include "models/State.h"
 #include "models/LightDto.h"
-#include "utils/CountingTicker.h"
+#include "CountingTicker.h"
 #include "Flags.h"
 #include <vector>
 
