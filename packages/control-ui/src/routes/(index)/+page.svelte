@@ -2,11 +2,12 @@
     import {bluetooth, type ConnectResult} from "$lib";
     import {onMount} from "svelte";
     import ConnectionAlert from "./_/components/ConnectionAlert.svelte";
-    import {type Notification} from "./_/models/notification";
+    import {createProgress, createSuccess, type Notification} from "./_/models/notification";
     import Snackbars from "./_/components/Snackbars.svelte";
     import FloatingBottomBar from "$lib/components/FloatingBottomBar.svelte";
     import Characteristic from "$lib/components/Characteristic.svelte";
     import FlagDeviceList from "./_/components/flag-devices/FlagDeviceList.svelte";
+    import type {FlagDevice} from "./_/models/flag-device";
 
     let connecting = $state(false);
     let isReconnect = $state(false);
@@ -89,9 +90,6 @@
         }
     }
 
-
-    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
     const setNotification = (notification: Notification) => {
         notifications[notification.id] = {...notification};
     }
@@ -129,12 +127,9 @@
 {#if device && characteristics?.controlEnabled && characteristics?.controlValue}
     <div class="space-y-10">
         <div class="space-y-3">
-            <h2 class="text-2xl">
-                Flaggen
-            </h2>
             <Characteristic characteristic={characteristics?.flagDevices}>
                 {#snippet content(value)}
-                    <FlagDeviceList deviceStr={value} {characteristics}/>
+                    <FlagDeviceList deviceStr={value} {characteristics} onPublishNotification={setNotification}/>
                 {/snippet}
             </Characteristic>
         </div>

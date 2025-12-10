@@ -21,11 +21,15 @@
     import {debounce} from "$lib/utils/stores/debounce.js";
     import {dev} from "$app/environment";
 
+    type Props = {
+        characteristic: BluetoothRemoteGATTCharacteristic | undefined;
+        onchange?: (data: string) => void;
+    }
     const {
         characteristic,
         onchange,
         content
-    }: Record<'characteristic', BluetoothRemoteGATTCharacteristic | undefined> & Partial<Record<'onchange', (data: string) => void>> & HasChildren = $props();
+    }: Props & HasChildren = $props();
 
     const isVisible = () =>
         !(document.hidden || document.msHidden || document.webkitHidden || document.mozHidden);

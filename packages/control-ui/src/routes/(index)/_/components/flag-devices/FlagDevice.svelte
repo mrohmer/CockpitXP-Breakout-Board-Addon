@@ -9,12 +9,14 @@
     import {slide} from 'svelte/transition';
     import {getRandomFlagDeviceName} from "../../utils/get-random-flag-device-name";
     import {bluetooth, type ConnectResult} from "$lib";
+    import {createProgress, createSuccess, dismissAfter, type Notification} from "../../models/notification";
 
     type Props = {
         device: FlagDevice,
-        characteristics: ConnectResult['characteristics']
+        characteristics: ConnectResult['characteristics'],
+        onPublishNotification: (notification: Notification) => void,
     }
-    let {device, characteristics}: Props = $props();
+    let {device, characteristics, onPublishNotification}: Props = $props();
     let isIdentifying = $state(false);
     let isTogglingLights = $state(false);
     let isTogglingDone = $state(false);
@@ -37,20 +39,23 @@
             return;
         }
         isIdentifying = true;
+        const id = `identify-${device.id}`;
+        const name = $names[device.id] ?? device.mac;
+        onPublishNotification(dismissAfter(createProgress(id, `${name} identifizieren`), 3000));
         await Promise.allSettled([bluetooth.writeCharacteristicWithoutResponse(characteristics.flagDeviceIdentify, device.id), delay(3000)]);
         isIdentifying = false;
     }
     const toggleLight = () => async () => {
-        if (isTogglingLights) {
+        if (isTogglingLights || !device?.id) {
             return;
         }
         isTogglingLights = true;
-        isTogglingDone = false;
+        const id = `toggle-light-${device.id}`;
+        const name = $names[device.id] ?? device.mac;
+        onPublishNotification(createProgress(id, `Licht von ${name} wird umgeschaltet`));
         await Promise.allSettled([bluetooth.writeCharacteristicWithoutResponse(characteristics.flagDeviceToggleLight, device.id), delay(1000)]);
         isTogglingLights = false;
-        isTogglingDone = true;
-        await delay(5000);
-        isTogglingDone = false;
+        onPublishNotification(dismissAfter(createSuccess(id, `Licht von ${name} umgeschaltet`), 5000));
     }
 </script>
 
@@ -96,10 +101,10 @@
                         </div>
                         <ul tabindex="0" class="dropdown-content menu bg-base-100 text-base-content rounded-box z-[1] w-52 p-2 shadow">
                             <li>
-                                <button onclick={toggleLight()}>{isTogglingLights ? 'Licht wird umgeschalten...' : isTogglingDone ? 'Licht umgeschalten' : 'Licht umschalten'}</button>
+                                <button onclick={toggleLight()}>Licht umschalten</button>
                             </li>
                             <li>
-                                <button onclick={identify()}>{isIdentifying ? 'Identifiziert...' : 'Identifizieren'}</button>
+                                <button onclick={identify()}>Identifizieren</button>
                             </li>
                         </ul>
                     </div>
