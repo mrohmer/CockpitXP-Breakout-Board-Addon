@@ -5,7 +5,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include <hardware/Flags.h>
+#include <Flags.h>
 #include <hardware/Battery.h>
 #include <communication/FlagNow.h>
 #include <utils/CountingTicker.h>

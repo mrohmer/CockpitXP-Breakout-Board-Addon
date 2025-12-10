@@ -4,9 +4,9 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "hardware/Led.h"
+#include "Led.h"
 #include "Controller.h"
-#include "hardware/Flags.h"
+#include "Flags.h"
 #include "hardware/Battery.h"
 
 Led internalLed(INTERNAL_LED_PIN);
