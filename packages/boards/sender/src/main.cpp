@@ -6,7 +6,7 @@
 #include "secrets.hpp"
 #include "input/Input.h"
 #include "Led.h"
-#include "communication/Now.h"
+#include "Now.h"
 #include "controllers/FlagController.h"
 #include "controllers/DeviceController.h"
 #include "communication/ble/Ble.h"
@@ -42,7 +42,7 @@ void setup() {
   ble->init();
   bool success = now->init();
 
-  if (!success) {
+  if (!now->init() || !now->initBroadcastPeer()) {
     return restart();
   }
 

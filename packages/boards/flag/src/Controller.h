@@ -7,7 +7,7 @@
 
 #include <hardware/Flags.h>
 #include <hardware/Battery.h>
-#include <communication/Now.h>
+#include <communication/FlagNow.h>
 #include <utils/CountingTicker.h>
 #include "ArduinoJson.h"
 #include <cmath>
@@ -16,7 +16,7 @@
 class Controller {
 private:
     std::vector<Flags*> flags;
-    Now* now;
+    FlagNow* now;
     Battery* battery;
     bool forceShowBattery = true;
     bool dataReceived = false;

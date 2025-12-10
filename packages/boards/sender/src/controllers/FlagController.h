@@ -6,7 +6,7 @@
 #define FLAG_CONTROLLER_H
 
 #include "input/Input.h"
-#include "communication/Now.h"
+#include "Now.h"
 #include "communication/ble/Ble.h"
 #include "models/State.h"
 #include "models/LightDto.h"

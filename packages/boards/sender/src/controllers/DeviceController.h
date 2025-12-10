@@ -7,7 +7,7 @@
 
 #include <map>
 #include "communication/ble/Ble.h"
-#include "communication/Now.h"
+#include "Now.h"
 #include "ArduinoJson.h"
 #include "Ticker.h"
 

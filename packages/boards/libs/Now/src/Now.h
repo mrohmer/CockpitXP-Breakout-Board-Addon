@@ -30,6 +30,7 @@ class Now {
 private:
     static Now* instance;
 	bool initialised = false;
+	bool broadcastInitialised = false;
     esp_now_peer_info_t broadcastPeer;
     std::vector<OnReceiveCallback> onReceiveCallbacks;
     static void staticOnReceiveData(EspNowRecvInfo *macAddr, Data *data, Length len) {
@@ -40,7 +41,6 @@ private:
     }
 
     void onReceiveData(EspNowRecvInfo *macAddr, Data *data, Length len);
-    bool initBroadcastPeer();
     bool initPeer(esp_now_peer_info_t peer);
     bool pairPeer(esp_now_peer_info_t peer);
     bool sendWithPeer(esp_now_peer_info_t peer, String payload);
@@ -54,6 +54,7 @@ public:
     }
     Now* onReceive(OnReceiveCallback callback);
     bool init();
+    bool initBroadcastPeer();
     bool sendBroadcast(String payload);
     bool send(String macAdress, String payload);
 };

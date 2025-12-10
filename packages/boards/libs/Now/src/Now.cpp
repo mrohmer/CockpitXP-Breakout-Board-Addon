@@ -23,11 +23,6 @@ bool Now::init() {
     // esp_now_register_send_cb(OnDataSent);
     // esp_now_register_recv_cb(OnDataRecv);
 
-    bool result = this->initBroadcastPeer();
-	if(!result) {
-		return false;
-	}
-
 	esp_now_register_recv_cb(staticOnReceiveData);
 
 	this->initialised = true;
@@ -35,6 +30,9 @@ bool Now::init() {
 	return true;
 }
 bool Now::initBroadcastPeer() {
+	if (this->broadcastInitialised) {
+		return true;
+	}
 	// clear peer data
 	memset(&this->broadcastPeer, 0, sizeof(this->broadcastPeer));
 	for (int ii = 0; ii < 6; ++ii) {
@@ -43,7 +41,8 @@ bool Now::initBroadcastPeer() {
 	this->broadcastPeer.channel = 0;
 	this->broadcastPeer.encrypt = 0;
 
-	return this->initPeer(this->broadcastPeer);
+	this->broadcastInitialised = this->initPeer(this->broadcastPeer);
+	return this->broadcastInitialised;
 }
 bool Now::initPeer(esp_now_peer_info_t peer) {
     Serial.print("Peer Status: ");
@@ -128,6 +127,9 @@ bool Now::sendWithPeer(esp_now_peer_info_t peer, String payload) {
 	return false;
 }
 bool Now::sendBroadcast(String payload) {
+	if (!this->initBroadcastPeer()) {
+		return false;
+	}
 	return this->sendWithPeer(this->broadcastPeer, payload);
 }
 bool Now::macStringToBytes(const String &macStr, uint8_t mac[6]) {

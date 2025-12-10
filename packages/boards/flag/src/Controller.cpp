@@ -5,8 +5,8 @@
 #include "Controller.h"
 
 Controller::Controller() {
-    this->now = Now::getInstance()
-        ->onReceive(std::bind(&Controller::onReceiveData, this, std::placeholders::_1));
+    this->now = new FlagNow();
+    this->now->onReceive(std::bind(&Controller::onReceiveData, this, std::placeholders::_1));
 }
 bool Controller::init() {
     this->initFlags();
