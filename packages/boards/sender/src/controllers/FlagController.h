@@ -12,6 +12,7 @@
 #include "models/LightDto.h"
 #include "CountingTicker.h"
 #include "Flags.h"
+#include "utils/Settings.h"
 #include <vector>
 
 class FlagController {

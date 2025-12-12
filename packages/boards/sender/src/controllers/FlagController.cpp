@@ -127,6 +127,7 @@ void FlagController::initFlags() {
     }
 }
 void FlagController::updateFlags(LightDto* dto) {
+    dto->setBrightnessOnAllLights(Settings::getInstance()->getFlagBrightness());
     for (auto & element : this->flags) {
         element
             ->clear()

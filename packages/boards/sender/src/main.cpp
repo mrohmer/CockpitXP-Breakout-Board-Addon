@@ -11,6 +11,7 @@
 #include "controllers/DeviceController.h"
 #include "communication/ble/Ble.h"
 #include "Flags.h"
+#include "utils/Settings.h"
 
 #define HOSTNAME F("center.cma")
 
@@ -38,6 +39,8 @@ void setup() {
 
   internalLed.init();
   internalLed.on();
+
+  Settings::getInstance()->init();
 
   ble->init();
   bool success = now->init();

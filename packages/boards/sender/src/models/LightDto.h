@@ -13,6 +13,7 @@
 class LightDto {
 private:
     LightDto(String l1, String l2, String l3, String l4);
+    String adjustColorToBrightness(String color, int brightness);
     static LightDto* createCheckered(bool initial, String vOn, String vOff);
     static String toHexStr(int value);
 public:
@@ -25,6 +26,7 @@ public:
     static LightDto* createBleConnection();
     LightDto* setSessionRecord(bool on);
     String serialize();
+    LightDto* setBrightnessOnAllLights(int brightness);
 };
 
 
