@@ -19,6 +19,9 @@ void FlagController::init() {
 
     this->ble->onConnectionChange(std::bind(&FlagController::setBleConnected, this, std::placeholders::_1));
     this->ble->getControlFlags()->onChange(std::bind(&FlagController::updateBleControl, this, std::placeholders::_1, std::placeholders::_2));
+    this->ble->getFlagBrightness()
+        ->setValue(Settings::getInstance()->getFlagBrightness())
+        ->onChange(std::bind(&FlagController::updateBrightness, this, std::placeholders::_1));
 }
 void FlagController::onChange(State state) {
 	if (this->isBleControl) {
@@ -184,4 +187,7 @@ void FlagController::setBleConnected(bool connected) {
 }
 bool FlagController::mirrorFlagToStatusFlag() {
     return !this->isBleConnected;
+}
+void FlagController::updateBrightness(int brightness) {
+    Settings::getInstance()->setFlagBrightness(brightness);
 }

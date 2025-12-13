@@ -46,6 +46,7 @@ private:
     void updateFlags(LightDto* dto);
     void updateStateFlags(LightDto* dto);
     void updateBleControl(bool enabled, State state);
+    void updateBrightness(int brightness);
     void setBleConnected(bool connected);
 	bool mirrorFlagToStatusFlag();
 public:

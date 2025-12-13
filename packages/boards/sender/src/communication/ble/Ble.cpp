@@ -14,6 +14,7 @@ void Ble::init() {
 
     this->controlFlags = new BleControlFlags(this->service);
     this->flagDevices = new BleFlagDevices(this->service);
+    this->flagBrightness = new BleFlagBrightness(this->service);
 
     this->service->start();
 
@@ -30,6 +31,7 @@ void Ble::onConnect(BLEServer *server) {
     // notify characteristcs
     this->controlFlags->notify();
     this->flagDevices->notify();
+    this->flagBrightness->notify();
 }
 void Ble::onDisconnect(BLEServer *server) {
     connected = false;
@@ -43,6 +45,9 @@ BleControlFlags* Ble::getControlFlags() {
 }
 BleFlagDevices* Ble::getFlagDevices() {
     return this->flagDevices;
+}
+BleFlagBrightness* Ble::getFlagBrightness() {
+    return this->flagBrightness;
 }
 void Ble::onConnectionChange(BleOnConnectionChangeCallback callback) {
     this->onConnectionChangeListeners.insert(this->onConnectionChangeListeners.end(), callback);
