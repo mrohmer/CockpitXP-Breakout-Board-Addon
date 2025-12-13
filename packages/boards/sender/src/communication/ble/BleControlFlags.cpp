@@ -4,7 +4,9 @@
 
 #include "BleControlFlags.h"
 
-BleControlFlags::BleControlFlags(BLEService* service) {
+BleControlFlags::BleControlFlags(BLEServer* server) {
+    BLEService* service = server->createService(BLEUUID(BLE_FLAGS_SERVICE_UUID), 20);
+
     this->characteristicEnabled = service->createCharacteristic(
         BLE_FLAGS_CONTROL_ENABLE_CHARACTERISTICS_UUID,
         BLECharacteristic::PROPERTY_READ |
@@ -23,6 +25,8 @@ BleControlFlags::BleControlFlags(BLEService* service) {
     );
     this->characteristicValue->addDescriptor(new BLE2902());
     this->characteristicValue->setCallbacks(this);
+
+    service->start();
 }
 void BleControlFlags::onWrite(BLECharacteristic* characteristic) {
     if (characteristic->getUUID().toString() == BLE_FLAGS_CONTROL_ENABLE_CHARACTERISTICS_UUID) {
@@ -64,4 +68,7 @@ void BleControlFlags::callListeners(bool enabled, State state) {
 void BleControlFlags::notify() {
     this->characteristicEnabled->notify();
     this->characteristicValue->notify();
+}
+String BleControlFlags::getServiceUUID() {
+    return BLE_FLAGS_SERVICE_UUID;
 }

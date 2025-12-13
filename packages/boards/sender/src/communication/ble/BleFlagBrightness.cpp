@@ -5,7 +5,9 @@
 #include "BleFlagBrightness.h"
 
 
-BleFlagBrightness::BleFlagBrightness(BLEService* service) {
+BleFlagBrightness::BleFlagBrightness(BLEServer* server) {
+    BLEService* service = server->createService(BLEUUID(BLE_FLAGS_BRIGHTNESS_SERVICE_UUID), 20);
+
     this->characteristicBrightness = service->createCharacteristic(
         BLE_FLAGS_BRIGHTNESS_CHARACTERISTICS_UUID,
         BLECharacteristic::PROPERTY_READ |
@@ -15,8 +17,11 @@ BleFlagBrightness::BleFlagBrightness(BLEService* service) {
     );
     this->characteristicBrightness->addDescriptor(new BLE2902());
     this->characteristicBrightness->setCallbacks(this);
+
+    service->start();
 }
 void BleFlagBrightness::onWrite(BLECharacteristic* characteristic) {
+    Serial.printf("onWrite %s '%s'\n", characteristic->getUUID().toString().c_str(), characteristic->getValue().c_str());
     if (characteristic->getUUID().toString() == BLE_FLAGS_BRIGHTNESS_CHARACTERISTICS_UUID) {
         this->onBrightnessChange(characteristic);
     }
@@ -36,14 +41,19 @@ void BleFlagBrightness::callListeners(int brightness) {
     }
 }
 void BleFlagBrightness::notify() {
+    Serial.printf("notify: %s\n", this->characteristicBrightness->getValue());
     this->characteristicBrightness->notify();
 }
 BleFlagBrightness* BleFlagBrightness::setValue(int brightness) {
     String payload = String(brightness);
+    Serial.printf("setValue: %s\n", payload);
     if (payload == this->characteristicBrightness->getValue()) {
         return this;
     }
     this->characteristicBrightness->setValue(payload);
     this->characteristicBrightness->notify();
     return this;
+}
+String BleFlagBrightness::getServiceUUID() {
+    return BLE_FLAGS_BRIGHTNESS_SERVICE_UUID;
 }

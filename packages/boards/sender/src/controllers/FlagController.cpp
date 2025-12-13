@@ -107,6 +107,7 @@ void FlagController::setFinished(int count) {
     this->send(LightDto::createFinished(initial));
 }
 void FlagController::send(LightDto* dto) {
+    dto->setBrightnessOnAllLights(Settings::getInstance()->getFlagBrightness());
     this->now->sendBroadcast(dto->serialize());
     this->updateFlags(dto);
 }
@@ -130,7 +131,6 @@ void FlagController::initFlags() {
     }
 }
 void FlagController::updateFlags(LightDto* dto) {
-    dto->setBrightnessOnAllLights(Settings::getInstance()->getFlagBrightness());
     for (auto & element : this->flags) {
         element
             ->clear()

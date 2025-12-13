@@ -101,22 +101,38 @@ String LightDto::adjustColorToBrightness(String color, int brightness) {
     }
 
     char buff[2];
-    sprintf(buff, "%02X", brightness);
+    sprintf(buff, "%02x", brightness);
     String brightnessStr = String(buff);
 
     // short format and brightness is compatible
     if (color.length() == 3 && brightness % 16 == 0) {
-        return color + brightnessStr[0];
+        char buff2[4];
+        sprintf(buff2, "%s%s", color, brightnessStr[0]);
+        return String(buff2);
     }
 
     // short format but brightness requires long format
     if (color.length() == 3) {
-        return color[0] + color[0] + color[1] + color[1] + color[2] + color[2] + brightnessStr;
+        char buff2[8];
+        sprintf(
+            buff2,
+            "%s%s%s%s%s%s%s",
+            color[0],
+            color[0],
+            color[1],
+            color[1],
+            color[2],
+            color[2],
+            brightnessStr
+        );
+        return String(buff2);
     }
 
     // long format
     if (color.length() == 6) {
-        return color + brightnessStr;
+        char buff2[8];
+        sprintf(buff2, "%s%s", color, brightnessStr);
+        return String(buff2);
     }
 
     // fallback to same char

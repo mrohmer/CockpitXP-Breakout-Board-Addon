@@ -10,16 +10,14 @@ void Ble::init() {
     this->server = BLEDevice::createServer();
     this->server->setCallbacks(this);
 
-    this->service = this->server->createService(BLEUUID(BLE_SERVICE_UUID), 20);
-
-    this->controlFlags = new BleControlFlags(this->service);
-    this->flagDevices = new BleFlagDevices(this->service);
-    this->flagBrightness = new BleFlagBrightness(this->service);
-
-    this->service->start();
+    this->controlFlags = new BleControlFlags(this->server);
+    this->flagDevices = new BleFlagDevices(this->server);
+    this->flagBrightness = new BleFlagBrightness(this->server);
 
     BLEAdvertising *advertising = BLEDevice::getAdvertising();
-    advertising->addServiceUUID(BLE_SERVICE_UUID);
+    advertising->addServiceUUID(this->controlFlags->getServiceUUID());
+    advertising->addServiceUUID(this->flagDevices->getServiceUUID());
+    advertising->addServiceUUID(this->flagBrightness->getServiceUUID());
     advertising->setScanResponse(false);
     advertising->setMinPreferred(0x0);
     BLEDevice::startAdvertising();

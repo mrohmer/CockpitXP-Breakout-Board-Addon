@@ -9,6 +9,7 @@
 #include <BLE2902.h>
 #include <models/State.h>
 
+#define BLE_FLAGS_SERVICE_UUID "d00d3b3f-0ba9-493b-93b8-37c268f7315f"
 #define BLE_FLAGS_CONTROL_ENABLE_CHARACTERISTICS_UUID "bf191dbf-5147-440e-96d4-0f8b2080f8ce"
 #define BLE_FLAGS_CONTROL_VALUE_CHARACTERISTICS_UUID "010081b9-b828-4f92-ac11-a159ce55ead2"
 
@@ -25,10 +26,11 @@ private:
     void onControlEnabledChange(BLECharacteristic* characteristic);
     void onControlValueChange(BLECharacteristic* characteristic);
 public:
-    BleControlFlags(BLEService* service);
+    BleControlFlags(BLEServer* server);
     void onWrite(BLECharacteristic* characteristic);
     void onChange(OnBleControlInputChange onChange);
     void notify();
+    String getServiceUUID();
 };
 
 

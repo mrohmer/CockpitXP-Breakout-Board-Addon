@@ -122,6 +122,12 @@
             value
         );
     }
+    const changeBrightness = async (event) => {
+        await bluetooth.writeCharacteristicWithoutResponse(
+            characteristics.flagBrightness,
+            (event.target as HTMLInputElement).value.toString()
+        );
+    }
 </script>
 
 {#if device && characteristics?.controlEnabled && characteristics?.controlValue}
@@ -130,6 +136,20 @@
             <Characteristic characteristic={characteristics?.flagDevices}>
                 {#snippet content(value)}
                     <FlagDeviceList deviceStr={value} {characteristics} onPublishNotification={setNotification}/>
+                {/snippet}
+            </Characteristic>
+        </div>
+    </div>
+    <div class="space-y-10">
+        <div class="space-y-3">
+            <Characteristic characteristic={characteristics?.flagBrightness}>
+                {#snippet content(value)}
+                    <h2 class="text-2xl">
+                        Helligkeit
+                    </h2>
+                    <div class="transition-opacity" class:opacity-20={!value && value !== 0} class:pointer-events-none={!value && value !== 0}>
+                        <input type="range" min="0" max="255" value={value ?? 0} class="range" aria-label="Helligkeit" onchange={changeBrightness} />
+                    </div>
                 {/snippet}
             </Characteristic>
         </div>

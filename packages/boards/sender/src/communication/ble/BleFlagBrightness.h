@@ -8,7 +8,8 @@
 #include <BLEServer.h>
 #include <BLE2902.h>
 
-#define BLE_FLAGS_BRIGHTNESS_CHARACTERISTICS_UUID "bf191dbf-5147-440e-96d4-0f8b2080f8ce"
+#define BLE_FLAGS_BRIGHTNESS_SERVICE_UUID "4b8b0562-cb00-4469-948f-a36222dd4805"
+#define BLE_FLAGS_BRIGHTNESS_CHARACTERISTICS_UUID "21e1ab05-c437-458e-9d57-ba2071109980"
 
 typedef std::function<void(int)> OnBleFlagBrightnessChange;
 
@@ -20,11 +21,12 @@ private:
     void callListeners(int brightness);
     void onBrightnessChange(BLECharacteristic* characteristic);
 public:
-    BleFlagBrightness(BLEService* service);
+    BleFlagBrightness(BLEServer* server);
     void onWrite(BLECharacteristic* characteristic);
     BleFlagBrightness* onChange(OnBleFlagBrightnessChange callback);
     BleFlagBrightness* setValue(int brightness);
     void notify();
+    String getServiceUUID();
 };
 
 

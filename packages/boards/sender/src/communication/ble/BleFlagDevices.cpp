@@ -4,7 +4,9 @@
 
 #include "BleFlagDevices.h"
 
-BleFlagDevices::BleFlagDevices(BLEService* service) {
+BleFlagDevices::BleFlagDevices(BLEServer* server) {
+    BLEService* service = server->createService(BLEUUID(BLE_FLAGS_DEVICES_SERVICE_UUID), 20);
+
     characteristicDeviceState = service->createCharacteristic(
         BLE_FLAG_DEVICES_STATE_CHARACTERISTICS_UUID,
         BLECharacteristic::PROPERTY_READ |
@@ -28,6 +30,8 @@ BleFlagDevices::BleFlagDevices(BLEService* service) {
     );
     this->characteristicLightToggle->addDescriptor(new BLE2902());
     this->characteristicLightToggle->setCallbacks(this);
+
+    service->start();
 }
 void BleFlagDevices::onWrite(BLECharacteristic* characteristic) {
     if (characteristic->getUUID().toString() == BLE_FLAG_DEVICES_IDENTIFY_CHARACTERISTICS_UUID) {
@@ -72,4 +76,7 @@ void BleFlagDevices::setValue(String payload) {
     }
     this->characteristicDeviceState->setValue(payload);
     this->characteristicDeviceState->notify();
+}
+String BleFlagDevices::getServiceUUID() {
+    return BLE_FLAGS_DEVICES_SERVICE_UUID;
 }

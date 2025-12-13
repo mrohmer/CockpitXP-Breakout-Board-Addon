@@ -8,6 +8,7 @@
 #include <BLEServer.h>
 #include <BLE2902.h>
 
+#define BLE_FLAGS_DEVICES_SERVICE_UUID "70295cf8-e75d-4192-83a0-59fb20eb7444"
 #define BLE_FLAG_DEVICES_STATE_CHARACTERISTICS_UUID "b32474c1-42d6-495a-a514-47f48ee72965"
 #define BLE_FLAG_DEVICES_IDENTIFY_CHARACTERISTICS_UUID "10a1c632-b0a5-4d38-b53e-b9a652adc84b"
 #define BLE_FLAG_DEVICES_LIGHT_TOGGLE_CHARACTERISTICS_UUID "69029ed0-711a-4a96-bfec-3f414d020d0f"
@@ -28,12 +29,13 @@ private:
     void onControlIdentify(BLECharacteristic* characteristic);
     void onControlLightToggle(BLECharacteristic* characteristic);
 public:
-    BleFlagDevices(BLEService* service);
+    BleFlagDevices(BLEServer* server);
     void onWrite(BLECharacteristic* characteristic);
     void onIdentify(OnBleIdentify callback);
     void onLightToggle(OnBleLightToggle callback);
     void setValue(String payload);
     void notify();
+    String getServiceUUID();
 };
 
 #endif //COCKPITXP_BREAKOUT_BOARD_ADDON_BLEFLAGDEVICES_H

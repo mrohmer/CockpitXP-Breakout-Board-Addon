@@ -6,22 +6,25 @@ const useEvents = true;
 type Characteristics =
     | 'controlEnabled'
     | 'controlValue'
+    | 'flagBrightness'
     | 'flagDevices'
     | 'flagDeviceIdentify'
     | 'flagDeviceToggleLight';
 export type ConnectResult = {
     device: BluetoothDevice;
     server: BluetoothRemoteGATTServer;
-    service: BluetoothRemoteGATTService;
     characteristics: Record<Characteristics, BluetoothRemoteGATTCharacteristic>
 }
 
-const SERVICE_UUID = "674b98c9-f0d7-434f-9ab2-1266a0655abc";
+const BLE_FLAGS_CONTROL_SERVICE_UUID = "d00d3b3f-0ba9-493b-93b8-37c268f7315f";
+const BLE_FLAG_DEVICES_SERVICE_UUID = "70295cf8-e75d-4192-83a0-59fb20eb7444";
+const BLE_FLAGS_BRIGHTNESS_SERVICE_UUID = "4b8b0562-cb00-4469-948f-a36222dd4805";
 const BLE_FLAGS_CONTROL_ENABLE_CHARACTERISTICS_UUID = "bf191dbf-5147-440e-96d4-0f8b2080f8ce";
 const BLE_FLAGS_CONTROL_VALUE_CHARACTERISTICS_UUID = "010081b9-b828-4f92-ac11-a159ce55ead2";
 const BLE_FLAG_DEVICES_STATE_CHARACTERISTICS_UUID = "b32474c1-42d6-495a-a514-47f48ee72965";
 const BLE_FLAG_DEVICES_IDENTIFY_CHARACTERISTICS_UUID = "10a1c632-b0a5-4d38-b53e-b9a652adc84b";
 const BLE_FLAG_DEVICES_LIGHT_TOGGLE_CHARACTERISTICS_UUID = "69029ed0-711a-4a96-bfec-3f414d020d0f";
+const BLE_FLAGS_BRIGHTNESS_CHARACTERISTICS_UUID = "21e1ab05-c437-458e-9d57-ba2071109980"
 
 const isSupported = () => browser && typeof navigator?.bluetooth !== "undefined";
 const hasPermission = async (): Promise<boolean> => {
@@ -34,14 +37,18 @@ const createConnectionResult = async (device: BluetoothDevice) => {
     }
 
     const server = await device.gatt.connect();
-    const service = await server.getPrimaryService(SERVICE_UUID);
+    const flagsControlService = await server.getPrimaryService(BLE_FLAGS_CONTROL_SERVICE_UUID);
+    const flagDevicesService = await server.getPrimaryService(BLE_FLAG_DEVICES_SERVICE_UUID);
+    const flagBrightnessService = await server.getPrimaryService(BLE_FLAGS_BRIGHTNESS_SERVICE_UUID);
 
-    const [controlEnabled, controlValue, flagDevices, flagDeviceIdentify, flagDeviceToggleLight] = await Promise.all([
-            service.getCharacteristic(BLE_FLAGS_CONTROL_ENABLE_CHARACTERISTICS_UUID),
-            service.getCharacteristic(BLE_FLAGS_CONTROL_VALUE_CHARACTERISTICS_UUID),
-            service.getCharacteristic(BLE_FLAG_DEVICES_STATE_CHARACTERISTICS_UUID),
-            service.getCharacteristic(BLE_FLAG_DEVICES_IDENTIFY_CHARACTERISTICS_UUID),
-            service.getCharacteristic(BLE_FLAG_DEVICES_LIGHT_TOGGLE_CHARACTERISTICS_UUID),
+
+    const [controlEnabled, controlValue, flagDevices, flagDeviceIdentify, flagDeviceToggleLight, flagBrightness] = await Promise.all([
+            flagsControlService.getCharacteristic(BLE_FLAGS_CONTROL_ENABLE_CHARACTERISTICS_UUID),
+            flagsControlService.getCharacteristic(BLE_FLAGS_CONTROL_VALUE_CHARACTERISTICS_UUID),
+            flagDevicesService.getCharacteristic(BLE_FLAG_DEVICES_STATE_CHARACTERISTICS_UUID),
+            flagDevicesService.getCharacteristic(BLE_FLAG_DEVICES_IDENTIFY_CHARACTERISTICS_UUID),
+            flagDevicesService.getCharacteristic(BLE_FLAG_DEVICES_LIGHT_TOGGLE_CHARACTERISTICS_UUID),
+            flagBrightnessService.getCharacteristic(BLE_FLAGS_BRIGHTNESS_CHARACTERISTICS_UUID),
         ]
             .map(p => p.catch(e => {
                 console.error(e);
@@ -49,8 +56,15 @@ const createConnectionResult = async (device: BluetoothDevice) => {
             }))
     );
 
-    const characteristics: ConnectResult['characteristics'] = {controlEnabled, controlValue, flagDevices, flagDeviceIdentify, flagDeviceToggleLight};
-    return {device, server, service, characteristics};
+    const characteristics: ConnectResult['characteristics'] = {
+        controlEnabled,
+        controlValue,
+        flagDevices,
+        flagDeviceIdentify,
+        flagDeviceToggleLight,
+        flagBrightness
+    };
+    return {device, server, characteristics};
 }
 const internalTryReconnect = async (device: BluetoothDevice) => {
     await device.watchAdvertisements();
@@ -99,7 +113,7 @@ const connect = async (): Promise<ConnectResult | undefined> => {
 
     const device = await navigator?.bluetooth.requestDevice({
         filters: [{namePrefix: "CMA"}],
-        optionalServices: [SERVICE_UUID]
+        optionalServices: [BLE_FLAGS_CONTROL_SERVICE_UUID, BLE_FLAG_DEVICES_SERVICE_UUID, BLE_FLAGS_BRIGHTNESS_SERVICE_UUID],
     });
     console.log(device);
     try {
