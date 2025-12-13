@@ -86,6 +86,9 @@ String LightDto::adjustColorToBrightness(String color, int brightness) {
     if (brightness == 0) {
         return "000";
     }
+    if (color == "000" || color == "000000") {
+        return "000";
+    }
 
     // remove alpha from color string
     if (color.length() == 4) {
@@ -107,7 +110,7 @@ String LightDto::adjustColorToBrightness(String color, int brightness) {
     // short format and brightness is compatible
     if (color.length() == 3 && brightness % 16 == 0) {
         char buff2[4];
-        sprintf(buff2, "%s%s", color, brightnessStr[0]);
+        sprintf(buff2, "%s%c", color.c_str(), brightnessStr[0]);
         return String(buff2);
     }
 
@@ -116,14 +119,14 @@ String LightDto::adjustColorToBrightness(String color, int brightness) {
         char buff2[8];
         sprintf(
             buff2,
-            "%s%s%s%s%s%s%s",
-            color[0],
-            color[0],
-            color[1],
-            color[1],
-            color[2],
-            color[2],
-            brightnessStr
+            "%c%c%c%c%c%c%s",
+            color.charAt(0),
+            color.charAt(0),
+            color.charAt(1),
+            color.charAt(1),
+            color.charAt(2),
+            color.charAt(2),
+            brightnessStr.c_str()
         );
         return String(buff2);
     }
@@ -131,7 +134,7 @@ String LightDto::adjustColorToBrightness(String color, int brightness) {
     // long format
     if (color.length() == 6) {
         char buff2[8];
-        sprintf(buff2, "%s%s", color, brightnessStr);
+        sprintf(buff2, "%s%s", color.c_str(), brightnessStr.c_str());
         return String(buff2);
     }
 
