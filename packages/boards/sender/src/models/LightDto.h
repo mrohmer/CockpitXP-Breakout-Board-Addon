@@ -20,7 +20,8 @@ public:
     String lights[4];
     static LightDto* createGreen(bool on);
     static LightDto* createRed();
-    static LightDto* createChaos(bool initial);
+    static LightDto* createChaosStyle1(bool initial);
+    static LightDto* createChaosStyle2(bool initial);
     static LightDto* createFinished(bool initial);
     static LightDto* createProgress(float progress);
     static LightDto* createBleConnection();

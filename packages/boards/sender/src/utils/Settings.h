@@ -10,6 +10,7 @@
 #include "Ticker.h"
 
 #define KEY_FLAG_BRIGHTNESS "FLAG_BRIGHTNESS"
+#define KEY_CHAOS_STYLE "CHAOS_STYLE"
 
 class Settings {
 private:
@@ -19,6 +20,8 @@ private:
     Preferences preferences;
     void restartTicker();
     void flush();
+    void setInt(String key, int value);
+    int getInt(String key, int defaultValue);
 public:
     static Settings* getInstance() {
         if (!instance) {
@@ -29,6 +32,8 @@ public:
     void init();
     int getFlagBrightness();
     void setFlagBrightness(int brightness);
+    int getChaosStyle();
+    void setChaosStyle(int style);
 };
 
 

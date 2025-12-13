@@ -23,13 +23,16 @@ LightDto* LightDto::createCheckered(bool initial, String vOn, String vOff) {
     String v2 = initial ? vOff : vOn;
     return new LightDto(v1, v2, v1, v2);
 }
-LightDto* LightDto::createChaos(bool initial) {
+LightDto* LightDto::createChaosStyle1(bool initial) {
     String on = "ff9600";
     String off = "000";
     return new LightDto(on, initial ? on : off, on, initial ? off : on);
 }
+LightDto* LightDto::createChaosStyle2(bool initial) {
+    return createCheckered(initial, "ff9600", "000");
+}
 LightDto* LightDto::createFinished(bool initial) {
-    return createCheckered(initial, "fff2", "000");
+    return createCheckered(initial, "fff", "000");
 }
 LightDto* LightDto::createProgress(float progress) {
     int v = (progress / 4) * 256;

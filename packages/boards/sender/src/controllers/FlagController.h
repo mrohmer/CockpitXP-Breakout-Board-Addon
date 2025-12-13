@@ -15,6 +15,9 @@
 #include "utils/Settings.h"
 #include <vector>
 
+#define VALUE_CHAOS_STYLE_1 "DIAGONAL"
+#define VALUE_CHAOS_STYLE_2 "CHECKERED"
+
 class FlagController {
 private:
     Input* input;
@@ -47,6 +50,7 @@ private:
     void updateStateFlags(LightDto* dto);
     void updateBleControl(bool enabled, State state);
     void updateBrightness(int brightness);
+    void updateChaosStyle(String style);
     void setBleConnected(bool connected);
 	bool mirrorFlagToStatusFlag();
 public:

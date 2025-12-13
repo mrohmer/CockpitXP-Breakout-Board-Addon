@@ -12,12 +12,12 @@ void Ble::init() {
 
     this->controlFlags = new BleControlFlags(this->server);
     this->flagDevices = new BleFlagDevices(this->server);
-    this->flagBrightness = new BleFlagBrightness(this->server);
+    this->lightConfig = new BleFlagLightConfig(this->server);
 
     BLEAdvertising *advertising = BLEDevice::getAdvertising();
     advertising->addServiceUUID(this->controlFlags->getServiceUUID());
     advertising->addServiceUUID(this->flagDevices->getServiceUUID());
-    advertising->addServiceUUID(this->flagBrightness->getServiceUUID());
+    advertising->addServiceUUID(this->lightConfig->getServiceUUID());
     advertising->setScanResponse(false);
     advertising->setMinPreferred(0x0);
     BLEDevice::startAdvertising();
@@ -29,7 +29,7 @@ void Ble::onConnect(BLEServer *server) {
     // notify characteristcs
     this->controlFlags->notify();
     this->flagDevices->notify();
-    this->flagBrightness->notify();
+    this->lightConfig->notify();
 }
 void Ble::onDisconnect(BLEServer *server) {
     connected = false;
@@ -44,8 +44,8 @@ BleControlFlags* Ble::getControlFlags() {
 BleFlagDevices* Ble::getFlagDevices() {
     return this->flagDevices;
 }
-BleFlagBrightness* Ble::getFlagBrightness() {
-    return this->flagBrightness;
+BleFlagLightConfig* Ble::getLightConfig() {
+    return this->lightConfig;
 }
 void Ble::onConnectionChange(BleOnConnectionChangeCallback callback) {
     this->onConnectionChangeListeners.insert(this->onConnectionChangeListeners.end(), callback);

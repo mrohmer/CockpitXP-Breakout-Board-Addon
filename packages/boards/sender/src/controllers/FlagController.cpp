@@ -19,9 +19,11 @@ void FlagController::init() {
 
     this->ble->onConnectionChange(std::bind(&FlagController::setBleConnected, this, std::placeholders::_1));
     this->ble->getControlFlags()->onChange(std::bind(&FlagController::updateBleControl, this, std::placeholders::_1, std::placeholders::_2));
-    this->ble->getFlagBrightness()
-        ->setValue(Settings::getInstance()->getFlagBrightness())
-        ->onChange(std::bind(&FlagController::updateBrightness, this, std::placeholders::_1));
+    this->ble->getLightConfig()
+        ->setBrightness(Settings::getInstance()->getFlagBrightness())
+        ->setChaosStyle(Settings::getInstance()->getChaosStyle() == 2 ? VALUE_CHAOS_STYLE_2 : VALUE_CHAOS_STYLE_1)
+        ->onBrightnessChange(std::bind(&FlagController::updateBrightness, this, std::placeholders::_1))
+        ->onChaosStyleChange(std::bind(&FlagController::updateChaosStyle, this, std::placeholders::_1));
 }
 void FlagController::onChange(State state) {
 	if (this->isBleControl) {
@@ -100,7 +102,11 @@ void FlagController::setGreen(int count) {
 }
 void FlagController::setChaos(int count) {
     bool initial = count % 2 == 0;
-    this->send(LightDto::createChaos(initial));
+    if (Settings::getInstance()->getChaosStyle() == 2) {
+        this->send(LightDto::createChaosStyle2(initial));
+    } else {
+        this->send(LightDto::createChaosStyle1(initial));
+    }
 }
 void FlagController::setFinished(int count) {
     bool initial = count % 2 == 0;
@@ -190,4 +196,7 @@ bool FlagController::mirrorFlagToStatusFlag() {
 }
 void FlagController::updateBrightness(int brightness) {
     Settings::getInstance()->setFlagBrightness(brightness);
+}
+void FlagController::updateChaosStyle(String style) {
+    Settings::getInstance()->setChaosStyle(style == VALUE_CHAOS_STYLE_2 ? 2 : 1);
 }

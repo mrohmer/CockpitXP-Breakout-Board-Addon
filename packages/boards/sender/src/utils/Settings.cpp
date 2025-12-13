@@ -20,13 +20,25 @@ void Settings::flush() {
     }
     this->debouncedInts.clear();
 }
-void Settings::setFlagBrightness(int brightness) {
+void Settings::setInt(String key, int value) {
     this->restartTicker();
-    this->debouncedInts[KEY_FLAG_BRIGHTNESS] = std::min(std::max(brightness, 0), 255);
+    this->debouncedInts[key] = value;
+}
+int Settings::getInt(String key, int defaultValue) {
+    if (this->debouncedInts.find(key) != this->debouncedInts.end()) {
+        return this->debouncedInts[key];
+    }
+    return this->preferences.getInt(key.c_str(), defaultValue);
+}
+void Settings::setFlagBrightness(int brightness) {
+    this->setInt(KEY_FLAG_BRIGHTNESS, std::min(std::max(brightness, 0), 255));
 }
 int Settings::getFlagBrightness() {
-    if (this->debouncedInts.find(KEY_FLAG_BRIGHTNESS) != this->debouncedInts.end()) {
-        return this->debouncedInts[KEY_FLAG_BRIGHTNESS];
-    }
-    return this->preferences.getInt(KEY_FLAG_BRIGHTNESS, 34); // 22
+    return this->getInt(KEY_FLAG_BRIGHTNESS, 34); // RRGGBB22
+}
+void Settings::setChaosStyle(int style) {
+    this->setInt(KEY_CHAOS_STYLE, style);
+}
+int Settings::getChaosStyle() {
+    return this->getInt(KEY_CHAOS_STYLE, 1);
 }

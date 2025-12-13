@@ -128,57 +128,90 @@
             (event.target as HTMLInputElement).value.toString()
         );
     }
+    const changeChaosStyle = async (event) => {
+        await bluetooth.writeCharacteristicWithoutResponse(
+            characteristics.chaosStyle,
+            (event.target as HTMLInputElement).value.toString()
+        );
+    }
 </script>
 
 {#if device && characteristics?.controlEnabled && characteristics?.controlValue}
-    <div class="space-y-10">
-        <div class="space-y-3">
-            <Characteristic characteristic={characteristics?.flagDevices}>
-                {#snippet content(value)}
-                    <FlagDeviceList deviceStr={value} {characteristics} onPublishNotification={setNotification}/>
-                {/snippet}
-            </Characteristic>
+    <div class="flex flex-col gap-16">
+        <div class="space-y-20">
+            <div class="space-y-3">
+                <Characteristic characteristic={characteristics?.flagDevices}>
+                    {#snippet content(value)}
+                        <FlagDeviceList deviceStr={value} {characteristics} onPublishNotification={setNotification}/>
+                    {/snippet}
+                </Characteristic>
+            </div>
         </div>
-    </div>
-    <div class="space-y-10">
-        <div class="space-y-3">
-            <Characteristic characteristic={characteristics?.flagBrightness}>
-                {#snippet content(value)}
-                    <h2 class="text-2xl">
-                        Helligkeit
-                    </h2>
-                    <div class="transition-opacity" class:opacity-20={!value && value !== 0} class:pointer-events-none={!value && value !== 0}>
-                        <input type="range" min="0" max="255" value={value ?? 0} class="range" aria-label="Helligkeit" onchange={changeBrightness} />
-                    </div>
-                {/snippet}
-            </Characteristic>
-        </div>
-    </div>
-    <div class="space-y-10">
-        <div class="space-y-3">
-            <h2 class="text-2xl">
-                Manuelle Steuerung
-            </h2>
-            <Characteristic characteristic={characteristics?.controlEnabled}>
-                {#snippet content(enabled)}
-                    <div>
-                        <label class="label">
-                            <input type="checkbox" checked={enabled === "true"} class="toggle" onchange={e => changeEnabled(e.target.checked)} />
-                            Enabled
-                        </label>
-                    </div>
-                    <Characteristic characteristic={characteristics?.controlValue}>
-                        {#snippet content(value)}
-                            <div class="join">
-                                <input class="join-item btn" type="radio" name="control_value_options" checked={value === "RED" || !value} value="RED" aria-label="RED" onchange={e => e.target.checked && changeValue(e.target.value)} />
-                                <input class="join-item btn" type="radio" name="control_value_options" checked={value === "GREEN"} value="GREEN" aria-label="GREEN" onchange={e => e.target.checked && changeValue(e.target.value)} />
-                                <input class="join-item btn" type="radio" name="control_value_options" checked={value === "CHAOS"} value="CHAOS" aria-label="CHAOS" onchange={e => e.target.checked && changeValue(e.target.value)} />
-                                <input class="join-item btn" type="radio" name="control_value_options" checked={value === "FINISH"} value="FINISH" aria-label="FINISH" onchange={e => e.target.checked && changeValue(e.target.value)} />
+        <div class="space-y-20">
+            <div class="space-y-3">
+                <h2 class="text-2xl">
+                    Konfiguration
+                </h2>
+                <Characteristic characteristic={characteristics?.flagBrightness}>
+                    {#snippet content(value)}
+                        <div class="flex gap-2 items-center">
+                            <label for="brightness" class="block w-40">
+                                Helligkeit
+                            </label>
+                            <div class="flex-1 transition-opacity" class:opacity-20={!value && value !== 0} class:pointer-events-none={!value && value !== 0}>
+                                <input id="brightness" type="range" min="0" max="255" value={value ?? 0} class="range" aria-label="Helligkeit" onchange={changeBrightness} />
                             </div>
-                        {/snippet}
-                    </Characteristic>
-                {/snippet}
-            </Characteristic>
+                        </div>
+                    {/snippet}
+                </Characteristic>
+                <Characteristic characteristic={characteristics?.chaosStyle}>
+                    {#snippet content(value)}
+                        {#if value} <!-- as it may not be exposed by the esp yet -->
+                            <div class="flex gap-2 items-center">
+                                <label class="block w-40" for="chaos_style">
+                                    Chaos Darstellung
+                                </label>
+                                <div class="flex-1 transition-opacity" class:opacity-20={!value} class:pointer-events-none={!value} onchange={changeChaosStyle}>
+                                    <select id="chaos_style" class="select" {value}>
+                                        <option value="CHECKERED">Flagge</option>
+                                        <option value="DIAGONAL">Fixe Diagonale</option>
+                                    </select>
+                                </div>
+                            </div>
+                        {/if}
+                    {/snippet}
+                </Characteristic>
+            </div>
+        </div>
+        <div class="space-y-20">
+            <div class="space-y-3">
+                <Characteristic characteristic={characteristics?.controlEnabled}>
+                    {#snippet content(enabled)}
+                        <div class="flex gap-1">
+                            <h2 class="text-2xl flex-1">
+                                Manuelle Steuerung
+                            </h2>
+                            <div>
+                                <div>
+                                    <label class="label">
+                                        <input type="checkbox" checked={enabled === "true"} class="toggle" onchange={e => changeEnabled(e.target.checked)} />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <Characteristic characteristic={characteristics?.controlValue}>
+                            {#snippet content(value)}
+                                <div class="join">
+                                    <input class="join-item btn" type="radio" name="control_value_options" checked={value === "RED" || !value} value="RED" aria-label="RED" onchange={e => e.target.checked && changeValue(e.target.value)} />
+                                    <input class="join-item btn" type="radio" name="control_value_options" checked={value === "GREEN"} value="GREEN" aria-label="GREEN" onchange={e => e.target.checked && changeValue(e.target.value)} />
+                                    <input class="join-item btn" type="radio" name="control_value_options" checked={value === "CHAOS"} value="CHAOS" aria-label="CHAOS" onchange={e => e.target.checked && changeValue(e.target.value)} />
+                                    <input class="join-item btn" type="radio" name="control_value_options" checked={value === "FINISH"} value="FINISH" aria-label="FINISH" onchange={e => e.target.checked && changeValue(e.target.value)} />
+                                </div>
+                            {/snippet}
+                        </Characteristic>
+                    {/snippet}
+                </Characteristic>
+            </div>
         </div>
     </div>
 {:else if !device && !connecting && !disconnecting}
