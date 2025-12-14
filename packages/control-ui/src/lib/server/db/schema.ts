@@ -1,6 +1,11 @@
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import {sqliteTable, text} from 'drizzle-orm/sqlite-core';
+import {sql} from "drizzle-orm";
 
-export const user = sqliteTable('user', {
+export const flags = sqliteTable('flags', {
 	id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-	age: integer('age')
+	createdAt: text('timestamp')
+        .notNull()
+        .default(sql`(current_timestamp)`),
+    name: text('name'),
+    mac: text('mac').unique(),
 });
