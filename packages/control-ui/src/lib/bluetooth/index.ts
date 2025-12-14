@@ -165,6 +165,8 @@ const readCharacteristic = async (characteristic: BluetoothRemoteGATTCharacteris
             return undefined;
         }
 
+        console.log(characteristic.uuid, decoded);
+
         return decoded;
     } finally {
         interactingWithCharacteristic = false;

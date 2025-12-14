@@ -154,7 +154,7 @@
                 </h2>
                 <Characteristic characteristic={characteristics?.flagBrightness}>
                     {#snippet content(value)}
-                        <div class="flex gap-2 items-center">
+                        <div class="flex gap-2 flex-col sm:items-center sm:flex-row">
                             <label for="brightness" class="block w-40">
                                 Helligkeit
                             </label>
@@ -167,7 +167,7 @@
                 <Characteristic characteristic={characteristics?.chaosStyle}>
                     {#snippet content(value)}
                         {#if value} <!-- as it may not be exposed by the esp yet -->
-                            <div class="flex gap-2 items-center">
+                            <div class="flex gap-2 flex-col sm:items-center sm:flex-row">
                                 <label class="block w-40" for="chaos_style">
                                     Chaos Darstellung
                                 </label>
