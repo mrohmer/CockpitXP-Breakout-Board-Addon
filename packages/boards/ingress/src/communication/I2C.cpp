@@ -1,0 +1,51 @@
+#include "I2C.h"
+
+#ifdef ESP32
+I2C::I2C(int sdaPin, int sclPin) {
+    this->sdaPin = sdaPin;
+    this->sclPin = sclPin;
+}
+void I2C::init() {
+    Wire.begin(this->sdaPin, this->sclPin);
+}
+#else
+void I2C::init() {
+    Wire.begin();
+}
+#endif
+
+void I2C::registerSend() {
+    this->needsSend = true;
+}
+#ifdef ESP32
+void I2C::send(String data) {
+#else
+void I2C::send(char* data) {
+#endif
+    int nDevices = 0;
+    int error, address;
+    for(address = 1; address < 127; address++ ) {
+        Wire.beginTransmission(address);
+#ifdef ESP32
+        Wire.print(data.c_str());
+#else
+        Wire.write(data);
+#endif
+        error = Wire.endTransmission();
+        if (error == 0) {
+            nDevices++;
+        } else if (error != 2) {
+            Serial.print("Unknow error at address 0x");
+            if (address<16) {
+                Serial.print("0");
+            }
+            Serial.print(address,HEX);
+            Serial.print(": ");
+            Serial.println(error);
+        }
+    }
+
+    Serial.print("Sent to ");
+    Serial.print(nDevices);
+    Serial.println(" devices.\n");
+}

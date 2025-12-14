@@ -2,3 +2,6 @@
 
 packages:
   - "packages/*"
+  - "packages/boards/*"
+onlyBuiltDependencies:
+  - esbuild
